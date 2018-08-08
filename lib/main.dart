@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'ContactPage.dart';
 
+import 'package:http/http.dart';
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -9,19 +11,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
         home: new LoginPage(),
-        theme: new ThemeData(
-            primarySwatch: Colors.lightBlue
-        )
-    );
+        theme: new ThemeData(primarySwatch: Colors.lightBlue));
   }
 }
 
-class LoginPage extends StatefulWidget{
+class LoginPage extends StatefulWidget {
   @override
   State createState() => new LoginPageState();
 }
 
-class LoginPageState extends State<LoginPage>with SingleTickerProviderStateMixin {
+class LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
+
+  //Datafields
+  String _username = '';
+  String _password = '';
+
   AnimationController _iconAnimationController;
   Animation<double> _iconAnimation;
 
@@ -30,19 +35,13 @@ class LoginPageState extends State<LoginPage>with SingleTickerProviderStateMixin
     // TODO: implement initState
     super.initState();
     _iconAnimationController = new AnimationController(
-
-
-        vsync: this,
-        duration: new Duration(milliseconds: 1000)
-    );
+        vsync: this, duration: new Duration(milliseconds: 1000));
     _iconAnimation = new CurvedAnimation(
-        parent: _iconAnimationController, curve: Curves.easeOut
-    );
+        parent: _iconAnimationController, curve: Curves.easeOut);
 
     _iconAnimation.addListener(() => this.setState(() {}));
     _iconAnimationController.forward();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -55,26 +54,25 @@ class LoginPageState extends State<LoginPage>with SingleTickerProviderStateMixin
           new FlutterLogo(
             size: _iconAnimation.value * 100,
           ),
-          new Form(child: new Column(
+          new Form(
+              child: new Column(
             children: <Widget>[
               new TextFormField(
-                  decoration: new InputDecoration(
-                    hintText: "Enter Emial",
-              contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(32.0)
-              )
-          ),
+                decoration: new InputDecoration(
+                    hintText: "Enter Email",
+                    contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(32.0))),
+                onSaved: (val) => _username = val,
               ),
               new TextFormField(
-                  decoration: new InputDecoration(
+                decoration: new InputDecoration(
                     hintText: "Enter Password",
-                      contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(32.0)
-                      )
-                  ),
-                  ),
+                    contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(32.0))),
+                onSaved: (val) => _password = val,
+              ),
               new Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Material(
@@ -85,15 +83,14 @@ class LoginPageState extends State<LoginPage>with SingleTickerProviderStateMixin
                     minWidth: 200.0,
                     height: 42.00,
                     onPressed: () {
-                Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ContactsPage()),
-                );
-                },
-                    color:Colors.lightBlueAccent,
-                    child:Text('Log in', style: TextStyle(color: Colors.white)),
-
-
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ContactsPage()),
+                      );
+                    },
+                    color: Colors.lightBlueAccent,
+                    child:
+                        Text('Log in', style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ),
@@ -104,17 +101,9 @@ class LoginPageState extends State<LoginPage>with SingleTickerProviderStateMixin
                 ),
                 onPressed: null,
               )
-
-
             ],
-          )
-
-
-          ),
-
+          )),
         ],
-
-
       ),
     );
   }
