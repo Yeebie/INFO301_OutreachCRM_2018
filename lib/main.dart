@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'ContactPage.dart';
 import 'package:validate/validate.dart';
 
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http; //Used to utilise REST operations
+import 'dart:convert'; //Used to convert json into maps
 
 void main() => runApp(new MyApp());
 
@@ -23,10 +24,13 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-
   //Datafields
   String _username = '';
   String _password = '';
+  String _urlStart =
+      'https://info301.outreach.co.nz/api/0.2/auth/login'; //Uses INFO301 domain
+  String _urlUsername = '?username=';
+  String _urlLastname = '&password=';
 
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
@@ -57,22 +61,46 @@ class LoginPageState extends State<LoginPage>
     return null;
   }
 
+  ///Login Button
+  ///Grabs the username and password, adds them to a string to create a URL
+  ///The URL is used to access Outreach, and retrieve the API key
   void _loginButton({String pass, String email}) {
-   //Will need to sanitise and validate for unexpected characters
+    //Will need to sanitise and validate for unexpected characters
     this._username = email;
     this._password = pass;
     print(_username);
     print(_password);
 
-    String request = "https://info301.outreach.co.nz/api/0.2/auth/login/?username=" + _username + "&password=" + _password;
+    ///How do we login without specifying the INFO301 prefix? Is there a generic login screen? Are we missing something?
+    String _request =
+        "https://info301.outreach.co.nz/api/0.2/auth/login/?username=" +
+            _username +
+            "&password=" +
+            _password;
+    print(_request);
+
+    ///Retrieving the API Key and storing it as a String (1:25AM, 10/08/18 | Doesn't take incorrect passwords into account)
+    http.post(_request).then((response) {
+      //Print the API Key, just so we can compare it to the subset String
+      print("Original Response body: ${response.body}");
+      //Turning the json into a map
+      Map apiKeyMap = json.decode(response.body);
+      //Converting the map into a string
+      String apiKey = apiKeyMap.toString();
+      //Trimming the string using string.subset(), should be safe, assumes character positions never change
+      apiKey = apiKey.substring(13, (apiKey.length - 2));
+      print("This is the API Key: \"" + apiKey +"\"");
+    });
 
     //Send the request and store it in an object
-
 
     //Successful login
     emailController.clear();
     passwordController.clear();
-    Navigator.push(context,MaterialPageRoute(builder: (context) => ContactsPage()),);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ContactsPage()),
+    );
   }
 
   @override
@@ -89,6 +117,7 @@ class LoginPageState extends State<LoginPage>
           new Form(
               child: new Column(
             children: <Widget>[
+              ///Email Text Field
               new TextFormField(
                 keyboardType: TextInputType.emailAddress,
                 controller: emailController,
@@ -98,10 +127,11 @@ class LoginPageState extends State<LoginPage>
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(32.0))),
                 //Validation not working atm
-                validator: this._validateEmail,        
+                validator: this._validateEmail,
                 onSaved: (val) => _username = val,
-                
               ),
+
+              ///Password Text Field
               new TextFormField(
                 controller: passwordController,
                 obscureText: true,
@@ -123,10 +153,8 @@ class LoginPageState extends State<LoginPage>
                     height: 42.00,
                     onPressed: () {
                       _loginButton(
-                      email: this.emailController.text,
-                      pass: this.passwordController.text
-                  );
-                      
+                          email: this.emailController.text,
+                          pass: this.passwordController.text);
                     },
                     color: Colors.lightBlueAccent,
                     child:
