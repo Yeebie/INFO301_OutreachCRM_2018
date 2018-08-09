@@ -27,6 +27,9 @@ class LoginPageState extends State<LoginPage>
   String _username = '';
   String _password = '';
 
+  final TextEditingController emailController = new TextEditingController();
+  final TextEditingController passwordController = new TextEditingController();
+
   AnimationController _iconAnimationController;
   Animation<double> _iconAnimation;
 
@@ -41,6 +44,19 @@ class LoginPageState extends State<LoginPage>
 
     _iconAnimation.addListener(() => this.setState(() {}));
     _iconAnimationController.forward();
+  }
+
+  void _loginButton({String pass, String email}) {
+    print("Login from Page");
+    this._username = email;
+    this._password = pass;
+    print(_username);
+    print(_password);
+
+    String request = "https://info301.outreach.co.nz/api/0.2/auth/login/?username=andrew@outreach.co.nz&password=foo";
+
+    //Successful login
+    Navigator.push(context,MaterialPageRoute(builder: (context) => ContactsPage()),);
   }
 
   @override
@@ -58,6 +74,7 @@ class LoginPageState extends State<LoginPage>
               child: new Column(
             children: <Widget>[
               new TextFormField(
+                controller: emailController,
                 decoration: new InputDecoration(
                     hintText: "Enter Email",
                     contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
@@ -66,6 +83,7 @@ class LoginPageState extends State<LoginPage>
                 onSaved: (val) => _username = val,
               ),
               new TextFormField(
+                controller: passwordController,
                 decoration: new InputDecoration(
                     hintText: "Enter Password",
                     contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
@@ -83,10 +101,11 @@ class LoginPageState extends State<LoginPage>
                     minWidth: 200.0,
                     height: 42.00,
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ContactsPage()),
-                      );
+                      _loginButton(
+                      email: this.emailController.text,
+                      pass: this.passwordController.text
+                  );
+                      
                     },
                     color: Colors.lightBlueAccent,
                     child:
