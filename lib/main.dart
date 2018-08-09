@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ContactPage.dart';
+import 'package:validate/validate.dart';
 
 import 'package:http/http.dart';
 
@@ -46,16 +47,31 @@ class LoginPageState extends State<LoginPage>
     _iconAnimationController.forward();
   }
 
+  String _validateEmail(String value) {
+    print("I got called");
+    try {
+      Validate.isEmail(value);
+    } catch (e) {
+      return 'The E-mail Address must be a valid email address.';
+    }
+    return null;
+  }
+
   void _loginButton({String pass, String email}) {
-    print("Login from Page");
+   //Will need to sanitise and validate for unexpected characters
     this._username = email;
     this._password = pass;
     print(_username);
     print(_password);
 
-    String request = "https://info301.outreach.co.nz/api/0.2/auth/login/?username=andrew@outreach.co.nz&password=foo";
+    String request = "https://info301.outreach.co.nz/api/0.2/auth/login/?username=" + _username + "&password=" + _password;
+
+    //Send the request and store it in an object
+
 
     //Successful login
+    emailController.clear();
+    passwordController.clear();
     Navigator.push(context,MaterialPageRoute(builder: (context) => ContactsPage()),);
   }
 
@@ -74,16 +90,21 @@ class LoginPageState extends State<LoginPage>
               child: new Column(
             children: <Widget>[
               new TextFormField(
+                keyboardType: TextInputType.emailAddress,
                 controller: emailController,
                 decoration: new InputDecoration(
                     hintText: "Enter Email",
                     contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(32.0))),
+                //Validation not working atm
+                validator: this._validateEmail,        
                 onSaved: (val) => _username = val,
+                
               ),
               new TextFormField(
                 controller: passwordController,
+                obscureText: true,
                 decoration: new InputDecoration(
                     hintText: "Enter Password",
                     contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
