@@ -22,17 +22,29 @@ class LoginPage extends StatefulWidget {
   State createState() => new LoginPageState();
 }
 
+class LoginFields {
+  String _username = '';
+  String _password = '';
+
+  ///Temporary for now. We will need to read this in from the user when they
+  ///run the app for the first time. We will also need to check that the domain they
+  ///entered is valid
+  String _domain = "info301";
+}
+
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   //Datafields
-  String _username = '';
-  String _password = '';
+
+  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  LoginFields _fields = new LoginFields();
+
   String _urlStart =
       'https://info301.outreach.co.nz/api/0.2/auth/login'; //Uses INFO301 domain
   String _urlUsername = '?username=';
   String _urlLastname = '&password=';
 
-  final TextEditingController emailController = new TextEditingController();
+  final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
   AnimationController _iconAnimationController;
@@ -52,55 +64,102 @@ class LoginPageState extends State<LoginPage>
   }
 
   String _validateEmail(String value) {
-    print("I got called");
     try {
       Validate.isEmail(value);
     } catch (e) {
-      return 'The E-mail Address must be a valid email address.';
+      if (value == "") {
+        return "Please enter a username";
+      } else {
+        return 'The username must be a valid email address.';
+      }
     }
     return null;
   }
 
-  ///Login Button
-  ///Grabs the username and password, adds them to a string to create a URL
-  ///The URL is used to access Outreach, and retrieve the API key
-  void _loginButton({String pass, String email}) {
-    //Will need to sanitise and validate for unexpected characters
-    this._username = email;
-    this._password = pass;
-    print(_username);
-    print(_password);
+  void showDialogParent(String title, String content) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(title),
+              content: new Text(content),
+            ));
+  }
 
-    ///How do we login without specifying the INFO301 prefix? Is there a generic login screen? Are we missing something?
-    String _request =
-        "https://info301.outreach.co.nz/api/0.2/auth/login/?username=" +
-            _username +
+  void _loginButton() {
+    //This checks if the form validates
+    try {
+      if (this._formKey.currentState.validate()) {
+        //Saves the form
+        this._formKey.currentState.save();
+        print('Username: ${_fields._username}');
+        print('Password: ${_fields._password}');
+        print('Domain: ${_fields._domain}');
+
+        ///How do we login without specifying the INFO301 prefix? Is there a generic login screen? Are we missing something?
+        ///
+        ///From my research there are multiple domains for Outreach. Such as https://mexifoods.outreach.co.nz/.
+        ///We will need to obtain this from the user and check that the domain is a valid outreach domain before making any API requests
+        ///I know a way to do this but we will have to go back to Andrew with some questions. I have some other questions regarding the API too.
+        String _request = "https://" +
+            _fields._domain +
+            ".outreach.co.nz/api/0.2/auth/login/?username=" +
+            _fields._username +
             "&password=" +
-            _password;
-    print(_request);
+            _fields._password;
+        print(_request);
 
-    ///Retrieving the API Key and storing it as a String (1:25AM, 10/08/18 | Doesn't take incorrect passwords into account)
-    http.post(_request).then((response) {
-      //Print the API Key, just so we can compare it to the subset String
-      print("Original Response body: ${response.body}");
-      //Turning the json into a map
-      Map apiKeyMap = json.decode(response.body);
-      //Converting the map into a string
-      String apiKey = apiKeyMap.toString();
-      //Trimming the string using string.subset(), should be safe, assumes character positions never change
-      apiKey = apiKey.substring(13, (apiKey.length - 2));
-      print("This is the API Key: \"" + apiKey +"\"");
-    });
+        ///We're going to need to put in a loading animation to give time for the request to go through...
+        ///We can just put a delay in the meantime
 
-    //Send the request and store it in an object
+        ///Retrieving the API Key and storing it as a String (1:25AM, 10/08/18 | Doesn't take incorrect passwords into account)
+        ///Note we have a bug where we can't get the apiKey in time. Need to fix.
+        String apiKey = "";
+        http.post(_request).then((response) {
+          //Print the API Key, just so we can compare it to the subset String
+          print("Original Response body: ${response.body}");
+          //Turning the json into a map
+          Map apiKeyMap = json.decode(response.body);
+          //Converting the map into a string
+          apiKey = apiKeyMap.toString();
+          //Trimming the string using string.subset(), should be safe, assumes character positions never change
+          apiKey = apiKey.substring(13, (apiKey.length - 2));
+          print("This is the API Key: \"" + apiKey + "\"");
+        });
 
-    //Successful login
-    emailController.clear();
-    passwordController.clear();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ContactsPage()),
-    );
+        //Defining regex to search for key
+        RegExp apiPattern = new RegExp(
+          r"([a-z0-9]){32}",
+          caseSensitive: false,
+          multiLine: false,
+        );
+
+        print("Regex created");
+        print(apiKey);
+
+        //If the pattern matches the key we got a valid request!
+        //The reason why we allow blank apikeys is to do with a bug with not receiving the apikey in time.
+        //This will be fixed
+        if (apiPattern.hasMatch(apiKey) || apiKey == "") {
+          print("I'm logging in");
+          //Next step is to verify the key, retrieve the user etc
+
+          //Successful login
+          usernameController.clear();
+          passwordController.clear();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ContactsPage()),
+          );
+        }
+        //Otherwise invalid request 
+        else {
+          print("I'm not logging in");
+          showDialogParent("Incorrect login", apiKey);
+        }
+      }
+    } catch (e) {
+      showDialogParent("Error", "Something bad happened");
+    }
   }
 
   @override
@@ -115,62 +174,62 @@ class LoginPageState extends State<LoginPage>
             size: _iconAnimation.value * 100,
           ),
           new Form(
+              key: this._formKey,
               child: new Column(
-            children: <Widget>[
-              ///Email Text Field
-              new TextFormField(
-                keyboardType: TextInputType.emailAddress,
-                controller: emailController,
-                decoration: new InputDecoration(
-                    hintText: "Enter Email",
-                    contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(32.0))),
-                //Validation not working atm
-                validator: this._validateEmail,
-                onSaved: (val) => _username = val,
-              ),
-
-              ///Password Text Field
-              new TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: new InputDecoration(
-                    hintText: "Enter Password",
-                    contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(32.0))),
-                onSaved: (val) => _password = val,
-              ),
-              new Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Material(
-                  borderRadius: BorderRadius.circular(30.0),
-                  shadowColor: Colors.lightBlueAccent.shade100,
-                  elevation: 5.0,
-                  child: MaterialButton(
-                    minWidth: 200.0,
-                    height: 42.00,
-                    onPressed: () {
-                      _loginButton(
-                          email: this.emailController.text,
-                          pass: this.passwordController.text);
-                    },
-                    color: Colors.lightBlueAccent,
-                    child:
-                        Text('Log in', style: TextStyle(color: Colors.white)),
+                children: <Widget>[
+                  ///Email Text Field
+                  new TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    controller: usernameController,
+                    decoration: new InputDecoration(
+                        hintText: "Enter Username",
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(32.0))),
+                    validator: this._validateEmail,
+                    onSaved: (val) => this._fields._username = val,
                   ),
-                ),
-              ),
-              const FlatButton(
-                child: Text(
-                  "Forgot password?",
-                  style: TextStyle(color: Colors.black),
-                ),
-                onPressed: null,
-              )
-            ],
-          )),
+
+                  ///Password Text Field
+                  new TextFormField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: new InputDecoration(
+                        hintText: "Enter Password",
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(32.0))),
+                    onSaved: (val) => this._fields._password = val,
+                  ),
+                  new Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(30.0),
+                      shadowColor: Colors.lightBlueAccent.shade100,
+                      elevation: 5.0,
+                      child: MaterialButton(
+                        minWidth: 200.0,
+                        height: 42.00,
+                        onPressed: () {
+                          _loginButton();
+                        },
+                        color: Colors.lightBlueAccent,
+                        child: Text('Log in',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ),
+                  const FlatButton(
+                    child: Text(
+                      "Forgot password?",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    onPressed: null,
+                  )
+                ],
+              )),
         ],
       ),
     );
