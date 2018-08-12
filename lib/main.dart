@@ -108,11 +108,8 @@ class LoginPageState extends State<LoginPage>
             _fields._password;
         print(_request);
 
-        ///We're going to need to put in a loading animation to give time for the request to go through...
-        ///We can just put a delay in the meantime
-
+        ///A loading animation while we wait for the response from the request would be nice
         ///Retrieving the API Key and storing it as a String (1:25AM, 10/08/18 | Doesn't take incorrect passwords into account)
-        ///Note we have a bug where we can't get the apiKey in time. Need to fix.
         String apiKey = "";
         http.post(_request).then((response) {
           //Print the API Key, just so we can compare it to the subset String
@@ -124,22 +121,16 @@ class LoginPageState extends State<LoginPage>
           //Trimming the string using string.subset(), should be safe, assumes character positions never change
           apiKey = apiKey.substring(13, (apiKey.length - 2));
           print("This is the API Key: \"" + apiKey + "\"");
-        });
 
-        //Defining regex to search for key
+          //Defining regex to search for key
         RegExp apiPattern = new RegExp(
           r"([a-z0-9]){32}",
           caseSensitive: false,
           multiLine: false,
         );
 
-        print("Regex created");
-        print(apiKey);
-
         //If the pattern matches the key we got a valid request!
-        //The reason why we allow blank apikeys is to do with a bug with not receiving the apikey in time.
-        //This will be fixed
-        if (apiPattern.hasMatch(apiKey) || apiKey == "") {
+        if (apiPattern.hasMatch(apiKey)) {
           print("I'm logging in");
           //Next step is to verify the key, retrieve the user etc
 
@@ -151,11 +142,11 @@ class LoginPageState extends State<LoginPage>
             MaterialPageRoute(builder: (context) => ContactsPage()),
           );
         }
-        //Otherwise invalid request 
+        //Otherwise unsuccessful login 
         else {
-          print("I'm not logging in");
-          showDialogParent("Incorrect login", apiKey);
+          showDialogParent("Incorrect login", "Couldn't verify username or password");
         }
+        });     
       }
     } catch (e) {
       showDialogParent("Error", "Something bad happened");
