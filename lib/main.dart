@@ -25,6 +25,7 @@ class LoginPage extends StatefulWidget {
 class LoginFields {
   String _username = '';
   String _password = '';
+  String _apiKey = '';
 
   ///Temporary for now. We will need to read this in from the user when they
   ///run the app for the first time. We will also need to check that the domain they
@@ -35,7 +36,6 @@ class LoginFields {
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   //Datafields
-
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   LoginFields _fields = new LoginFields();
 
@@ -94,6 +94,7 @@ class LoginPageState extends State<LoginPage>
         print('Username: ${_fields._username}');
         print('Password: ${_fields._password}');
         print('Domain: ${_fields._domain}');
+        print('\n \n');
 
         ///How do we login without specifying the INFO301 prefix? Is there a generic login screen? Are we missing something?
         ///
@@ -106,47 +107,56 @@ class LoginPageState extends State<LoginPage>
             _fields._username +
             "&password=" +
             _fields._password;
-        print(_request);
+        print('Creating the URL to generate API Keys via Login Details');
+        print('URL: ' + _request);
 
         ///A loading animation while we wait for the response from the request would be nice
+
         ///Retrieving the API Key and storing it as a String (1:25AM, 10/08/18 | Doesn't take incorrect passwords into account)
-        String apiKey = "";
+        //String apiKey = "";
         http.post(_request).then((response) {
           //Print the API Key, just so we can compare it to the subset String
           print("Original Response body: ${response.body}");
           //Turning the json into a map
           Map apiKeyMap = json.decode(response.body);
           //Converting the map into a string
-          apiKey = apiKeyMap.toString();
+          _fields._apiKey = apiKeyMap.toString();
           //Trimming the string using string.subset(), should be safe, assumes character positions never change
-          apiKey = apiKey.substring(13, (apiKey.length - 2));
-          print("This is the API Key: \"" + apiKey + "\"");
+          _fields._apiKey =
+              _fields._apiKey.substring(13, (_fields._apiKey.length - 2));
+          print("Extracted API Key: \"" + _fields._apiKey + "\"");
 
           //Defining regex to search for key
-        RegExp apiPattern = new RegExp(
-          r"([a-z0-9]){32}",
-          caseSensitive: false,
-          multiLine: false,
-        );
-
-        //If the pattern matches the key we got a valid request!
-        if (apiPattern.hasMatch(apiKey)) {
-          print("I'm logging in");
-          //Next step is to verify the key, retrieve the user etc
-
-          //Successful login
-          usernameController.clear();
-          passwordController.clear();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ContactsPage()),
+          RegExp apiPattern = new RegExp(
+            r"([a-z0-9]){32}",
+            caseSensitive: false,
+            multiLine: false,
           );
-        }
-        //Otherwise unsuccessful login 
-        else {
-          showDialogParent("Incorrect login", "Couldn't verify username or password");
-        }
-        });     
+
+          //If the pattern matches the key we got a valid request!
+          if (apiPattern.hasMatch(_fields._apiKey)) {
+            print("I'm logging in");
+
+            ///Insert Verify API Key stuff
+            _getAPIKeyVerification();
+
+            ///Get Contacts List
+            _getContactsList();
+
+            //Successful login
+            usernameController.clear();
+            passwordController.clear();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ContactsPage()),
+            );
+          }
+          //Otherwise unsuccessful login
+          else {
+            showDialogParent(
+                "Incorrect login", "Couldn't verify username or password");
+          }
+        });
       }
     } catch (e) {
       showDialogParent("Error", "Something bad happened");
@@ -224,5 +234,64 @@ class LoginPageState extends State<LoginPage>
         ],
       ),
     );
+  }
+
+  ///Validating API Key
+  Widget _getAPIKeyVerification() {
+    //Next step is to verify the key, retrieve the user etc
+    print('\n \n');
+    print('API Key Validation\n');
+    String _requestAPIKeyVerification = "https://" +
+        _fields._domain +
+        ".outreach.co.nz/api/0.2/auth/verify/?apikey=" +
+        _fields._apiKey;
+    print('API Validation URL: ' + _requestAPIKeyVerification);
+    print('\n \n');
+
+    http.post(_requestAPIKeyVerification).then((response) {
+      //Print the API Key, just so we can compare it to the subset String
+      print("API Key Verification Response: ${response.body}");
+      //Turning the json into a map
+      Map apiKeyVerificationMap = json.decode(response.body);
+      print(apiKeyVerificationMap);
+      print('\n \n');
+      return (apiKeyVerificationMap);
+    });
+  }
+
+  ///Loading the Contacts List into a Collection
+  Widget _getContactsList() {
+    Map contactListMap;
+    print('Retrieving Contacts List\n');
+    String _requestContactList = "https://" +
+        _fields._domain +
+        ".outreach.co.nz/api/0.2/query/user?apikey=" +
+        _fields._apiKey +
+        "&properties=%5B%27name_processed%27%5D&conditions=%5B%5B%27status%27,%27=%27,%27O%27%5D,%5B%27oid%27,%27%3E=%27,%27100%27%5D%5D";
+//    Display [user's names], if their [status is open] and their [oid is larger than 100]
+//    Encode doesn't convert apostrophes, it may be easier to write the query by hand, then CTRL + H all the necessary bits
+//    %5B = [
+//    %5D = ]
+//    %27 = '
+
+    print('Get Contact List URL: ' + _requestContactList);
+    print('\n \n');
+
+    http.post(_requestContactList).then((response) {
+      //Print the API Key, just so we can compare it to the subset String
+      print('\n \n');
+      print("Contact List Response:");
+      print(response.body);
+
+      //Turning the json into a map
+      Map<String, dynamic> contactListMap = json.decode(response.body);
+      print("Contact List Map: ");
+      print(contactListMap);
+      print('\n \n');
+
+      print("Printing all contacts in Map");
+      print(contactListMap['data']);
+      print('\n \n');
+    });
   }
 }
