@@ -12,6 +12,9 @@ class ContactsPage extends StatelessWidget {
   }
 }
 
+
+
+
 class ContactList extends StatelessWidget {
   final List<Contact> _contacts;
 
@@ -33,6 +36,5 @@ class _ContactListItem extends ListTile {
   _ContactListItem(Contact contact)
       : super(
       title: new Text(contact.fullName),
-      subtitle: new Text(contact.email),
       leading: new CircleAvatar(child: new Text(contact.fullName[0])));
 }
