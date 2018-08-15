@@ -25,4 +25,7 @@
       </value>
     </option>
   </component>
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/lib/contact_view.dart" />
+  </component>
 </project>
