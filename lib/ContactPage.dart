@@ -1,7 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/contact_data.dart';
 
-class ContactsPage extends StatelessWidget {
+class SearchAppBar extends StatefulWidget {
+  @override
+  _SearchAppBarState createState() => new _SearchAppBarState();
+}
+
+class _SearchAppBarState extends State<SearchAppBar> {
+  Widget appBarTitle = new Text("Search Contacts");
+  Icon actionIcon = new Icon(Icons.search);
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+          centerTitle: true,
+          title:appBarTitle,
+          actions: <Widget>[
+            new IconButton(icon: actionIcon,onPressed:(){
+              setState(() {
+                if ( this.actionIcon.icon == Icons.search){
+                  this.actionIcon = new Icon(Icons.close);
+                  this.appBarTitle = new TextField(
+                    style: new TextStyle(
+                      color: Colors.white,
+
+                    ),
+                    decoration: new InputDecoration(
+                        prefixIcon: new Icon(Icons.search,color: Colors.white),
+                        hintText: "Search...",
+                        hintStyle: new TextStyle(color: Colors.white)
+                    ),
+                  );}
+                else {
+                  this.actionIcon = new Icon(Icons.search);
+                  this.appBarTitle = new Text("Search Contacts");
+                }
+
+
+              });
+            } ,),]
+      ),
+        body: new ContactList(kContacts));
+
+  }
+}
+
+
+
+/*class ContactsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -10,9 +56,7 @@ class ContactsPage extends StatelessWidget {
         ),
         body: new ContactList(kContacts));
   }
-}
-
-
+}*/
 
 
 class ContactList extends StatelessWidget {
@@ -38,3 +82,4 @@ class _ContactListItem extends ListTile {
       title: new Text(contact.fullName),
       leading: new CircleAvatar(child: new Text(contact.fullName[0])));
 }
+

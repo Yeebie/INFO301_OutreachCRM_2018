@@ -85,7 +85,7 @@ class LoginPageState extends State<LoginPage>
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ContactsPage()),
+                        MaterialPageRoute(builder: (context) => SearchAppBar()),
                       );
                     },
                     color: Colors.lightBlueAccent,
