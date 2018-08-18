@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 import 'ContactPage.dart';
 import 'package:validate/validate.dart';
 
-import 'package:http/http.dart' as http; //Used to utilise REST operations
-import 'dart:convert'; //Used to convert json into maps
+///Used to utilise REST operations
+import 'package:http/http.dart' as http;
 
-void main() => runApp(new MyApp());
+///Used for API Key Retrieval
+import 'dart:async' show Future;
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:convert'; //Converts Json into Map
+
+void main(){
+  runApp(new MyApp());
+  //loadCrossword();
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -39,10 +47,7 @@ class LoginPageState extends State<LoginPage>
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   LoginFields _fields = new LoginFields();
 
-  String _urlStart =
-      'https://info301.outreach.co.nz/api/0.2/auth/login'; //Uses INFO301 domain
-  String _urlUsername = '?username=';
-  String _urlLastname = '&password=';
+  Map<String, dynamic> apiKey;
 
   final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
@@ -96,67 +101,39 @@ class LoginPageState extends State<LoginPage>
         print('Domain: ${_fields._domain}');
         print('\n \n');
 
-        ///How do we login without specifying the INFO301 prefix? Is there a generic login screen? Are we missing something?
-        ///
-        ///From my research there are multiple domains for Outreach. Such as https://mexifoods.outreach.co.nz/.
-        ///We will need to obtain this from the user and check that the domain is a valid outreach domain before making any API requests
-        ///I know a way to do this but we will have to go back to Andrew with some questions. I have some other questions regarding the API too.
-        String _request = "https://" +
-            _fields._domain +
-            ".outreach.co.nz/api/0.2/auth/login/?username=" +
-            _fields._username +
-            "&password=" +
-            _fields._password;
-        print('Creating the URL to generate API Keys via Login Details');
-        print('URL: ' + _request);
+        ///Retrieve the API Key
+        _getAPIKeyRetrieval();
 
-        ///A loading animation while we wait for the response from the request would be nice
+        //Defining regex to search for key
+        RegExp apiPattern = new RegExp(
+          r"([a-z0-9]){32}",
+          caseSensitive: false,
+          multiLine: false,
+        );
 
-        ///Retrieving the API Key and storing it as a String (1:25AM, 10/08/18 | Doesn't take incorrect passwords into account)
-        //String apiKey = "";
-        http.post(_request).then((response) {
-          //Print the API Key, just so we can compare it to the subset String
-          print("Original Response body: ${response.body}");
-          //Turning the json into a map
-          Map apiKeyMap = json.decode(response.body);
-          //Converting the map into a string
-          _fields._apiKey = apiKeyMap.toString();
-          //Trimming the string using string.subset(), should be safe, assumes character positions never change
-          _fields._apiKey =
-              _fields._apiKey.substring(13, (_fields._apiKey.length - 2));
-          print("Extracted API Key: \"" + _fields._apiKey + "\"");
+        //If the pattern matches the key we got a valid request!
+        if (apiPattern.hasMatch(_fields._apiKey)) {
+          print("I'm logging in");
 
-          //Defining regex to search for key
-          RegExp apiPattern = new RegExp(
-            r"([a-z0-9]){32}",
-            caseSensitive: false,
-            multiLine: false,
+          ///Verify API Key
+          _getAPIKeyVerification();
+
+          ///Get Contacts List
+          _getContactsList();
+
+          //Successful login
+          usernameController.clear();
+          passwordController.clear();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ContactsPage()),
           );
-
-          //If the pattern matches the key we got a valid request!
-          if (apiPattern.hasMatch(_fields._apiKey)) {
-            print("I'm logging in");
-
-            ///Insert Verify API Key stuff
-            _getAPIKeyVerification();
-
-            ///Get Contacts List
-            _getContactsList();
-
-            //Successful login
-            usernameController.clear();
-            passwordController.clear();
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ContactsPage()),
-            );
-          }
-          //Otherwise unsuccessful login
-          else {
-            showDialogParent(
-                "Incorrect login", "Couldn't verify username or password");
-          }
-        });
+        }
+        //Otherwise unsuccessful login
+        else {
+          showDialogParent(
+              "Incorrect login", "Couldn't verify username or password");
+        }
       }
     } catch (e) {
       showDialogParent("Error", "Something bad happened");
@@ -236,7 +213,33 @@ class LoginPageState extends State<LoginPage>
     );
   }
 
+  ///Retrieving API Key
+  Widget _getAPIKeyRetrieval() {
+    Future<String> _loadAPIKeyAsset() async {
+      String _requestAPIKeyRetrieval = "https://" +
+          _fields._domain +
+          ".outreach.co.nz/api/0.2/auth/login/?username=" +
+          _fields._username +
+          "&password=" +
+          _fields._password;
+      print('Creating the URL to generate API Keys via Login Details: ' + _requestAPIKeyRetrieval);
+
+      http.post(_requestAPIKeyRetrieval).then((response) {
+        //Print the API Key, just so we can compare it to the subset String
+        print("Original Response body: ${response.body}");
+        Map jsonResponse = json.decode(response.body);
+        Data data = new Data.fromJson(jsonResponse['data']);
+        print("Printing getAPIKey()");
+        print(data.getAPIKey());
+        _fields._apiKey = data.getAPIKey();
+      });
+    }
+
+    _loadAPIKeyAsset();
+  }
+
   ///Validating API Key
+  ///Currently responds with {"data":{"verify":false},"error":"Contact deactivated"}, our account may be archived or deleted
   Widget _getAPIKeyVerification() {
     //Next step is to verify the key, retrieve the user etc
     print('\n \n');
@@ -293,5 +296,38 @@ class LoginPageState extends State<LoginPage>
       print(contactListMap['data']);
       print('\n \n');
     });
+  }
+}
+
+///Represents the bits inside the nested json
+class Data {
+  String key;
+  String expiry;
+
+  //Constructor
+  Data({this.key, this.expiry});
+
+  //Getter method
+  String getAPIKey() {
+    return key;
+  }
+
+  //Soft of like a method that'll be executed somewhere
+  factory Data.fromJson(Map<String, dynamic> json) {
+    return Data(key: json['key'], expiry: json['expiry']);
+  }
+}
+
+///Represents the base json, the data array
+class APIKeyJson {
+  //Datafields
+  Data data;
+
+  //Constructor
+  APIKeyJson({this.data});
+
+  //Soft of like a method that'll be executed somewhere
+  factory APIKeyJson.fromJson(Map<String, dynamic> parsedJson) {
+    return APIKeyJson(data: Data.fromJson(parsedJson['data']));
   }
 }
