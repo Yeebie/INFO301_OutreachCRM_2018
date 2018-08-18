@@ -96,6 +96,7 @@ class LoginPageState extends State<LoginPage>
       if (this._formKey.currentState.validate()) {
         //Saves the form
         this._formKey.currentState.save();
+        print('Login Details');
         print('Username: ${_fields._username}');
         print('Password: ${_fields._password}');
         print('Domain: ${_fields._domain}');
@@ -215,7 +216,9 @@ class LoginPageState extends State<LoginPage>
 
   ///Retrieving API Key
   Widget _getAPIKeyRetrieval() {
+    //Kind of like a method, will do all sorts of fantastic things in the future
     Future<String> _loadAPIKeyAsset() async {
+      //Creating the URL that'll query the database for our API Key
       String _requestAPIKeyRetrieval = "https://" +
           _fields._domain +
           ".outreach.co.nz/api/0.2/auth/login/?username=" +
@@ -223,18 +226,24 @@ class LoginPageState extends State<LoginPage>
           "&password=" +
           _fields._password;
       print('Creating the URL to generate API Keys via Login Details: ' + _requestAPIKeyRetrieval);
+      print('\n\n');
 
       http.post(_requestAPIKeyRetrieval).then((response) {
+        print("API Key Retrieval");
         //Print the API Key, just so we can compare it to the subset String
         print("Original Response body: ${response.body}");
+        //Turning the json into a map
         Map jsonResponse = json.decode(response.body);
+        //Getting the data from ['data'], which happens to be our array
         Data data = new Data.fromJson(jsonResponse['data']);
+        //Retrieving the API Key from the array
         print("Printing getAPIKey()");
         print(data.getAPIKey());
+        //Applying the API Key to the API Key Field
         _fields._apiKey = data.getAPIKey();
       });
     }
-
+    //Calling the method we just wrote
     _loadAPIKeyAsset();
   }
 
