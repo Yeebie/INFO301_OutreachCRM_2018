@@ -10,7 +10,7 @@ import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert'; //Converts Json into Map
 
-void main(){
+void main() {
   runApp(new MyApp());
   //loadCrossword();
 }
@@ -68,6 +68,8 @@ class LoginPageState extends State<LoginPage>
     _iconAnimationController.forward();
   }
 
+  //Not used anymore since Andrew said that usernames can be emails or alphanumeric
+  //See _validateUsername for current validator
   String _validateEmail(String value) {
     try {
       Validate.isEmail(value);
@@ -77,6 +79,48 @@ class LoginPageState extends State<LoginPage>
       } else {
         return 'The username must be a valid email address.';
       }
+    }
+    return null;
+  }
+
+  String _validateUsername(String value) {
+    RegExp userNamePattern = new RegExp(
+      r"^[a-zA-Z0-9@.]*$",
+      caseSensitive: false,
+      multiLine: false,
+    );
+    if (userNamePattern.hasMatch(value)) {
+      if (value == "") {
+        return "Please enter a username";
+      }
+      else if (value.length > 255) {
+        return "Your username is too long";
+      }
+    } else {
+      return 'Invalid characters in username';
+    }
+    return null;
+  }
+
+
+  String _validatePassword(String value) {
+    RegExp passwordPattern = new RegExp(
+      r"^[a-zA-Z0-9]*$",
+      caseSensitive: false,
+      multiLine: false,
+    );
+    if (passwordPattern.hasMatch(value)) {
+      if (value == "") {
+        return "Please enter a password";
+      }
+      else if (value.length < 6) {
+        return "Password must be at least 6 characters";
+      }
+      else if (value.length > 255) {
+        return "Your password is too long";
+      }
+    } else {
+      return 'Invalid characters in password';
     }
     return null;
   }
@@ -138,6 +182,7 @@ class LoginPageState extends State<LoginPage>
       }
     } catch (e) {
       showDialogParent("Error", "Something bad happened");
+      print(e);
     }
   }
 
@@ -158,7 +203,7 @@ class LoginPageState extends State<LoginPage>
                 children: <Widget>[
                   ///Email Text Field
                   new TextFormField(
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
                     controller: usernameController,
                     decoration: new InputDecoration(
                         hintText: "Enter Username",
@@ -166,7 +211,7 @@ class LoginPageState extends State<LoginPage>
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(32.0))),
-                    validator: this._validateEmail,
+                    validator: this._validateUsername,
                     onSaved: (val) => this._fields._username = val,
                   ),
 
@@ -180,6 +225,7 @@ class LoginPageState extends State<LoginPage>
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(32.0))),
+                            validator: this._validatePassword,
                     onSaved: (val) => this._fields._password = val,
                   ),
                   new Padding(
@@ -225,7 +271,8 @@ class LoginPageState extends State<LoginPage>
           _fields._username +
           "&password=" +
           _fields._password;
-      print('Creating the URL to generate API Keys via Login Details: ' + _requestAPIKeyRetrieval);
+      print('Creating the URL to generate API Keys via Login Details: ' +
+          _requestAPIKeyRetrieval);
       print('\n\n');
 
       http.post(_requestAPIKeyRetrieval).then((response) {
@@ -243,6 +290,7 @@ class LoginPageState extends State<LoginPage>
         _fields._apiKey = data.getAPIKey();
       });
     }
+
     //Calling the method we just wrote
     _loadAPIKeyAsset();
   }
