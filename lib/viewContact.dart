@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(MyApp());
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -109,7 +109,7 @@ class ClientNotes extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Thomas Green Industries"), //Obvs won't text input the name
+        title: Text("Thomas Green Industries"), // won't text input the name
       ),
       body: Center(
         child: RaisedButton(
