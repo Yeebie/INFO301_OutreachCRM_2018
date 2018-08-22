@@ -49,15 +49,41 @@ class _ContactPage extends State<ContactsPage> {
               ),
             ],
           ),
-          body: new Text("contact list")),
-      // replace the body with your contacts list view
+          body: new ContactList(kContacts)),
+
     );
   }
 }
 
-void main() {
-  runApp(new ContactsPage());
+class ContactPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("Contacts"),
+        ),
+        body: new ContactList(kContacts));
+  }
 }
+
+
+class ContactList extends StatelessWidget {
+  final List<Contact> _contacts;
+
+  ContactList(this._contacts);
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListView.builder(
+      padding: new EdgeInsets.symmetric(vertical: 8.0),
+      itemBuilder: (context, index) {
+        return new _ContactListItem(_contacts[index]);
+      },
+      itemCount: _contacts.length,
+    );
+  }
+}
+
 class _ContactListItem extends ListTile {
   _ContactListItem(Contact contact)
       : super(
