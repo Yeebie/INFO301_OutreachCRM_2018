@@ -33,7 +33,6 @@ class LoginPage extends StatefulWidget {
 class LoginFields {
   String _username = '';
   String _password = '';
-  String _apiKey = '';
 
   ///Temporary for now. We will need to read this in from the user when they
   ///run the app for the first time. We will also need to check that the domain they
@@ -41,11 +40,18 @@ class LoginFields {
   String _domain = "info301";
 }
 
+class APIKeyFields {
+  String _apiKey = '';
+  String _expiry = '';
+  bool _passwordVerify = false;
+}
+
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   //Datafields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   LoginFields _fields = new LoginFields();
+  APIKeyFields _apiKeyFields = new APIKeyFields();
 
   Map<String, dynamic> apiKey;
 
@@ -92,8 +98,7 @@ class LoginPageState extends State<LoginPage>
     if (userNamePattern.hasMatch(value)) {
       if (value == "") {
         return "Please enter a username";
-      }
-      else if (value.length > 255) {
+      } else if (value.length > 255) {
         return "Your username is too long";
       }
     } else {
@@ -101,7 +106,6 @@ class LoginPageState extends State<LoginPage>
     }
     return null;
   }
-
 
   String _validatePassword(String value) {
     RegExp passwordPattern = new RegExp(
@@ -112,11 +116,9 @@ class LoginPageState extends State<LoginPage>
     if (passwordPattern.hasMatch(value)) {
       if (value == "") {
         return "Please enter a password";
-      }
-      else if (value.length < 6) {
+      } else if (value.length < 6) {
         return "Password must be at least 6 characters";
-      }
-      else if (value.length > 255) {
+      } else if (value.length > 255) {
         return "Your password is too long";
       }
     } else {
@@ -156,8 +158,9 @@ class LoginPageState extends State<LoginPage>
           multiLine: false,
         );
 
+        ///Start troublesome code (Can we delay this validation until we actually get the API Key?)
         //If the pattern matches the key we got a valid request!
-        if (apiPattern.hasMatch(_fields._apiKey)) {
+        if (apiPattern.hasMatch(_apiKeyFields._apiKey)) {
           print("I'm logging in");
 
           ///Verify API Key
@@ -179,6 +182,7 @@ class LoginPageState extends State<LoginPage>
           showDialogParent(
               "Incorrect login", "Couldn't verify username or password");
         }
+        ///End troublesome code
       }
     } catch (e) {
       showDialogParent("Error", "Something bad happened");
@@ -225,7 +229,7 @@ class LoginPageState extends State<LoginPage>
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(32.0))),
-                            validator: this._validatePassword,
+                    validator: this._validatePassword,
                     onSaved: (val) => this._fields._password = val,
                   ),
                   new Padding(
@@ -277,17 +281,30 @@ class LoginPageState extends State<LoginPage>
 
       http.post(_requestAPIKeyRetrieval).then((response) {
         print("API Key Retrieval");
-        //Print the API Key, just so we can compare it to the subset String
+        //Print the API Key, just so we can compare it to the final result
         print("Original Response body: ${response.body}");
         //Turning the json into a map
         Map jsonResponse = json.decode(response.body);
         //Getting the data from ['data'], which happens to be our array
         Data data = new Data.fromJson(jsonResponse['data']);
+        //Applying the data from the json to the instance of the Data class
+        _apiKeyFields._apiKey = data.getAPIKey();
+        _apiKeyFields._expiry = data.getExpiry();
+
+        //Removing null value, just in case we need to use this datafield
+        if(data.getPasswordVerify() == false) {
+          _apiKeyFields._passwordVerify = false;
+        } else {
+          _apiKeyFields._passwordVerify = true;
+        }
+
         //Retrieving the API Key from the array
         print("Printing getAPIKey()");
-        print(data.getAPIKey());
-        //Applying the API Key to the API Key Field
-        _fields._apiKey = data.getAPIKey();
+        print(_apiKeyFields._apiKey);
+        print("Printing getExpiry()");
+        print(_apiKeyFields._expiry);
+        print("Printing getPasswordVerify()");
+        print(_apiKeyFields._passwordVerify);
       });
     }
 
@@ -304,7 +321,7 @@ class LoginPageState extends State<LoginPage>
     String _requestAPIKeyVerification = "https://" +
         _fields._domain +
         ".outreach.co.nz/api/0.2/auth/verify/?apikey=" +
-        _fields._apiKey;
+        _apiKeyFields._apiKey;
     print('API Validation URL: ' + _requestAPIKeyVerification);
     print('\n \n');
 
@@ -326,7 +343,7 @@ class LoginPageState extends State<LoginPage>
     String _requestContactList = "https://" +
         _fields._domain +
         ".outreach.co.nz/api/0.2/query/user?apikey=" +
-        _fields._apiKey +
+        _apiKeyFields._apiKey +
         "&properties=%5B%27name_processed%27%5D&conditions=%5B%5B%27status%27,%27=%27,%27O%27%5D,%5B%27oid%27,%27%3E=%27,%27100%27%5D%5D";
 //    Display [user's names], if their [status is open] and their [oid is larger than 100]
 //    Encode doesn't convert apostrophes, it may be easier to write the query by hand, then CTRL + H all the necessary bits
@@ -360,18 +377,32 @@ class LoginPageState extends State<LoginPage>
 class Data {
   String key;
   String expiry;
+  bool passwordVerify;
 
   //Constructor
-  Data({this.key, this.expiry});
+  Data({this.key, this.expiry, this.passwordVerify});
 
   //Getter method
   String getAPIKey() {
     return key;
   }
 
+  //Getter method
+  String getExpiry() {
+    return expiry;
+  }
+
+  //Getter method
+  bool getPasswordVerify() {
+    return passwordVerify;
+  }
+
   //Soft of like a method that'll be executed somewhere
   factory Data.fromJson(Map<String, dynamic> json) {
-    return Data(key: json['key'], expiry: json['expiry']);
+    return Data(
+        key: json['key'],
+        expiry: json['expiry'],
+        passwordVerify: json['password']);
   }
 }
 
@@ -388,4 +419,3 @@ class APIKeyJson {
     return APIKeyJson(data: Data.fromJson(parsedJson['data']));
   }
 }
-
