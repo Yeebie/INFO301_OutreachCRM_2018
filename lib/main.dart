@@ -249,7 +249,6 @@ class LoginPageState extends State<LoginPage>
   ///                  A P I   K E Y   R E T R I E V A L
   ///***************************************************************************
 
-
   ///Retrieving API Key
   Widget _getAPIKeyRetrieval() {
     //Kind of like a method, will do all sorts of fantastic things in the future
@@ -294,9 +293,8 @@ class LoginPageState extends State<LoginPage>
       print(_apiKeyFields._passwordVerify);
       print('\n \n');
 
-      if(_apiKeyFields._passwordVerify == false) {
-        showDialogParent(
-            "Baka!", "Couldn't verify username or password.");
+      if (_apiKeyFields._passwordVerify == false) {
+        showDialogParent("Baka!", "Couldn't verify username or password.");
       } else {
         ///Verify API Key
         _getAPIKeyVerification();
@@ -325,7 +323,7 @@ class LoginPageState extends State<LoginPage>
       Map apiKeyVerificationMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyValidationData data =
-      new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
+          new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyValidationFields._verify = data.getVerify();
       _apiKeyValidationFields._expiry = data.getExpiry();
@@ -397,14 +395,25 @@ class LoginPageState extends State<LoginPage>
 
       //Turning the json into a map
       Map<String, dynamic> contactListMap = json.decode(response.body);
-      //Getting the data from ['data'], which happens to be our array
-      ContactListData data =
-      new ContactListData.fromJson(contactListMap['data']);
-      //Applying the data from the json to the instance of the Data class
-      print("Processing getNameProcessed()");
-      print(data.getNameProcessed());
-      _contactListFields._name_processed = data.getNameProcessed();
+      print("Contact List Map: ");
+      print(contactListMap);
+      print('\n \n');
 
+      print("Printing all contacts in Map");
+      print(contactListMap['data']);
+      print('\n \n');
+      Map map = new Map();
+      contactListMap['data'].forEach((dynamic) {
+        print('${contactListMap['data'].indexOf(dynamic)}: $dynamic');
+        map[contactListMap['data'].indexOf(dynamic)] =
+            '${contactListMap['data'].indexOf(dynamic)}: $dynamic';
+      });
+
+      ///Maybe grab OID and use that as the Map Key?
+      print("Printing all members that were loaded into the map");
+      for (int i = 0; i < map.length; i++) {
+        print(map[i]);
+      }
     });
   }
 }
@@ -521,8 +530,7 @@ class ContactListData {
 
   //Soft of like a method that'll be executed somewhere
   factory ContactListData.fromJson(Map<String, dynamic> json) {
-    return ContactListData(
-        name_processed: json['name_processed']);
+    return ContactListData(name_processed: json['name_processed']);
   }
 }
 
@@ -537,7 +545,6 @@ class ContactListJson {
 
   //Soft of like a method that'll be executed somewhere
   factory ContactListJson.fromJson(Map<String, dynamic> parsedJson) {
-    return ContactListJson(
-        data: ContactListData.fromJson(parsedJson['data']));
+    return ContactListJson(data: ContactListData.fromJson(parsedJson['data']));
   }
 }
