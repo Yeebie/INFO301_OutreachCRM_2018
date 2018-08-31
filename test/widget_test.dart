@@ -4,14 +4,18 @@
 // find child widgets in the widget tree, read text, and verify that the values of widget properties
 // are correct.
 
+// This line imports the extension
+import 'package:flutter_driver/driver_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 
 import 'package:outreachcrm_app/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('Login verifies widget test', (WidgetTester tester) async {
+    final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
+    String fieldValue;
     await tester.pumpWidget(new MyApp());
 
     // Verify that our counter starts at 0.
