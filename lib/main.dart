@@ -10,9 +10,12 @@ import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert'; //Converts Json into Map
 
+import 'package:outreachcrm_app/Contact.dart';
+
+List<Contact> contacts;
+
 void main() {
   runApp(new MyApp());
-  //loadCrossword();
 }
 
 class MyApp extends StatelessWidget {
@@ -54,7 +57,7 @@ class APIKeyValidationFields {
 
 ///Make this an array? How can we do this?
 class ContactListFields {
-  String _name_processed = '';
+  String nameProcessed = '';
 }
 
 class LoginPageState extends State<LoginPage>
@@ -294,7 +297,7 @@ class LoginPageState extends State<LoginPage>
       print('\n \n');
 
       if (_apiKeyFields._passwordVerify == false) {
-        showDialogParent("Baka!", "Couldn't verify username or password.");
+        showDialogParent("Incorrect Login.", "Couldn't verify username or password.");
       } else {
         ///Verify API Key
         _getAPIKeyVerification();
@@ -351,7 +354,7 @@ class LoginPageState extends State<LoginPage>
         _getContactsList();
       } else {
         showDialogParent(
-            "Is this statement even possible?", "API Key isn't valid.");
+            "Incorrect API Key.", "API Key isn't valid.");
       }
     });
   }
@@ -362,61 +365,83 @@ class LoginPageState extends State<LoginPage>
 
   ///Loading the Contacts List into a Collection
   Widget _getContactsList() {
-    Map contactListMap;
+
     print('Retrieving Contacts List\n');
     String _requestContactList = "https://" +
         _fields._domain +
         ".outreach.co.nz/api/0.2/query/user?apikey=" +
         _apiKeyFields._apiKey +
         "&properties=%5B%27name_processed%27%5D&conditions=%5B%5B%27status%27,%27=%27,%27O%27%5D,%5B%27oid%27,%27%3E=%27,%27100%27%5D%5D";
-//    Display [user's names], if their [status is open] and their [oid is larger than 100]
 //    Dart Encode doesn't convert apostrophes, it may be easier to write the query by hand, then CTRL + H all the necessary bits
 //    Can we do this conversion cleanly in app?
-//    %5B = "["
-//    %5D = "]"
-//    %27 = "'"
-//    %20 = " "
+//    %5B = "[" | %5D = "]" | %27 = "'" | %20 = " "
 
     print('Get Contact List URL: ' + _requestContactList);
-
-    ///This section is temporary, for some reason, some of the code below the post doesn't execute
-    ///Display Contacts Page
-    usernameController.clear();
-    passwordController.clear();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ContactsPage()),
-    );
 
     http.post(_requestContactList).then((response) {
       //Print the API Key, just so we can compare it to the subset String
       print("Contact List Response:");
       print(response.body);
-
+      List<Contact> contactsList = new List();
       //Turning the json into a map
       Map<String, dynamic> contactListMap = json.decode(response.body);
-      print("Contact List Map: ");
-      print(contactListMap);
-      print('\n \n');
 
       print("Printing all contacts in Map");
       print(contactListMap['data']);
       print('\n \n');
+
+      print("Printing all items seperately");
       Map map = new Map();
+      String name = '';
+      int index;
+      Contact contact = new Contact();
+
+      ///Grabs all values from the contactListMap
+      ///Trims them into a String
+      ///Sets the String to be a Contact fullName
+      ///Adds fullName to a List<Contact>
       contactListMap['data'].forEach((dynamic) {
-        print('${contactListMap['data'].indexOf(dynamic)}: $dynamic');
-        map[contactListMap['data'].indexOf(dynamic)] =
-            '${contactListMap['data'].indexOf(dynamic)}: $dynamic';
+        index = contactListMap['data'].indexOf(dynamic);
+        print('$dynamic');
+        map[index] = '$dynamic';
+        name = map[index];
+        name = name.substring(
+            17,
+            (name.length -
+                1)); //Assumes we're getting {name_processed: ###} from the map request
+        contact.setFullName(name);
+        print(contact.getFullName());
+        contactsList.add(contact);
+        print("\n");
       });
 
-      ///Maybe grab OID and use that as the Map Key?
-      print("Printing all members that were loaded into the map");
-      for (int i = 0; i < map.length; i++) {
-        print(map[i]);
-      }
+//      ///Code doesn't even work properly, just prints last value 200 times
+//      print("Printing all fullNames in List");
+//      contactsList.forEach((Contact) {
+//        index = contactsList.indexOf(Contact);
+//        print(Contact.getFullName());
+//      });
+//      print(contactsList); //Yeah good luck reading that
+
+      print('\n \n');
+      contacts = contactsList;
+
+      usernameController.clear();
+      passwordController.clear();
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ContactsPage(contacts: contacts)),
+      );
     });
+
+
   }
 }
+
+///***************************************************************************
+///                     S U P P O R T   C L A S S E S
+///***************************************************************************
 
 ///API Key Retrieval
 ///Represents the bits inside the nested json
@@ -518,19 +543,19 @@ class APIKeyValidationJson {
 ///Contact List Retrieval
 ///Represents the bits inside the nested json
 class ContactListData {
-  String name_processed;
+  String nameProcessed;
 
   //Constructor
-  ContactListData({this.name_processed});
+  ContactListData({this.nameProcessed});
 
   //Getter method
   String getNameProcessed() {
-    return name_processed;
+    return nameProcessed;
   }
 
   //Soft of like a method that'll be executed somewhere
   factory ContactListData.fromJson(Map<String, dynamic> json) {
-    return ContactListData(name_processed: json['name_processed']);
+    return ContactListData(nameProcessed: json['name_processed']);
   }
 }
 
