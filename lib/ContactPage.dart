@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:outreachcrm_app/contact_data.dart';
+//import 'package:outreachcrm_app/contact_data.dart';
+import 'package:outreachcrm_app/Contact.dart';
 
 class ContactsPage extends StatefulWidget {
   Widget appBarTitle = new Text("Contacts");
   Icon actionIcon = new Icon(Icons.search);
+
+  List<Contact> contacts;
+  ContactsPage({Key key, this.contacts}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -31,7 +35,7 @@ class _ContactPage extends State<ContactsPage> {
                         ),
                         decoration: new InputDecoration(
                             prefixIcon:
-                            new Icon(Icons.search, color: Colors.white),
+                                new Icon(Icons.search, color: Colors.white),
                             hintText: "Search...",
                             hintStyle: new TextStyle(color: Colors.white)),
                         onChanged: (value) {
@@ -41,7 +45,7 @@ class _ContactPage extends State<ContactsPage> {
                       );
                     } else {
                       widget.actionIcon =
-                      new Icon(Icons.search); //reset to initial state
+                          new Icon(Icons.search); //reset to initial state
                       widget.appBarTitle = new Text("Contacts");
                     }
                   });
@@ -49,8 +53,9 @@ class _ContactPage extends State<ContactsPage> {
               ),
             ],
           ),
-          body: new ContactList(kContacts)),
-
+          ///Used to be called kContacts
+          body: new ContactList(contacts)
+      ),
     );
   }
 }
@@ -62,10 +67,10 @@ class ContactPage extends StatelessWidget {
         appBar: new AppBar(
           title: new Text("Contacts"),
         ),
-        body: new ContactList(kContacts));
+        ///Used to be called kContacts
+        body: new ContactList(contacts));
   }
 }
-
 
 class ContactList extends StatelessWidget {
   final List<Contact> _contacts;
@@ -87,6 +92,6 @@ class ContactList extends StatelessWidget {
 class _ContactListItem extends ListTile {
   _ContactListItem(Contact contact)
       : super(
-      title: new Text(contact.fullName),
-      leading: new CircleAvatar(child: new Text(contact.fullName[0])));
+            title: new Text("${contact.fullName}"),
+            leading: new CircleAvatar(child: new Text(contact.fullName[0])));
 }
