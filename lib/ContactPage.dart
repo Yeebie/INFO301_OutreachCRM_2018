@@ -11,11 +11,19 @@ class ContactsPage extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new _ContactPage();
+    return new _ContactPage(contacts);
   }
 }
 
 class _ContactPage extends State<ContactsPage> {
+  //Datafields
+  List<Contact> kContacts;
+
+  //Constructor
+  _ContactPage(List<Contact> kContacts) {
+    this.kContacts = kContacts;
+  }
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -54,23 +62,31 @@ class _ContactPage extends State<ContactsPage> {
             ],
           ),
           ///Used to be called kContacts
-          body: new ContactList(contacts)
+          body: new ContactList(kContacts)
       ),
     );
   }
 }
 
-class ContactPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-        appBar: new AppBar(
-          title: new Text("Contacts"),
-        ),
-        ///Used to be called kContacts
-        body: new ContactList(contacts));
-  }
-}
+///Not sure if this is redundant code, is this called at all? - J.Yee
+//class ContactPage extends StatelessWidget {
+//  //Datafields
+//  List<Contact> kContacts;
+//
+//  //Constructor
+//  _ContactPage(List<Contact> kContacts) {
+//    this.kContacts = kContacts;
+//  }
+//  @override
+//  Widget build(BuildContext context) {
+//    return new Scaffold(
+//        appBar: new AppBar(
+//          title: new Text("Contacts"),
+//        ),
+//        ///Used to be called kContacts
+//        body: new ContactList(kContacts));
+//  }
+//}
 
 class ContactList extends StatelessWidget {
   final List<Contact> _contacts;
