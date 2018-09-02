@@ -297,7 +297,8 @@ class LoginPageState extends State<LoginPage>
       print('\n \n');
 
       if (_apiKeyFields._passwordVerify == false) {
-        showDialogParent("Incorrect Login.", "Couldn't verify username or password.");
+        showDialogParent(
+            "Incorrect Login.", "Couldn't verify username or password.");
       } else {
         ///Verify API Key
         _getAPIKeyVerification();
@@ -353,8 +354,7 @@ class LoginPageState extends State<LoginPage>
         print("\n\n");
         _getContactsList();
       } else {
-        showDialogParent(
-            "Incorrect API Key.", "API Key isn't valid.");
+        showDialogParent("Incorrect API Key.", "API Key isn't valid.");
       }
     });
   }
@@ -365,7 +365,6 @@ class LoginPageState extends State<LoginPage>
 
   ///Loading the Contacts List into a Collection
   Widget _getContactsList() {
-
     print('Retrieving Contacts List\n');
     String _requestContactList = "https://" +
         _fields._domain +
@@ -386,56 +385,60 @@ class LoginPageState extends State<LoginPage>
       //Turning the json into a map
       Map<String, dynamic> contactListMap = json.decode(response.body);
 
+      ///Load all of the json into a map
       print("Printing all contacts in Map");
       print(contactListMap['data']);
       print('\n \n');
 
-      print("Printing all items seperately");
       Map map = new Map();
-      String name = '';
       int index;
-      Contact contact = new Contact();
+      String name = '';
 
-      ///Grabs all values from the contactListMap
-      ///Trims them into a String
-      ///Sets the String to be a Contact fullName
-      ///Adds fullName to a List<Contact>
+      ///Load all of the json into a map
+      index = 0;
       contactListMap['data'].forEach((dynamic) {
-        index = contactListMap['data'].indexOf(dynamic);
-        print('$dynamic');
         map[index] = '$dynamic';
         name = map[index];
         name = name.substring(
             17,
             (name.length -
                 1)); //Assumes we're getting {name_processed: ###} from the map request
-        contact.setFullName(name);
-        print(contact.getFullName());
-        contactsList.add(contact);
-        print("\n");
+        map[index] = name;
+        index++;
       });
 
-//      ///Code doesn't even work properly, just prints last value 200 times
-//      print("Printing all fullNames in List");
-//      contactsList.forEach((Contact) {
-//        index = contactsList.indexOf(Contact);
-//        print(Contact.getFullName());
-//      });
-//      print(contactsList); //Yeah good luck reading that
+      String fullName;
 
-      print('\n \n');
+      ///Convert the String in the map into a Contact (Turns the string into a fullName)
+      int i = 0;
+      while(i < map.length) {
+        fullName = map[i];
+        Contact contact = new Contact();
+        contact.setFullName(fullName);
+        contactsList.add(contact);
+        i++;
+      }
+
+      ///Printing the contactList, sanity check
+      print("Printing contactsList");
+      i = 0;
+      while(i < contactsList.length) {
+        print(contactsList[i].getFullName());
+        i++;
+      }
+
+      print('\n\n');
       contacts = contactsList;
 
       usernameController.clear();
       passwordController.clear();
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ContactsPage(contacts: contacts)),
-      );
+//      Navigator.push(
+//        context,
+//        MaterialPageRoute(
+//            builder: (context) => ContactsPage(contacts: contacts)),
+//      );
     });
-
-
   }
 }
 
