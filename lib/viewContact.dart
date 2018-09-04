@@ -1,125 +1,210 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 
-
+void main() {
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final title = 'Name Namerson';
+
+    final contactName = 'Name Namerson';
+
+    return new MaterialApp(
+      title: 'Contact Page',
+      theme: new ThemeData(
+        // This is the theme of your application.
+        primarySwatch: Colors.blue,
+      ),
+      home: new MyHomePage(title: contactName),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+
+  @override
+  _MyHomePageState createState() => new _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    final homePh = "07 645 8524";
     final mobilePh = '027 452 4318';
-    final homePh = "076458524";
-    final workPh = '07 645 8524';
+    final workPh = '07 868 9678';
     final emailAd = 'namerson@gmail.com';
     final client = 'Thomas Green Industries';
 
-
-
-    return MaterialApp(
-      title: title,
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
-
-
-        body: ListView(
-          children: <Widget>[
-
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text(client,  style: new TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            ListTile(
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
+    return new Scaffold(
+      appBar: new AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: new Text(widget.title),
+        actions: <Widget>[
+          new IconButton(icon: const Icon(Icons.save), onPressed: () {})
+        ],
+      ),
+      body: new Column(
+        children: <Widget>[
+          new ListTile(
               leading: new IconButton(
-                icon: new Icon(Icons.note),
-                tooltip: 'View client notes',
+                icon: new Icon(Icons.home),
+                tooltip: 'Company',
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ClientNotes()),
-                  );
                 },
               ),
-              title: Text('Notes',  style: new TextStyle(fontWeight: FontWeight.bold),
+              title: Text('Thomas Green Industries',  style: new TextStyle(fontWeight: FontWeight.bold),
               ),
+              subtitle: const Text('Organisation')
+          ),
+          new ListTile(
+            leading: new IconButton(
+              icon: new Icon(Icons.note),
+              tooltip: 'View client notes',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ClientNotes()),
+                );
+
+              },
             ),
-
-
-            new Text(
-              "General",
-              style: new TextStyle(fontSize:25.0,
-                  color: const Color(0xFF000000),
-                  fontWeight: FontWeight.w500,
-                  fontFamily: "Roboto",
-                  height: 2.0),
+            title: Text('Notes',  style: new TextStyle(fontWeight: FontWeight.normal),
             ),
+          ),
+          const Divider(
+            height: 1.0,
+          ),
+          new ListTile(
+            leading: new IconButton(
+              icon: new Icon(Icons.mobile_screen_share),
+              tooltip: 'Contact mobile phone',
+              onPressed: () {
 
-            ListTile(
-              //leading: Icon(Icons.mobile_screen_share),
-              leading: new IconButton(
-                icon: new Icon(Icons.mobile_screen_share),
+                if (Platform.isAndroid) {
+                  launch('tel:'+mobilePh);
+                } else if (Platform.isIOS) {
+//add IOS compatible number here (need to format incoming strings probably)
+                }
+              },
+            ),
+            title: Text(mobilePh + ' (Mobile)',style: new TextStyle(color: Colors.green),
+            ),
+          ),
+          new ListTile(
+            leading: new IconButton(
+              icon: new Icon(Icons.phone),
+              tooltip: 'Contact home phone',
+              onPressed: () {
+
+                if (Platform.isAndroid) {
+                  launch('tel:'+homePh);
+                } else if (Platform.isIOS) {
+//add IOS compatible number here (need to format incoming strings probably)
+                }
+              },
+            ),
+            title: Text(homePh + ' (Home)',style: new TextStyle(color: Colors.green),
+            ),
+          ),
+          new ListTile(
+            leading: new IconButton(
+              icon: new Icon(Icons.phone),
+              tooltip: 'Contact work phone%',
+              onPressed: () {
+
+                if (Platform.isAndroid) {
+                  launch('tel:'+workPh);
+                } else if (Platform.isIOS) {
+//add IOS compatible number here (need to format incoming strings probably)
+                }
+              },
+            ),
+            title: Text(workPh + ' (Work)',style: new TextStyle(color: Colors.green),
+            ),
+          ),
+          new ListTile(
+            leading: new IconButton(
+                icon: new Icon(Icons.mail),
                 tooltip: 'Increase volume by 10%',
-                //onPressed: () { setState(() { _volume *= 1.1; }); },
-              ),
-              title: Text(mobilePh + ' (Mobile)', style: new TextStyle(color: Colors.green),
-              ),
-            ),
+                onPressed: () {
 
-            ListTile(
-              leading: new IconButton(
-                icon: new Icon(Icons.phone),
-                tooltip: 'Increase volume by 10%',
-                //onPressed: () { setState(() { _volume *= 1.1; }); },
-              ),
-              title: Text(workPh + ' (Work)', style: new TextStyle(color: Colors.green),
-              ),
-            ),
+                  if (Platform.isAndroid) {
+                    launch('mailto:'+emailAd);
+                  } else if (Platform.isIOS) {
+                    launch('mailto:'+emailAd);
+                  }
 
-            ListTile(
-              leading: new IconButton(
-                icon: new Icon(Icons.phone),
-                tooltip: 'Increase volume by 10%',
-                onPressed: () => launch(homePh),
-              ),
-              title: Text(homePh + ' (Home)',style: new TextStyle(color: Colors.green),
-              ),
+                }
             ),
-
-            ListTile(
-              leading: new IconButton(
-                icon: new Icon(Icons.email),
-                tooltip: 'Increase volume by 10%',
-                //onPressed: () { setState(() { _volume *= 1.1; }); },
-              ),
-              title: Text(emailAd, style: new TextStyle(color: Colors.blue),),
+            title: Text(emailAd, style: new TextStyle(color: Colors.blue),
             ),
-
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
 }
 
+
 class ClientNotes extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Thomas Green Industries"), // won't text input the name
-      ),
-      body: Center(
-        child: RaisedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Go back!'),
+        appBar: AppBar(
+          title: Text("Thomas Green Industries"),
+          actions: <Widget>[
+            new IconButton(icon: const Icon(Icons.keyboard_backspace), onPressed: () {Navigator.pop(context);})
+          ], // won't text input the name
         ),
-      ),
+
+        body:
+        new Card(
+          child: new Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const ListTile(
+                leading: const Icon(Icons.note),
+                title: const Text('Note title?'),
+                subtitle: const Text('Preview note contents  contents  contents  contents  contents  contents '),
+              ),
+              new ButtonTheme.bar( // make buttons use the appropriate styles for cards
+                child: new ButtonBar(
+                  children: <Widget>[
+                    new FlatButton(
+                      child: const Text('View note'),
+                      onPressed: () { /* ... */ },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )
     );
   }
-  
 }
