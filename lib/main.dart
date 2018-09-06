@@ -366,17 +366,28 @@ class LoginPageState extends State<LoginPage>
   ///Loading the Contacts List into a Collection
   Widget _getContactsList() {
     print('Retrieving Contacts List\n');
+
+    ///Specify the API Query here, type it according to the API Specification, the app'll convert it to encoded HTML
+    String apikey = "?apikey=" + _apiKeyFields._apiKey;
+    String properties = "&properties=" + "['name_processed']";
+    String conditions =
+        "&conditions=" + "[['status','=','O'],['oid','>=','100']]";
+    String order = "&order=" + "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], used to sort people with the same first or last name so its alphabetical
+    String limit = "&limit=" + "[24,0]"; //[Load this amount of contacts at a time, Start from this index]. Loading 25 at a time, lists start with index 0, baka.
+
+    ///Specifying the URL we'll make to call the API
     String _requestContactList = "https://" +
         _fields._domain +
-        ".outreach.co.nz/api/0.2/query/user?apikey=" +
-        _apiKeyFields._apiKey +
-        "&properties=%5B%27name_processed%27%5D&conditions=%5B%5B%27status%27,%27=%27,%27O%27%5D,%5B%27oid%27,%27%3E=%27,%27100%27%5D%5D";
-//    Dart Encode doesn't convert apostrophes, it may be easier to write the query by hand, then CTRL + H all the necessary bits
-//    Can we do this conversion cleanly in app?
-//    %5B = "[" | %5D = "]" | %27 = "'" | %20 = " "
+        ".outreach.co.nz/api/0.2/query/user" + (apikey + properties + conditions + order + limit);
 
+    ///Encoding the String so its HTML safe
+    _requestContactList = _requestContactList.replaceAll("[", "%5B");
+    _requestContactList = _requestContactList.replaceAll("]", "%5D");
+    _requestContactList = _requestContactList.replaceAll("'", "%27");
+    _requestContactList = _requestContactList.replaceAll(">", "%3E");
     print('Get Contact List URL: ' + _requestContactList);
 
+    ///Send an API request, load all of the json into a map
     http.post(_requestContactList).then((response) {
       //Print the API Key, just so we can compare it to the subset String
       print("Contact List Response:");
@@ -384,17 +395,14 @@ class LoginPageState extends State<LoginPage>
       List<Contact> contactsList = new List();
       //Turning the json into a map
       Map<String, dynamic> contactListMap = json.decode(response.body);
-
-      ///Load all of the json into a map
       print("Printing all contacts in Map");
       print(contactListMap['data']);
       print('\n \n');
 
+      ///Load all of the json from the old map into a new map(Easier to work on indexes)
       Map map = new Map();
       int index;
       String name = '';
-
-      ///Load all of the json into a map
       index = 0;
       contactListMap['data'].forEach((dynamic) {
         map[index] = '$dynamic';
@@ -411,7 +419,7 @@ class LoginPageState extends State<LoginPage>
 
       ///Convert the String in the map into a Contact (Turns the string into a fullName)
       int i = 0;
-      while(i < map.length) {
+      while (i < map.length) {
         fullName = map[i];
         Contact contact = new Contact();
         contact.setFullName(fullName);
@@ -422,17 +430,16 @@ class LoginPageState extends State<LoginPage>
       ///Printing the contactList, sanity check
       print("Printing contactsList");
       i = 0;
-      while(i < contactsList.length) {
+      while (i < contactsList.length) {
         print(contactsList[i].getFullName());
         i++;
       }
-
       print('\n\n');
       contacts = contactsList;
 
+      ///Send the contactsList to be displayed on the ContactsPage
       usernameController.clear();
       passwordController.clear();
-
       Navigator.push(
         context,
         MaterialPageRoute(
