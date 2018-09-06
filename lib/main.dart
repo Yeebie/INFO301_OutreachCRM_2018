@@ -194,8 +194,10 @@ class LoginPageState extends State<LoginPage>
       body: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new FlutterLogo(
-            size: _iconAnimation.value * 100,
+          new Image.asset('assets/OutreachCRM_vert_logo.jpg',
+            width: 175.0,
+            height: 175.0,
+
           ),
           new Form(
               key: this._formKey,
@@ -203,6 +205,7 @@ class LoginPageState extends State<LoginPage>
                 children: <Widget>[
                   ///Email Text Field
                   new TextFormField(
+
                     keyboardType: TextInputType.text,
                     controller: usernameController,
                     decoration: new InputDecoration(
