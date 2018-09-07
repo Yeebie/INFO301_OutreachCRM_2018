@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'ContactPage.dart';
 import 'package:validate/validate.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -14,32 +15,32 @@ import 'package:outreachcrm_app/Contact.dart';
 
 List<Contact> contacts;
 
-void main() {
-  runApp(new MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-        home: new LoginPage(),
-        theme: new ThemeData(primarySwatch: Colors.lightBlue));
+    return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: LoginPage(
+        loginFields: LoginFields(),
+      ),
+    );
   }
 }
 
 class LoginPage extends StatefulWidget {
+  final LoginFields loginFields;
+  LoginPage({@required this.loginFields});
   @override
-  State createState() => new LoginPageState();
+  _LoginPageState createState() => _LoginPageState(loginFields: loginFields);
 }
 
 class LoginFields {
   String _username = '';
   String _password = '';
-
-  ///Temporary for now. We will need to read this in from the user when they
-  ///run the app for the first time. We will also need to check that the domain they
-  ///entered is valid
   String _domain = "info301";
 }
 
@@ -60,35 +61,26 @@ class ContactListFields {
   String nameProcessed = '';
 }
 
-class LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
-  //Datafields
-  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  LoginFields _fields = new LoginFields();
+class _LoginPageState extends State<LoginPage> 
+with SingleTickerProviderStateMixin{
+  final LoginFields loginFields;
+  _LoginPageState({this.loginFields});
+
+  final TextEditingController usernameController = new TextEditingController();
+  final TextEditingController passwordController = new TextEditingController();
+
+  final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   APIKeyFields _apiKeyFields = new APIKeyFields();
   APIKeyValidationFields _apiKeyValidationFields = new APIKeyValidationFields();
   ContactListFields _contactListFields = new ContactListFields();
 
   Map<String, dynamic> apiKey;
 
-  final TextEditingController usernameController = new TextEditingController();
-  final TextEditingController passwordController = new TextEditingController();
-
   AnimationController _iconAnimationController;
   Animation<double> _iconAnimation;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _iconAnimationController = new AnimationController(
-        vsync: this, duration: new Duration(milliseconds: 1000));
-    _iconAnimation = new CurvedAnimation(
-        parent: _iconAnimationController, curve: Curves.easeOut);
-
-    _iconAnimation.addListener(() => this.setState(() {}));
-    _iconAnimationController.forward();
-  }
+  //triggers modal loading overlay
+  bool _inAsyncCall = false;
 
   //Not used anymore since Andrew said that usernames can be emails or alphanumeric
   //See _validateUsername for current validator
@@ -105,7 +97,7 @@ class LoginPageState extends State<LoginPage>
     return null;
   }
 
-  String _validateUsername(String value) {
+  String _validateUserName(String value) {
     RegExp userNamePattern = new RegExp(
       r"^[a-zA-Z0-9@.]*$",
       caseSensitive: false,
@@ -152,100 +144,42 @@ class LoginPageState extends State<LoginPage>
             ));
   }
 
-  void _loginButton() {
-    //This checks if the form validates
+  void _login() {
     try {
-      if (this._formKey.currentState.validate()) {
-        //Saves the form
-        this._formKey.currentState.save();
+    if (_loginFormKey.currentState.validate()) {
+      _loginFormKey.currentState.save();
+
+      // dismiss keyboard
+      FocusScope.of(context).requestFocus(new FocusNode());
+
+      // start the modal progress HUD
+      setState(() {
+        _inAsyncCall = true;
+        _getAPIKeyRetrieval();
+
+        /*
+        Just used for debugging
         print("");
         print('Login Details');
-        print('Username: ${_fields._username}');
-        print('Password: ${_fields._password}');
-        print('Domain: ${_fields._domain}');
+        print('Username: ${loginFields._username}');
+        print('Password: ${loginFields._password}');
+        print('Domain: ${loginFields._domain}');
         print('\n \n');
+         */
+      });
 
-        ///Retrieve the API Key
-        _getAPIKeyRetrieval();
-      }
+      // Buy us some time while logging in
+    Future.delayed(Duration(seconds: 5), () {
+        setState(() {
+          // stop the modal progress HUD
+          _inAsyncCall = false;
+        });
+      }); 
+    }
     } catch (e) {
       showDialogParent("Error", "Something bad happened");
       print(e);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return new Scaffold(
-      backgroundColor: Colors.white,
-      body: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new FlutterLogo(
-            size: _iconAnimation.value * 100,
-          ),
-          new Form(
-              key: this._formKey,
-              child: new Column(
-                children: <Widget>[
-                  ///Email Text Field
-                  new TextFormField(
-                    keyboardType: TextInputType.text,
-                    controller: usernameController,
-                    decoration: new InputDecoration(
-                        hintText: "Enter Username",
-                        contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(32.0))),
-                    validator: this._validateUsername,
-                    onSaved: (val) => this._fields._username = val,
-                  ),
-
-                  ///Password Text Field
-                  new TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: new InputDecoration(
-                        hintText: "Enter Password",
-                        contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(32.0))),
-                    validator: this._validatePassword,
-                    onSaved: (val) => this._fields._password = val,
-                  ),
-                  new Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Material(
-                      borderRadius: BorderRadius.circular(30.0),
-                      shadowColor: Colors.lightBlueAccent.shade100,
-                      elevation: 5.0,
-                      child: MaterialButton(
-                        minWidth: 200.0,
-                        height: 42.00,
-                        onPressed: () {
-                          _loginButton();
-                        },
-                        color: Colors.lightBlueAccent,
-                        child: Text('Log in',
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ),
-                  const FlatButton(
-                    child: Text(
-                      "Forgot password?",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    onPressed: null,
-                  )
-                ],
-              )),
-        ],
-      ),
-    );
   }
 
   ///***************************************************************************
@@ -257,11 +191,11 @@ class LoginPageState extends State<LoginPage>
     //Kind of like a method, will do all sorts of fantastic things in the future
     //Creating the URL that'll query the database for our API Key
     String _requestAPIKeyRetrieval = "https://" +
-        _fields._domain +
+        loginFields._domain +
         ".outreach.co.nz/api/0.2/auth/login/?username=" +
-        _fields._username +
+        loginFields._username +
         "&password=" +
-        _fields._password;
+        loginFields._password;
     print("API Key Retrieval");
     print('Creating the URL to generate API Keys via Login Details: ' +
         _requestAPIKeyRetrieval);
@@ -315,7 +249,7 @@ class LoginPageState extends State<LoginPage>
     //Next step is to verify the key, retrieve the user etc
     print('API Key Validation');
     String _requestAPIKeyVerification = "https://" +
-        _fields._domain +
+        loginFields._domain +
         ".outreach.co.nz/api/0.2/auth/verify/?apikey=" +
         _apiKeyFields._apiKey;
     print('API Validation URL: ' + _requestAPIKeyVerification);
@@ -367,7 +301,7 @@ class LoginPageState extends State<LoginPage>
   Widget _getContactsList() {
     print('Retrieving Contacts List\n');
     String _requestContactList = "https://" +
-        _fields._domain +
+        loginFields._domain +
         ".outreach.co.nz/api/0.2/query/user?apikey=" +
         _apiKeyFields._apiKey +
         "&properties=%5B%27name_processed%27%5D&conditions=%5B%5B%27status%27,%27=%27,%27O%27%5D,%5B%27oid%27,%27%3E=%27,%27100%27%5D%5D";
@@ -411,7 +345,7 @@ class LoginPageState extends State<LoginPage>
 
       ///Convert the String in the map into a Contact (Turns the string into a fullName)
       int i = 0;
-      while(i < map.length) {
+      while (i < map.length) {
         fullName = map[i];
         Contact contact = new Contact();
         contact.setFullName(fullName);
@@ -422,7 +356,7 @@ class LoginPageState extends State<LoginPage>
       ///Printing the contactList, sanity check
       print("Printing contactsList");
       i = 0;
-      while(i < contactsList.length) {
+      while (i < contactsList.length) {
         print(contactsList[i].getFullName());
         i++;
       }
@@ -430,15 +364,116 @@ class LoginPageState extends State<LoginPage>
       print('\n\n');
       contacts = contactsList;
 
-      usernameController.clear();
-      passwordController.clear();
-
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => ContactsPage(contacts: contacts)),
       );
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //Build the scaffold of the page
+    return Scaffold(
+      body: ModalProgressHUD(
+        child: LoginForm(
+          loginFormKey: _loginFormKey,
+          login: _login,
+          loginFields: loginFields,
+          validateUserName: _validateUserName,
+          validatePassword: _validatePassword,
+        ),
+        inAsyncCall: _inAsyncCall,
+        
+        //addtional options for loading modal
+        opacity: 0.5,
+        progressIndicator: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatelessWidget {
+  final GlobalKey<FormState> loginFormKey;
+  final LoginFields loginFields;
+  final Function validateUserName;
+  final Function validatePassword;
+  final Function login;
+  final TextEditingController usernameController = new TextEditingController();
+  final TextEditingController passwordController = new TextEditingController();
+
+  LoginForm({
+    @required this.loginFormKey,
+    @required this.login,
+    @required this.loginFields,
+    @required this.validateUserName,
+    @required this.validatePassword,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData themeData = Theme.of(context);
+    final TextTheme textTheme = themeData.textTheme;
+    //Build the form and attach to the scaffold
+    return Form(
+      key: this.loginFormKey,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 4.0),
+            child: TextFormField(
+              key: Key('username'),
+              keyboardType: TextInputType.text,
+              controller: usernameController,
+              decoration: InputDecoration(
+              hintText: 'enter username', labelText: 'User Name'),
+              style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+              validator: validateUserName,
+              onSaved: (val) => this.loginFields._username = val
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
+            child: TextFormField(
+              key: Key('password'),
+              obscureText: true,
+              keyboardType: TextInputType.text,
+              controller: passwordController,
+              decoration: InputDecoration(
+              hintText: 'enter password', labelText: 'Password'),
+              style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+              validator: validatePassword,
+              onSaved: (val) => this.loginFields._password = val,
+            ),
+          ),
+          new Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Material(
+              borderRadius: BorderRadius.circular(30.0),
+              shadowColor: Colors.lightBlueAccent.shade100,
+              elevation: 5.0,
+              child: MaterialButton(
+                minWidth: 200.0,
+                height: 42.00,
+                onPressed: () {
+                  login();
+                },
+                color: Colors.lightBlueAccent,
+                child: Text('Log in', style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ),
+          const FlatButton(
+            child: Text(
+              "Forgot password?",
+              style: TextStyle(color: Colors.black),
+            ),
+            onPressed: null,
+          ),
+        ],
+      ),
+    );
   }
 }
 
