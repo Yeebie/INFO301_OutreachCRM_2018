@@ -197,19 +197,22 @@ class LoginPageState extends State<LoginPage>
           new Image.asset('assets/OutreachCRM_vert_logo.jpg',
             width: 175.0,
             height: 175.0,
-
           ),
+
           new Form(
               key: this._formKey,
               child: new Column(
+
                 children: <Widget>[
                   ///Email Text Field
+                  ///
                   new TextFormField(
 
                     keyboardType: TextInputType.text,
                     controller: usernameController,
                     decoration: new InputDecoration(
                         hintText: "Enter Username",
+
                         contentPadding:
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
                         border: OutlineInputBorder(
@@ -218,8 +221,14 @@ class LoginPageState extends State<LoginPage>
                     onSaved: (val) => this._fields._username = val,
                   ),
 
+                  new Padding(
+                    //padding: new EdgeInsets.all(5.0),
+                      padding: new EdgeInsets.fromLTRB(6.0, 5.0, 6.0, 5.0)
+                  ),
+
                   ///Password Text Field
                   new TextFormField(
+
                     controller: passwordController,
                     obscureText: true,
                     decoration: new InputDecoration(
