@@ -24,9 +24,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+
       home: LoginPage(
         loginFields: LoginFields(),
+
       ),
+
     );
   }
 }
@@ -389,7 +392,9 @@ with SingleTickerProviderStateMixin{
         //addtional options for loading modal
         opacity: 0.5,
         progressIndicator: CircularProgressIndicator(),
+
       ),
+
     );
   }
 }
@@ -420,9 +425,16 @@ class LoginForm extends StatelessWidget {
       key: this.loginFormKey,
       child: Column(
         children: [
+
+          new Image.asset('assets/OutreachCRM_vert_logo.jpg',
+            width: 190.0,
+            height: 190.0,
+          ),
           Padding(
+
             padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 4.0),
             child: TextFormField(
+
               key: Key('username'),
               keyboardType: TextInputType.text,
               controller: usernameController,
