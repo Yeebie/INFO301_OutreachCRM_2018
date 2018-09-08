@@ -21,15 +21,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-
       home: LoginPage(
         loginFields: LoginFields(),
-
       ),
-
     );
   }
 }
@@ -64,8 +62,8 @@ class ContactListFields {
   String nameProcessed = '';
 }
 
-class _LoginPageState extends State<LoginPage> 
-with SingleTickerProviderStateMixin{
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final LoginFields loginFields;
   _LoginPageState({this.loginFields});
 
@@ -149,18 +147,18 @@ with SingleTickerProviderStateMixin{
 
   void _login() {
     try {
-    if (_loginFormKey.currentState.validate()) {
-      _loginFormKey.currentState.save();
+      if (_loginFormKey.currentState.validate()) {
+        _loginFormKey.currentState.save();
 
-      // dismiss keyboard
-      FocusScope.of(context).requestFocus(new FocusNode());
+        // dismiss keyboard
+        FocusScope.of(context).requestFocus(new FocusNode());
 
-      // start the modal progress HUD
-      setState(() {
-        _inAsyncCall = true;
-        _getAPIKeyRetrieval();
+        // start the modal progress HUD
+        setState(() {
+          _inAsyncCall = true;
+          _getAPIKeyRetrieval();
 
-        /*
+          /*
         Just used for debugging
         print("");
         print('Login Details');
@@ -169,16 +167,16 @@ with SingleTickerProviderStateMixin{
         print('Domain: ${loginFields._domain}');
         print('\n \n');
          */
-      });
-
-      // Buy us some time while logging in
-    Future.delayed(Duration(seconds: 5), () {
-        setState(() {
-          // stop the modal progress HUD
-          _inAsyncCall = false;
         });
-      }); 
-    }
+
+        // Buy us some time while logging in
+        Future.delayed(Duration(seconds: 5), () {
+          setState(() {
+            // stop the modal progress HUD
+            _inAsyncCall = false;
+          });
+        });
+      }
     } catch (e) {
       showDialogParent("Error", "Something bad happened");
       print(e);
@@ -379,6 +377,7 @@ with SingleTickerProviderStateMixin{
   Widget build(BuildContext context) {
     //Build the scaffold of the page
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       body: ModalProgressHUD(
         child: LoginForm(
           loginFormKey: _loginFormKey,
@@ -388,13 +387,11 @@ with SingleTickerProviderStateMixin{
           validatePassword: _validatePassword,
         ),
         inAsyncCall: _inAsyncCall,
-        
+
         //addtional options for loading modal
         opacity: 0.5,
         progressIndicator: CircularProgressIndicator(),
-
       ),
-
     );
   }
 }
@@ -420,30 +417,36 @@ class LoginForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
     final TextTheme textTheme = themeData.textTheme;
+    final color = const Color(0xFF0085CA);
     //Build the form and attach to the scaffold
     return Form(
       key: this.loginFormKey,
       child: Column(
+        
         children: [
-
-          new Image.asset('assets/OutreachCRM_vert_logo.jpg',
-            width: 190.0,
-            height: 190.0,
-          ),
+          new Container(
+    margin: const EdgeInsets.only(top: 40.0),
+    child : new Image.asset(
+            'assets/OutreachCRM_vert_logo.png',
+            width: 250.0,
+            height: 250.0,
+              )
+         /* new Image.asset(
+            'assets/OutreachCRM_vert_logo.png',
+            width: 250.0,
+            height: 250.0,
+          )*/),
           Padding(
-
             padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 4.0),
             child: TextFormField(
-
-              key: Key('username'),
-              keyboardType: TextInputType.text,
-              controller: usernameController,
-              decoration: InputDecoration(
-              hintText: 'enter username', labelText: 'User Name'),
-              style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
-              validator: validateUserName,
-              onSaved: (val) => this.loginFields._username = val
-            ),
+                key: Key('username'),
+                keyboardType: TextInputType.text,
+                controller: usernameController,
+                decoration: InputDecoration(
+                    hintText: 'enter username', labelText: 'User Name'),
+                style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                validator: validateUserName,
+                onSaved: (val) => this.loginFields._username = val),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
@@ -453,7 +456,7 @@ class LoginForm extends StatelessWidget {
               keyboardType: TextInputType.text,
               controller: passwordController,
               decoration: InputDecoration(
-              hintText: 'enter password', labelText: 'Password'),
+                  hintText: 'enter password', labelText: 'Password'),
               style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
               validator: validatePassword,
               onSaved: (val) => this.loginFields._password = val,
@@ -462,16 +465,16 @@ class LoginForm extends StatelessWidget {
           new Padding(
             padding: const EdgeInsets.all(20.0),
             child: Material(
-              borderRadius: BorderRadius.circular(30.0),
+              borderRadius: BorderRadius.circular(0.0),
               shadowColor: Colors.lightBlueAccent.shade100,
               elevation: 5.0,
               child: MaterialButton(
-                minWidth: 200.0,
+                minWidth: 320.0,
                 height: 42.00,
                 onPressed: () {
                   login();
                 },
-                color: Colors.lightBlueAccent,
+                color: color,
                 child: Text('Log in', style: TextStyle(color: Colors.white)),
               ),
             ),

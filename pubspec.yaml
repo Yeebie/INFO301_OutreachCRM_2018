@@ -36,6 +36,7 @@ flutter:
   assets:
     - assets/logo.png
     - assets/OutreachCRM_vert_logo.jpg
+    - assets/OutreachCRM_vert_logo.png
 
   #  - images/a_dot_ham.jpeg
 

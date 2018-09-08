@@ -27,6 +27,7 @@ class _ContactPage extends State<ContactsPage> {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: new Scaffold(
           appBar: new AppBar(
             title: widget.appBarTitle,
