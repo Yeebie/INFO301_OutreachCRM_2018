@@ -475,14 +475,14 @@ class LoginForm extends StatelessWidget {
                   login();
                 },
                 color: color,
-                child: Text('Log in', style: TextStyle(color: Colors.white)),
+                child: Text('Log in', style: TextStyle(fontSize: 16.0, color: Colors.white)),
               ),
             ),
           ),
           const FlatButton(
             child: Text(
               "Forgot password?",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(fontSize: 14.0, color: Colors.black),
             ),
             onPressed: null,
           ),
