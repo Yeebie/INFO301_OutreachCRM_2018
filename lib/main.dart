@@ -82,6 +82,10 @@ class _LoginPageState extends State<LoginPage>
 
   //triggers modal loading overlay
   bool _inAsyncCall = false;
+  //Puts app in demo mode (If you want to switch out the mode then you have 
+  //change the boolean and rerun the app. If someone finds a fix that would be 
+  //great)
+  bool _demoMode = true;
 
   //Not used anymore since Andrew said that usernames can be emails or alphanumeric
   //See _validateUsername for current validator
@@ -147,7 +151,8 @@ class _LoginPageState extends State<LoginPage>
 
   void _login() {
     try {
-      if (_loginFormKey.currentState.validate()) {
+      if (_loginFormKey.currentState.validate() ||
+       (_demoMode && !_loginFormKey.currentState.validate())) {
         _loginFormKey.currentState.save();
 
         // dismiss keyboard
@@ -189,6 +194,11 @@ class _LoginPageState extends State<LoginPage>
 
   ///Retrieving API Key
   Widget _getAPIKeyRetrieval() {
+    if(_demoMode) {
+      loginFields._username = "andaa635@student.otago.ac.nz";
+      loginFields._password = "andaa635";
+    }
+
     //Kind of like a method, will do all sorts of fantastic things in the future
     //Creating the URL that'll query the database for our API Key
     String _requestAPIKeyRetrieval = "https://" +
