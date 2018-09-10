@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'ContactPage.dart';
 import 'package:validate/validate.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -82,8 +83,8 @@ class _LoginPageState extends State<LoginPage>
 
   //triggers modal loading overlay
   bool _inAsyncCall = false;
-  //Puts app in demo mode (If you want to switch out the mode then you have 
-  //change the boolean and rerun the app. If someone finds a fix that would be 
+  //Puts app in demo mode (If you want to switch out the mode then you have
+  //change the boolean and rerun the app. If someone finds a fix that would be
   //great)
   bool _demoMode = true;
 
@@ -149,10 +150,20 @@ class _LoginPageState extends State<LoginPage>
             ));
   }
 
+  void _forgotPassword() async {
+    String url =
+        'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   void _login() {
     try {
       if (_loginFormKey.currentState.validate() ||
-       (_demoMode && !_loginFormKey.currentState.validate())) {
+          (_demoMode && !_loginFormKey.currentState.validate())) {
         _loginFormKey.currentState.save();
 
         // dismiss keyboard
@@ -194,7 +205,7 @@ class _LoginPageState extends State<LoginPage>
 
   ///Retrieving API Key
   Widget _getAPIKeyRetrieval() {
-    if(_demoMode) {
+    if (_demoMode) {
       loginFields._username = "andaa635@student.otago.ac.nz";
       loginFields._password = "andaa635";
     }
@@ -392,6 +403,7 @@ class _LoginPageState extends State<LoginPage>
         child: LoginForm(
           loginFormKey: _loginFormKey,
           login: _login,
+          forgotPassword: _forgotPassword,
           loginFields: loginFields,
           validateUserName: _validateUserName,
           validatePassword: _validatePassword,
@@ -412,12 +424,14 @@ class LoginForm extends StatelessWidget {
   final Function validateUserName;
   final Function validatePassword;
   final Function login;
+  final Function forgotPassword;
   final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
   LoginForm({
     @required this.loginFormKey,
     @required this.login,
+    @required this.forgotPassword,
     @required this.loginFields,
     @required this.validateUserName,
     @required this.validatePassword,
@@ -428,24 +442,25 @@ class LoginForm extends StatelessWidget {
     final ThemeData themeData = Theme.of(context);
     final TextTheme textTheme = themeData.textTheme;
     final color = const Color(0xFF0085CA);
+    //final String url = 'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
     //Build the form and attach to the scaffold
     return Form(
       key: this.loginFormKey,
       child: Column(
-        
         children: [
           new Container(
-    margin: const EdgeInsets.only(top: 40.0),
-    child : new Image.asset(
-            'assets/OutreachCRM_vert_logo.png',
-            width: 250.0,
-            height: 250.0,
+              margin: const EdgeInsets.only(top: 40.0),
+              child: new Image.asset(
+                'assets/OutreachCRM_vert_logo.png',
+                width: 250.0,
+                height: 250.0,
               )
-         /* new Image.asset(
+              /* new Image.asset(
             'assets/OutreachCRM_vert_logo.png',
             width: 250.0,
             height: 250.0,
-          )*/),
+          )*/
+              ),
           Padding(
             padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 4.0),
             child: TextFormField(
@@ -485,16 +500,17 @@ class LoginForm extends StatelessWidget {
                   login();
                 },
                 color: color,
-                child: Text('Log in', style: TextStyle(fontSize: 16.0, color: Colors.white)),
+                child: Text('Log in',
+                    style: TextStyle(fontSize: 16.0, color: Colors.white)),
               ),
             ),
           ),
-          const FlatButton(
+          FlatButton(
             child: Text(
               "Forgot password?",
               style: TextStyle(fontSize: 14.0, color: Colors.black),
             ),
-            onPressed: null,
+            onPressed: forgotPassword,
           ),
         ],
       ),
