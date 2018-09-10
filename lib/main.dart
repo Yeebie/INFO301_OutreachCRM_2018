@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 
 ///Used for API Key Retrieval
 import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'dart:convert'; //Converts Json into Map
 
 import 'package:outreachcrm_app/Contact.dart';
@@ -21,6 +21,10 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
