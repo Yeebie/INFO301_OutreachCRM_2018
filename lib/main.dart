@@ -11,6 +11,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert'; //Converts Json into Map
 
 import 'package:outreachcrm_app/Contact.dart';
+import 'package:outreachcrm_app/prefs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 List<Contact> contacts;
 
@@ -62,12 +64,21 @@ class ContactListFields {
 
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  //Datafields
+
+  /// cache shit
+  Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
+  String _cacheDomain;
+  String _cacheUsername;
+  String _cachePassword;
+  bool _autoLogin = false;
+
+  ///Data fields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   LoginFields _fields = new LoginFields();
   APIKeyFields _apiKeyFields = new APIKeyFields();
   APIKeyValidationFields _apiKeyValidationFields = new APIKeyValidationFields();
   ContactListFields _contactListFields = new ContactListFields();
+
 
   Map<String, dynamic> apiKey;
 
@@ -79,7 +90,6 @@ class LoginPageState extends State<LoginPage>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _iconAnimationController = new AnimationController(
         vsync: this, duration: new Duration(milliseconds: 1000));
@@ -88,10 +98,34 @@ class LoginPageState extends State<LoginPage>
 
     _iconAnimation.addListener(() => this.setState(() {}));
     _iconAnimationController.forward();
+
+
+    /// initialize the cache
+//    Prefs.init();
+//    if(Prefs != null){
+//      if(_userHasLoggedIn()){
+//        _loginButton();
+//      }
+//    }
+//
+//
+//    print("------------------------------------");
+////    Future<String> t = Prefs.getStringF('domain');
+////    t.whenComplete(() => print(t));
+////    /// check if user has logged in
+////    if(_userHasLoggedIn()){
+////      _loginButton();
+////    }
+//    print(getString('domain'));
+//    print(_cacheDomain);
+//    print("------------------------------------");
   }
 
-  //Not used anymore since Andrew said that usernames can be emails or alphanumeric
+
+
+  //Not used anymore since Andrew said that user names can be emails or alphanumeric
   //See _validateUsername for current validator
+
   String _validateEmail(String value) {
     try {
       Validate.isEmail(value);
@@ -167,86 +201,166 @@ class LoginPageState extends State<LoginPage>
 
         ///Retrieve the API Key
         _getAPIKeyRetrieval();
+
+        /// Set the login cache with the validated fields
+//        _setLoginCache(_fields._domain, _fields._username, _fields._password);
+
+        setString('domain', _fields._domain);
+        setString('username', _fields._username);
+        setString('password', _fields._password);
       }
     } catch (e) {
-      showDialogParent("Error", "Something bad happened");
+      showDialogParent("Error", "Couldn't login");
       print(e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return new Scaffold(
-      backgroundColor: Colors.white,
-      body: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new FlutterLogo(
-            size: _iconAnimation.value * 100,
-          ),
-          new Form(
-              key: this._formKey,
-              child: new Column(
-                children: <Widget>[
-                  ///Email Text Field
-                  new TextFormField(
-                    keyboardType: TextInputType.text,
-                    controller: usernameController,
-                    decoration: new InputDecoration(
-                        hintText: "Enter Username",
-                        contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(32.0))),
-                    validator: this._validateUsername,
-                    onSaved: (val) => this._fields._username = val,
-                  ),
+    print("------------------------------------");
+    getString('domain');
+    getString('username');
+    getString('password');
+    print(_cacheDomain);
+    print(_cacheUsername);
+    print(_cachePassword);
+    print("------------------------------------");
 
-                  ///Password Text Field
-                  new TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: new InputDecoration(
-                        hintText: "Enter Password",
-                        contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(32.0))),
-                    validator: this._validatePassword,
-                    onSaved: (val) => this._fields._password = val,
-                  ),
-                  new Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Material(
-                      borderRadius: BorderRadius.circular(30.0),
-                      shadowColor: Colors.lightBlueAccent.shade100,
-                      elevation: 5.0,
-                      child: MaterialButton(
-                        minWidth: 200.0,
-                        height: 42.00,
-                        onPressed: () {
-                          _loginButton();
-                        },
-                        color: Colors.lightBlueAccent,
-                        child: Text('Log in',
-                            style: TextStyle(color: Colors.white)),
+    if(_userHasLoggedIn() && _autoLogin == false) {
+      _autoLogin = true;
+      _getAPIKeyRetrieval();
+    }
+
+      return new Scaffold(
+        backgroundColor: Colors.white,
+        body: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new FlutterLogo(
+              size: _iconAnimation.value * 100,
+            ),
+            new Form(
+                key: this._formKey,
+                child: new Column(
+                  children: <Widget>[
+
+                    ///Email Text Field
+                    new TextFormField(
+                      keyboardType: TextInputType.text,
+                      controller: usernameController,
+                      decoration: new InputDecoration(
+                          hintText: "Enter Username",
+                          contentPadding:
+                          EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(32.0))),
+                      validator: this._validateUsername,
+                      onSaved: (val) => this._fields._username = val,
+                    ),
+
+                    ///Password Text Field
+                    new TextFormField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: new InputDecoration(
+                          hintText: "Enter Password",
+                          contentPadding:
+                          EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(32.0))),
+                      validator: this._validatePassword,
+                      onSaved: (val) => this._fields._password = val,
+                    ),
+
+                    /// Login Button
+                    new Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Material(
+                        borderRadius: BorderRadius.circular(30.0),
+                        shadowColor: Colors.lightBlueAccent.shade100,
+                        elevation: 5.0,
+                        child: MaterialButton(
+                          minWidth: 200.0,
+                          height: 42.00,
+                          onPressed: () {
+                            _loginButton();
+                          },
+                          color: Colors.lightBlueAccent,
+                          child: Text('Log in',
+                              style: TextStyle(color: Colors.white)),
+                        ),
                       ),
                     ),
-                  ),
-                  const FlatButton(
-                    child: Text(
-                      "Forgot password?",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    onPressed: null,
-                  )
-                ],
-              )),
-        ],
-      ),
-    );
+
+                    /// Forgot Password Link
+                    const FlatButton(
+                      child: Text(
+                        "Forgot password?",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      onPressed: null,
+                    )
+                  ],
+                )),
+          ],
+        ),
+      );
   }
+
+  ///***************************************************************************
+  ///                     A U T O   L O G I N
+  ///***************************************************************************
+
+  /// we want to check if the user has logged in before
+  /// so we check the cache for the 3 values. if null;
+  /// then we do nothing until user hits login button.
+  /// we then want to cache the values if verified.
+  ///
+  /// if not null; we grab the values, build a URL, and
+  /// verify it, then skip to the login method
+
+  Future<Null> setString(String key, String s) async {
+    final SharedPreferences prefs = await _sPrefs;
+    prefs.setString(key, s);
+  }
+
+  Future<Null> getString(String key) async {
+    final SharedPreferences prefs = await _sPrefs;
+
+    if(key == 'domain') _cacheDomain = prefs.getString(key) ?? "";
+    else if(key == 'username') _cacheUsername = prefs.getString(key) ?? "";
+    else if(key == 'password') _cachePassword = prefs.getString(key) ?? "";
+  }
+
+  bool _userHasLoggedIn() {
+    if(_cacheDomain != null &&_cacheUsername != null
+    && _cachePassword != null) {
+
+      print("----------------------------------");
+      print("details were in cache my dude");
+      print("----------------------------------");
+
+      _fields._domain = _cacheDomain;
+      _fields._username = _cacheUsername;
+      _fields._password = _cachePassword;
+
+      return true;
+    }
+    return false;
+  }
+
+  void _setLoginCache(String domain, String username, String password){
+
+    print("----------------------------------");
+    print("caching deets my dude");
+    print("----------------------------------");
+
+    setString('domain', domain);
+    setString('username', username);
+    setString('password', password);
+  }
+
+
 
   ///***************************************************************************
   ///                  A P I   K E Y   R E T R I E V A L
@@ -254,7 +368,6 @@ class LoginPageState extends State<LoginPage>
 
   ///Retrieving API Key
   Widget _getAPIKeyRetrieval() {
-    //Kind of like a method, will do all sorts of fantastic things in the future
     //Creating the URL that'll query the database for our API Key
     String _requestAPIKeyRetrieval = "https://" +
         _fields._domain +
@@ -265,6 +378,15 @@ class LoginPageState extends State<LoginPage>
     print("API Key Retrieval");
     print('Creating the URL to generate API Keys via Login Details: ' +
         _requestAPIKeyRetrieval);
+
+    /// handle API cache here
+
+//    Prefs.setString('url', _requestAPIKeyRetrieval);
+
+//    print("----------------------------------");
+//    print(Prefs.getString('url').toString());
+//    print("----------------------------------");
+
 
     ///This section is delayed until first login attempt has been done, results in invalid verification
     http.post(_requestAPIKeyRetrieval).then((response) {
