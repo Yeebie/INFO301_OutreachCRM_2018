@@ -3,6 +3,7 @@ import 'ContactPage.dart';
 import 'package:validate/validate.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -22,9 +23,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -92,6 +93,8 @@ class _LoginPageState extends State<LoginPage>
   //great)
   bool _demoMode = true;
 
+  bool _wifiEnabled = true;
+
   //Not used anymore since Andrew said that usernames can be emails or alphanumeric
   //See _validateUsername for current validator
   String _validateEmail(String value) {
@@ -145,6 +148,19 @@ class _LoginPageState extends State<LoginPage>
     return null;
   }
 
+  void _checkWifi() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        _wifiEnabled = true;
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      _wifiEnabled = false;
+    }
+  }
+
   void showDialogParent(String title, String content) {
     showDialog(
         context: context,
@@ -155,8 +171,9 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _forgotPassword() async {
-    String url =
-        'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
+    String url = 'https://' +
+        loginFields._domain +
+        '.outreach.co.nz/?Na=forgot-password-public';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -165,9 +182,20 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _login() {
+
+    _checkWifi();
+    //Future.delayed(const Duration(seconds: 3));
+    /*
+    if(_wifiEnabled) {
+      showDialogParent("Yay", "You have wifi!");
+    }
+    else {
+      showDialogParent("Boo", "You don't have wifi!");
+    }
+    */
     try {
-      if (_loginFormKey.currentState.validate() ||
-          (_demoMode && !_loginFormKey.currentState.validate())) {
+      if ((_loginFormKey.currentState.validate() && _wifiEnabled) ||
+          (_demoMode && !_loginFormKey.currentState.validate()) && _wifiEnabled) {
         _loginFormKey.currentState.save();
 
         // dismiss keyboard
