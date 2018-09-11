@@ -11,7 +11,9 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert'; //Converts Json into Map
 
 import 'package:outreachcrm_app/Contact.dart';
-import 'package:outreachcrm_app/prefs.dart';
+
+/// used for caching
+import 'package:outreachcrm_app/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<Contact> contacts;
@@ -65,12 +67,11 @@ class ContactListFields {
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
 
-  /// cache shit
+  /// cache login variables
   Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
-  String _cacheDomain;
-  String _cacheUsername;
-  String _cachePassword;
-  bool _autoLogin = false;
+  String _cacheDomain, _cacheUsername, _cachePassword;
+  // boolean to lock cache check when logging in
+  bool _attemptingLogin = false;
 
   ///Data fields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -99,26 +100,6 @@ class LoginPageState extends State<LoginPage>
     _iconAnimation.addListener(() => this.setState(() {}));
     _iconAnimationController.forward();
 
-
-    /// initialize the cache
-//    Prefs.init();
-//    if(Prefs != null){
-//      if(_userHasLoggedIn()){
-//        _loginButton();
-//      }
-//    }
-//
-//
-//    print("------------------------------------");
-////    Future<String> t = Prefs.getStringF('domain');
-////    t.whenComplete(() => print(t));
-////    /// check if user has logged in
-////    if(_userHasLoggedIn()){
-////      _loginButton();
-////    }
-//    print(getString('domain'));
-//    print(_cacheDomain);
-//    print("------------------------------------");
   }
 
 
@@ -203,11 +184,7 @@ class LoginPageState extends State<LoginPage>
         _getAPIKeyRetrieval();
 
         /// Set the login cache with the validated fields
-//        _setLoginCache(_fields._domain, _fields._username, _fields._password);
-
-        setString('domain', _fields._domain);
-        setString('username', _fields._username);
-        setString('password', _fields._password);
+        _setLoginCache(_fields._domain, _fields._username, _fields._password);
       }
     } catch (e) {
       showDialogParent("Error", "Couldn't login");
@@ -217,18 +194,28 @@ class LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    print("------------------------------------");
-    getString('domain');
-    getString('username');
-    getString('password');
-    print(_cacheDomain);
-    print(_cacheUsername);
-    print(_cachePassword);
-    print("------------------------------------");
 
-    if(_userHasLoggedIn() && _autoLogin == false) {
-      _autoLogin = true;
-      _getAPIKeyRetrieval();
+    /// call this to clear cache
+//    clearLoginDetails();
+
+    /// if we are not currently trying to login
+    if(_attemptingLogin == false) {
+      /// attempt to retrieve details from cache
+      getLoginDetails();
+
+
+
+      /// if the user has logged in before, attempt to get new API key
+      if (_userHasLoggedIn()) {
+        print("------------------------------------");
+        print(_cacheDomain);
+        print(_cacheUsername);
+        print(_cachePassword);
+        print("------------------------------------");
+
+        _attemptingLogin = true;
+        _getAPIKeyRetrieval();
+      }
     }
 
       return new Scaffold(
@@ -307,31 +294,41 @@ class LoginPageState extends State<LoginPage>
       );
   }
 
+
   ///***************************************************************************
   ///                     A U T O   L O G I N
   ///***************************************************************************
 
-  /// we want to check if the user has logged in before
-  /// so we check the cache for the 3 values. if null;
-  /// then we do nothing until user hits login button.
-  /// we then want to cache the values if verified.
-  ///
-  /// if not null; we grab the values, build a URL, and
-  /// verify it, then skip to the login method
 
+  /// method to set a passed string value in cache under a passed string key.
   Future<Null> setString(String key, String s) async {
     final SharedPreferences prefs = await _sPrefs;
     prefs.setString(key, s);
   }
 
-  Future<Null> getString(String key) async {
+
+  /// method to get login details from cache and store them in local variables
+  Future<Null> getLoginDetails() async {
     final SharedPreferences prefs = await _sPrefs;
 
-    if(key == 'domain') _cacheDomain = prefs.getString(key) ?? "";
-    else if(key == 'username') _cacheUsername = prefs.getString(key) ?? "";
-    else if(key == 'password') _cachePassword = prefs.getString(key) ?? "";
+     _cacheDomain = prefs.getString('domain') ?? null;
+     _cacheUsername = prefs.getString('username') ?? null;
+     _cachePassword = prefs.getString('password') ?? null;
   }
 
+  void clearLoginDetails() {
+    _cachePassword = null;
+    _cacheUsername = null;
+    _cacheDomain = null;
+
+    Util.removeCacheItem('domain');
+    Util.removeCacheItem('username');
+    Util.removeCacheItem('password');
+  }
+
+  /// method checks if there are login values in cache.
+  /// if yes; update the class variables with cached data
+  /// and return true.
   bool _userHasLoggedIn() {
     if(_cacheDomain != null &&_cacheUsername != null
     && _cachePassword != null) {
@@ -349,15 +346,17 @@ class LoginPageState extends State<LoginPage>
     return false;
   }
 
+
+  /// method to set the cache values for login details.
   void _setLoginCache(String domain, String username, String password){
 
     print("----------------------------------");
     print("caching deets my dude");
     print("----------------------------------");
 
-    setString('domain', domain);
-    setString('username', username);
-    setString('password', password);
+    Util.setString('domain', domain);
+    Util.setString('username', username);
+    Util.setString('password', password);
   }
 
 
@@ -379,16 +378,8 @@ class LoginPageState extends State<LoginPage>
     print('Creating the URL to generate API Keys via Login Details: ' +
         _requestAPIKeyRetrieval);
 
-    /// handle API cache here
-
-//    Prefs.setString('url', _requestAPIKeyRetrieval);
-
-//    print("----------------------------------");
-//    print(Prefs.getString('url').toString());
-//    print("----------------------------------");
-
-
-    ///This section is delayed until first login attempt has been done, results in invalid verification
+    ///This section is delayed until first login attempt has been done,
+    /// results in invalid verification
     http.post(_requestAPIKeyRetrieval).then((response) {
       //Print the API Key, just so we can compare it to the final result
       print("Original Response body: ${response.body}");
@@ -409,7 +400,8 @@ class LoginPageState extends State<LoginPage>
       }
 
       //Retrieving the API Key from the array
-      ///This parts important, we're generating 2 API Keys, this is the one from this login attempt
+      ///This parts important, we're generating 2 API Keys, this is the one
+      /// from this login attempt
       print("Printing getAPIKey()");
       print(_apiKeyFields._apiKey);
       print("Printing getExpiry()");
