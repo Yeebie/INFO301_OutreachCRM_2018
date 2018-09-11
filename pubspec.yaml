@@ -6,15 +6,18 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^0.4.2
-    
 
-  http: 0.11.3+17 # Can this be updated automatically? Devs'll have to keep an eye on dependencies. Every version of flutter_test from SDK depends on 0.11.3+16, does this need to be changed?
+
+  http: ^0.11.3+16 # Can this be updated automatically? Devs'll have to keep an eye on dependencies.
 
  
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   url_launcher: ^3.0.3
+
+  modal_progress_hud: ^0.1.0
+
 
 dev_dependencies:
   flutter_test:
@@ -34,8 +37,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-assets:
-- assets/logo.png
+  assets:
+    - assets/logo.png
+    - assets/OutreachCRM_vert_logo.jpg
+    - assets/OutreachCRM_vert_logo.png
 
   #  - images/a_dot_ham.jpeg
 

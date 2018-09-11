@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'ContactPage.dart';
 import 'package:validate/validate.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
 
 ///Used for API Key Retrieval
 import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'dart:convert'; //Converts Json into Map
 
 import 'package:outreachcrm_app/Contact.dart';
@@ -18,32 +21,37 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 List<Contact> contacts;
 
-void main() {
-  runApp(new MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-        home: new LoginPage(),
-        theme: new ThemeData(primarySwatch: Colors.lightBlue));
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: LoginPage(
+        loginFields: LoginFields(),
+      ),
+    );
   }
 }
 
 class LoginPage extends StatefulWidget {
+  final LoginFields loginFields;
+  LoginPage({@required this.loginFields});
   @override
-  State createState() => new LoginPageState();
+  _LoginPageState createState() => _LoginPageState(loginFields: loginFields);
 }
 
 class LoginFields {
   String _username = '';
   String _password = '';
-
-  ///Temporary for now. We will need to read this in from the user when they
-  ///run the app for the first time. We will also need to check that the domain they
-  ///entered is valid
   String _domain = "info301";
 }
 
@@ -64,7 +72,7 @@ class ContactListFields {
   String nameProcessed = '';
 }
 
-class LoginPageState extends State<LoginPage>
+class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
 
   /// cache login variables
@@ -76,6 +84,13 @@ class LoginPageState extends State<LoginPage>
   ///Data fields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   LoginFields _fields = new LoginFields();
+  final LoginFields loginFields;
+  _LoginPageState({this.loginFields});
+
+  final TextEditingController usernameController = new TextEditingController();
+  final TextEditingController passwordController = new TextEditingController();
+
+  final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   APIKeyFields _apiKeyFields = new APIKeyFields();
   APIKeyValidationFields _apiKeyValidationFields = new APIKeyValidationFields();
   ContactListFields _contactListFields = new ContactListFields();
@@ -83,12 +98,15 @@ class LoginPageState extends State<LoginPage>
 
   Map<String, dynamic> apiKey;
 
-  final TextEditingController usernameController = new TextEditingController();
-  final TextEditingController passwordController = new TextEditingController();
-
   AnimationController _iconAnimationController;
   Animation<double> _iconAnimation;
 
+  //triggers modal loading overlay
+  bool _inAsyncCall = false;
+  //Puts app in demo mode (If you want to switch out the mode then you have
+  //change the boolean and rerun the app. If someone finds a fix that would be
+  //great)
+  bool _demoMode = true;
   @override
   void initState() {
     super.initState();
@@ -103,6 +121,7 @@ class LoginPageState extends State<LoginPage>
   }
 
 
+  bool _wifiEnabled = true;
 
   //Not used anymore since Andrew said that user names can be emails or alphanumeric
   //See _validateUsername for current validator
@@ -120,7 +139,7 @@ class LoginPageState extends State<LoginPage>
     return null;
   }
 
-  String _validateUsername(String value) {
+  String _validateUserName(String value) {
     RegExp userNamePattern = new RegExp(
       r"^[a-zA-Z0-9@.]*$",
       caseSensitive: false,
@@ -158,6 +177,19 @@ class LoginPageState extends State<LoginPage>
     return null;
   }
 
+  void _checkWifi() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        _wifiEnabled = true;
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      _wifiEnabled = false;
+    }
+  }
+
   void showDialogParent(String title, String content) {
     showDialog(
         context: context,
@@ -167,131 +199,70 @@ class LoginPageState extends State<LoginPage>
             ));
   }
 
-  void _loginButton() {
-    //This checks if the form validates
+  void _forgotPassword() async {
+    String url = 'https://' +
+        loginFields._domain +
+        '.outreach.co.nz/?Na=forgot-password-public';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void _login() {
+
+    _checkWifi();
+    //Future.delayed(const Duration(seconds: 3));
+    /*
+    if(_wifiEnabled) {
+      showDialogParent("Yay", "You have wifi!");
+    }
+    else {
+      showDialogParent("Boo", "You don't have wifi!");
+    }
+    */
     try {
-      if (this._formKey.currentState.validate()) {
-        //Saves the form
-        this._formKey.currentState.save();
+      if ((_loginFormKey.currentState.validate() && _wifiEnabled) ||
+          (_demoMode && !_loginFormKey.currentState.validate()) && _wifiEnabled) {
+        _loginFormKey.currentState.save();
+
+        // dismiss keyboard
+        FocusScope.of(context).requestFocus(new FocusNode());
+
+        // start the modal progress HUD
+        setState(() {
+          _inAsyncCall = true;
+          _getAPIKeyRetrieval();
+
+          /*
+        Just used for debugging
         print("");
         print('Login Details');
-        print('Username: ${_fields._username}');
-        print('Password: ${_fields._password}');
-        print('Domain: ${_fields._domain}');
+        print('Username: ${loginFields._username}');
+        print('Password: ${loginFields._password}');
+        print('Domain: ${loginFields._domain}');
         print('\n \n');
+         */
+        });
 
         ///Retrieve the API Key
         _getAPIKeyRetrieval();
 
         /// Set the login cache with the validated fields
         _setLoginCache(_fields._domain, _fields._username, _fields._password);
+        // Buy us some time while logging in
+        Future.delayed(Duration(seconds: 5), () {
+          setState(() {
+            // stop the modal progress HUD
+            _inAsyncCall = false;
+          });
+        });
       }
     } catch (e) {
       showDialogParent("Error", "Couldn't login");
       print(e);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    /// call this to clear cache
-//    clearLoginDetails();
-
-    /// if we are not currently trying to login
-    if(_attemptingLogin == false) {
-      /// attempt to retrieve details from cache
-      getLoginDetails();
-
-
-
-      /// if the user has logged in before, attempt to get new API key
-      if (_userHasLoggedIn()) {
-        print("------------------------------------");
-        print(_cacheDomain);
-        print(_cacheUsername);
-        print(_cachePassword);
-        print("------------------------------------");
-
-        _attemptingLogin = true;
-        _getAPIKeyRetrieval();
-      }
-    }
-
-      return new Scaffold(
-        backgroundColor: Colors.white,
-        body: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new FlutterLogo(
-              size: _iconAnimation.value * 100,
-            ),
-            new Form(
-                key: this._formKey,
-                child: new Column(
-                  children: <Widget>[
-
-                    ///Email Text Field
-                    new TextFormField(
-                      keyboardType: TextInputType.text,
-                      controller: usernameController,
-                      decoration: new InputDecoration(
-                          hintText: "Enter Username",
-                          contentPadding:
-                          EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(32.0))),
-                      validator: this._validateUsername,
-                      onSaved: (val) => this._fields._username = val,
-                    ),
-
-                    ///Password Text Field
-                    new TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: new InputDecoration(
-                          hintText: "Enter Password",
-                          contentPadding:
-                          EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 18.0),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(32.0))),
-                      validator: this._validatePassword,
-                      onSaved: (val) => this._fields._password = val,
-                    ),
-
-                    /// Login Button
-                    new Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Material(
-                        borderRadius: BorderRadius.circular(30.0),
-                        shadowColor: Colors.lightBlueAccent.shade100,
-                        elevation: 5.0,
-                        child: MaterialButton(
-                          minWidth: 200.0,
-                          height: 42.00,
-                          onPressed: () {
-                            _loginButton();
-                          },
-                          color: Colors.lightBlueAccent,
-                          child: Text('Log in',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                    ),
-
-                    /// Forgot Password Link
-                    const FlatButton(
-                      child: Text(
-                        "Forgot password?",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      onPressed: null,
-                    )
-                  ],
-                )),
-          ],
-        ),
-      );
   }
 
 
@@ -300,20 +271,13 @@ class LoginPageState extends State<LoginPage>
   ///***************************************************************************
 
 
-  /// method to set a passed string value in cache under a passed string key.
-  Future<Null> setString(String key, String s) async {
-    final SharedPreferences prefs = await _sPrefs;
-    prefs.setString(key, s);
-  }
-
-
   /// method to get login details from cache and store them in local variables
   Future<Null> getLoginDetails() async {
     final SharedPreferences prefs = await _sPrefs;
 
-     _cacheDomain = prefs.getString('domain') ?? null;
-     _cacheUsername = prefs.getString('username') ?? null;
-     _cachePassword = prefs.getString('password') ?? null;
+    _cacheDomain = prefs.getString('domain') ?? null;
+    _cacheUsername = prefs.getString('username') ?? null;
+    _cachePassword = prefs.getString('password') ?? null;
   }
 
   void clearLoginDetails() {
@@ -367,13 +331,19 @@ class LoginPageState extends State<LoginPage>
 
   ///Retrieving API Key
   Widget _getAPIKeyRetrieval() {
+    if (_demoMode) {
+      loginFields._username = "andaa635@student.otago.ac.nz";
+      loginFields._password = "andaa635";
+    }
+
+    //Kind of like a method, will do all sorts of fantastic things in the future
     //Creating the URL that'll query the database for our API Key
     String _requestAPIKeyRetrieval = "https://" +
-        _fields._domain +
+        loginFields._domain +
         ".outreach.co.nz/api/0.2/auth/login/?username=" +
-        _fields._username +
+        loginFields._username +
         "&password=" +
-        _fields._password;
+        loginFields._password;
     print("API Key Retrieval");
     print('Creating the URL to generate API Keys via Login Details: ' +
         _requestAPIKeyRetrieval);
@@ -429,7 +399,7 @@ class LoginPageState extends State<LoginPage>
     //Next step is to verify the key, retrieve the user etc
     print('API Key Validation');
     String _requestAPIKeyVerification = "https://" +
-        _fields._domain +
+        loginFields._domain +
         ".outreach.co.nz/api/0.2/auth/verify/?apikey=" +
         _apiKeyFields._apiKey;
     print('API Validation URL: ' + _requestAPIKeyVerification);
@@ -481,7 +451,7 @@ class LoginPageState extends State<LoginPage>
   Widget _getContactsList() {
     print('Retrieving Contacts List\n');
     String _requestContactList = "https://" +
-        _fields._domain +
+        loginFields._domain +
         ".outreach.co.nz/api/0.2/query/user?apikey=" +
         _apiKeyFields._apiKey +
         "&properties=%5B%27name_processed%27%5D&conditions=%5B%5B%27status%27,%27=%27,%27O%27%5D,%5B%27oid%27,%27%3E=%27,%27100%27%5D%5D";
@@ -525,7 +495,7 @@ class LoginPageState extends State<LoginPage>
 
       ///Convert the String in the map into a Contact (Turns the string into a fullName)
       int i = 0;
-      while(i < map.length) {
+      while (i < map.length) {
         fullName = map[i];
         Contact contact = new Contact();
         contact.setFullName(fullName);
@@ -536,7 +506,7 @@ class LoginPageState extends State<LoginPage>
       ///Printing the contactList, sanity check
       print("Printing contactsList");
       i = 0;
-      while(i < contactsList.length) {
+      while (i < contactsList.length) {
         print(contactsList[i].getFullName());
         i++;
       }
@@ -544,15 +514,159 @@ class LoginPageState extends State<LoginPage>
       print('\n\n');
       contacts = contactsList;
 
-      usernameController.clear();
-      passwordController.clear();
-
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => ContactsPage(contacts: contacts)),
       );
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    /// call this to clear cache
+//    clearLoginDetails();
+
+    /// if we are not currently trying to login
+    if(_attemptingLogin == false) {
+      /// attempt to retrieve details from cache
+      getLoginDetails();
+
+
+
+      /// if the user has logged in before, attempt to get new API key
+      if (_userHasLoggedIn()) {
+        print("------------------------------------");
+        print(_cacheDomain);
+        print(_cacheUsername);
+        print(_cachePassword);
+        print("------------------------------------");
+
+        _attemptingLogin = true;
+        _getAPIKeyRetrieval();
+      }
+    }
+
+    //Build the scaffold of the page
+    return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      body: ModalProgressHUD(
+        child: LoginForm(
+          loginFormKey: _loginFormKey,
+          login: _login,
+          forgotPassword: _forgotPassword,
+          loginFields: loginFields,
+          validateUserName: _validateUserName,
+          validatePassword: _validatePassword,
+        ),
+        inAsyncCall: _inAsyncCall,
+
+        //additional options for loading modal
+        opacity: 0.5,
+        progressIndicator: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatelessWidget {
+  final GlobalKey<FormState> loginFormKey;
+  final LoginFields loginFields;
+  final Function validateUserName;
+  final Function validatePassword;
+  final Function login;
+  final Function forgotPassword;
+  final TextEditingController usernameController = new TextEditingController();
+  final TextEditingController passwordController = new TextEditingController();
+
+  LoginForm({
+    @required this.loginFormKey,
+    @required this.login,
+    @required this.forgotPassword,
+    @required this.loginFields,
+    @required this.validateUserName,
+    @required this.validatePassword,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData themeData = Theme.of(context);
+    final TextTheme textTheme = themeData.textTheme;
+    final color = const Color(0xFF0085CA);
+    //final String url = 'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
+    //Build the form and attach to the scaffold
+    return Form(
+      key: this.loginFormKey,
+      child: Column(
+        children: [
+          new Container(
+              margin: const EdgeInsets.only(top: 40.0),
+              child: new Image.asset(
+                'assets/OutreachCRM_vert_logo.png',
+                width: 250.0,
+                height: 250.0,
+              )
+              /* new Image.asset(
+            'assets/OutreachCRM_vert_logo.png',
+            width: 250.0,
+            height: 250.0,
+          )*/
+              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 4.0),
+            child: TextFormField(
+                key: Key('username'),
+                keyboardType: TextInputType.text,
+                controller: usernameController,
+                decoration: InputDecoration(
+                    hintText: 'enter username', labelText: 'User Name'),
+                style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                validator: validateUserName,
+                onSaved: (val) => this.loginFields._username = val),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
+            child: TextFormField(
+              key: Key('password'),
+              obscureText: true,
+              keyboardType: TextInputType.text,
+              controller: passwordController,
+              decoration: InputDecoration(
+                  hintText: 'enter password', labelText: 'Password'),
+              style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+              validator: validatePassword,
+              onSaved: (val) => this.loginFields._password = val,
+            ),
+          ),
+          new Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Material(
+              borderRadius: BorderRadius.circular(0.0),
+              shadowColor: Colors.lightBlueAccent.shade100,
+              elevation: 5.0,
+              child: MaterialButton(
+                minWidth: 320.0,
+                height: 42.00,
+                onPressed: () {
+                  login();
+                },
+                color: color,
+                child: Text('Log in',
+                    style: TextStyle(fontSize: 16.0, color: Colors.white)),
+              ),
+            ),
+          ),
+          FlatButton(
+            child: Text(
+              "Forgot password?",
+              style: TextStyle(fontSize: 14.0, color: Colors.black),
+            ),
+            onPressed: forgotPassword,
+          ),
+        ],
+      ),
+    );
   }
 }
 
