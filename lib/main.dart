@@ -612,14 +612,14 @@ class LoginForm extends StatelessWidget {
     //Build the form and attach to the scaffold
     return Form(
       key: this.loginFormKey,
-        child: new Column(
+        child: new ListView(
           children: [
             new Container(
                 margin: const EdgeInsets.only(top: 40.0),
                 child: new Image.asset(
                   'assets/images/OutreachCRM_vert_logo.png',
-                  width: 250.0,
-                  height: 250.0,
+                  width: 200.0,
+                  height: 200.0,
                 )
             ),
             new Theme( // this colors the underline
