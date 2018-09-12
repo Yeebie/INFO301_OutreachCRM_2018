@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/contact_data.dart';
+import 'package:outreachcrm_app/viewContact.dart';
+
+void main() {
+  runApp(new MyApp());
+}
 
 class ContactsPage extends StatefulWidget {
   Widget appBarTitle = new Text("Contacts");
@@ -74,15 +79,24 @@ class ContactList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new ListView.builder(
-      padding: new EdgeInsets.symmetric(vertical: 8.0),
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
-        return new _ContactListItem(_contacts[index]);
+        return GestureDetector(
+          onTap: () {
+
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => MyHomePage()));
+          },
+          child: _ContactListItem(_contacts[index]),
+        );
       },
       itemCount: _contacts.length,
     );
   }
 }
+
+
 
 class _ContactListItem extends ListTile {
   _ContactListItem(Contact contact)
