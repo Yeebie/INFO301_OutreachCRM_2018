@@ -49,6 +49,8 @@ flutter:
     - assets/images/OutreachCRM_vert_logo.png
     - assets/images/background-image.png
     - assets/images/login-background.jpg
+    - assets/images/icon_android.png
+    - assets/images/icon_ios.png
 
 
   fonts:
@@ -58,13 +60,7 @@ flutter:
         - asset: assets/fonts/Signika-Regular.ttf
         - asset: assets/fonts/Signika-SemiBold.ttf
         - asset: assets/fonts/Signika-Bold.ttf
-    - assets/logo.png
-    - assets/OutreachCRM_vert_logo.jpg
-    - assets/OutreachCRM_vert_logo.png
-    - assets/icon_android.png
-    - assets/icon_ios.png
 
-  #  - images/a_dot_ham.jpeg
 
 
 
