@@ -10,12 +10,16 @@ import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert'; //Converts Json into Map
 
-import 'package:outreachcrm_app/Contact.dart';
-
-List<Contact> contacts;
+import 'package:outreachcrm_app/SupportClasses.dart';
 
 void main() {
   runApp(new MyApp());
+  print("\n");
+  print("Outreach Mobile Application");
+  print("Branch: UI_Pagination");
+  print("Build:  Sprint 2 Release | Pre-UI & Cache Overhaul");
+  print("Task:   Loading Contact Data into Map");
+  print("\n");
 }
 
 class MyApp extends StatelessWidget {
@@ -61,7 +65,7 @@ class ContactListFields {
 }
 
 class LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin{
   //Datafields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   LoginFields _fields = new LoginFields();
@@ -158,7 +162,6 @@ class LoginPageState extends State<LoginPage>
       if (this._formKey.currentState.validate()) {
         //Saves the form
         this._formKey.currentState.save();
-        print("");
         print('Login Details');
         print('Username: ${_fields._username}');
         print('Password: ${_fields._password}');
@@ -369,16 +372,19 @@ class LoginPageState extends State<LoginPage>
 
     ///Specify the API Query here, type it according to the API Specification, the app'll convert it to encoded HTML
     String apikey = "?apikey=" + _apiKeyFields._apiKey;
-    String properties = "&properties=" + "['name_processed']";
+    String properties = "&properties=" + "['name_processed','oid','o_company']";
     String conditions =
         "&conditions=" + "[['status','=','O'],['oid','>=','100']]";
-    String order = "&order=" + "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], used to sort people with the same first or last name so its alphabetical
-    String limit = "&limit=" + "[24,0]"; //[Load this amount of contacts at a time, Start from this index]. Loading 25 at a time, lists start with index 0, baka.
+    String order = "&order=" +
+        "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], Ordered by o_first_name, o_first_name are ordered by o_last_name
+    String limit = "&limit=" +
+        "[24,0]"; //[Load this amount of contacts at a time, Start from this index]. Loading 25 at a time, loads from index 0 to index 24, baka.
 
     ///Specifying the URL we'll make to call the API
     String _requestContactList = "https://" +
         _fields._domain +
-        ".outreach.co.nz/api/0.2/query/user" + (apikey + properties + conditions + order + limit);
+        ".outreach.co.nz/api/0.2/query/user" +
+        (apikey + properties + conditions + order + limit);
 
     ///Encoding the String so its HTML safe
     _requestContactList = _requestContactList.replaceAll("[", "%5B");
@@ -394,48 +400,61 @@ class LoginPageState extends State<LoginPage>
       print(response.body);
       List<Contact> contactsList = new List();
       //Turning the json into a map
-      Map<String, dynamic> contactListMap = json.decode(response.body);
-      print("Printing all contacts in Map");
-      print(contactListMap['data']);
-      print('\n \n');
+      final contactListMap = json.decode(response.body);
+      ContactListJson contactListJson =
+          new ContactListJson.fromJson(contactListMap);
+      print("\n\n");
 
-      ///Load all of the json from the old map into a new map(Easier to work on indexes)
-      Map map = new Map();
-      int index;
-      String name = '';
-      index = 0;
-      contactListMap['data'].forEach((dynamic) {
-        map[index] = '$dynamic';
-        name = map[index];
-        name = name.substring(
-            17,
-            (name.length -
-                1)); //Assumes we're getting {name_processed: ###} from the map request
-        map[index] = name;
-        index++;
-      });
-
-      String fullName;
-
-      ///Convert the String in the map into a Contact (Turns the string into a fullName)
-      int i = 0;
-      while (i < map.length) {
-        fullName = map[i];
+      ///Creates a new contact filled with data, adds it to List<Contact>
+      for (ContactListData data in contactListJson.data) {
         Contact contact = new Contact();
-        contact.setFullName(fullName);
+        contact.setFullName(data.getNameProcessed());
+        contact.setOid(data.getOid());
+        contact.setCompany(data.getCompany());
         contactsList.add(contact);
-        i++;
       }
+      print("\n");
 
+
+//      ///Load all of the json from the old map into a new map(Easier to work on indexes)
+//      Map map = new Map();
+//      int index;
+//      String name = '';
+//      index = 0;
+//      contactListMap['data'].forEach((dynamic) {
+//        map[index] = '$dynamic';
+//        name = map[index];
+//        name = name.substring(
+//            17,
+//            (name.length -
+//                1)); //Assumes we're getting {name_processed: ###} from the map request
+//        map[index] = name;
+//        index++;
+//      });
+//
+//      String fullName;
+//
+//      ///Convert the String in the map into a Contact (Turns the string into a fullName)
+//      int i = 0;
+//      while (i < map.length) {
+//        fullName = map[i];
+//        Contact contact = new Contact();
+//        contact.setFullName(fullName);
+//        contactsList.add(contact);
+//        i++;
+//      }
+//
       ///Printing the contactList, sanity check
       print("Printing contactsList");
-      i = 0;
+      int i = 0;
       while (i < contactsList.length) {
-        print(contactsList[i].getFullName());
+        print("name_processed:  " + contactsList[i].getFullName());
+        print("oid:             " + contactsList[i].getOid());
+        print("o_company:       " + contactsList[i].getCompany());
+        print("\n");
         i++;
       }
-      print('\n\n');
-      contacts = contactsList;
+      print('\n');
 
       ///Send the contactsList to be displayed on the ContactsPage
       usernameController.clear();
@@ -443,143 +462,8 @@ class LoginPageState extends State<LoginPage>
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ContactsPage(contacts: contacts)),
+            builder: (context) => ContactsPage(_apiKeyFields._apiKey, _fields._domain, contacts: contactsList)),
       );
     });
-  }
-}
-
-///***************************************************************************
-///                     S U P P O R T   C L A S S E S
-///***************************************************************************
-
-///API Key Retrieval
-///Represents the bits inside the nested json
-class APIKeyRetrievalData {
-  String key;
-  String expiry;
-  bool passwordVerify;
-
-  //Constructor
-  APIKeyRetrievalData({this.key, this.expiry, this.passwordVerify});
-
-  //Getter method
-  String getAPIKey() {
-    return key;
-  }
-
-  //Getter method
-  String getExpiry() {
-    return expiry;
-  }
-
-  //Getter method
-  bool getPasswordVerify() {
-    return passwordVerify;
-  }
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyRetrievalData.fromJson(Map<String, dynamic> json) {
-    return APIKeyRetrievalData(
-        key: json['key'],
-        expiry: json['expiry'],
-        passwordVerify: json['password']);
-  }
-}
-
-///Represents the base json, the data array
-class APIKeyRetrievalJson {
-  //Datafields
-  APIKeyRetrievalData data;
-
-  //Constructor
-  APIKeyRetrievalJson({this.data});
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyRetrievalJson.fromJson(Map<String, dynamic> parsedJson) {
-    return APIKeyRetrievalJson(
-        data: APIKeyRetrievalData.fromJson(parsedJson['data']));
-  }
-}
-
-///API Key Validation
-///Represents the bits inside the nested json
-class APIKeyValidationData {
-  bool verify;
-  String expiry;
-  String oid;
-
-  //Constructor
-  APIKeyValidationData({this.verify, this.expiry, this.oid});
-
-  //Getter method
-  bool getVerify() {
-    return verify;
-  }
-
-  //Getter method
-  String getExpiry() {
-    return expiry;
-  }
-
-  //Getter method
-  String getOid() {
-    return oid;
-  }
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyValidationData.fromJson(Map<String, dynamic> json) {
-    return APIKeyValidationData(
-        verify: json['verify'], expiry: json['expiry'], oid: json['oid']);
-  }
-}
-
-///Data is different between requests, we need to copy this format multiple times
-///Represents the base json, the data array
-class APIKeyValidationJson {
-  //Datafields
-  APIKeyValidationData data;
-
-  //Constructor
-  APIKeyValidationJson({this.data});
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyValidationJson.fromJson(Map<String, dynamic> parsedJson) {
-    return APIKeyValidationJson(
-        data: APIKeyValidationData.fromJson(parsedJson['data']));
-  }
-}
-
-///Contact List Retrieval
-///Represents the bits inside the nested json
-class ContactListData {
-  String nameProcessed;
-
-  //Constructor
-  ContactListData({this.nameProcessed});
-
-  //Getter method
-  String getNameProcessed() {
-    return nameProcessed;
-  }
-
-  //Soft of like a method that'll be executed somewhere
-  factory ContactListData.fromJson(Map<String, dynamic> json) {
-    return ContactListData(nameProcessed: json['name_processed']);
-  }
-}
-
-///Data is different between requests, we need to copy this format multiple times
-///Represents the base json, the data array
-class ContactListJson {
-  //Datafields
-  ContactListData data;
-
-  //Constructor
-  ContactListJson({this.data});
-
-  //Soft of like a method that'll be executed somewhere
-  factory ContactListJson.fromJson(Map<String, dynamic> parsedJson) {
-    return ContactListJson(data: ContactListData.fromJson(parsedJson['data']));
   }
 }
