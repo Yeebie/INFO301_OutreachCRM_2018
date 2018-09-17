@@ -16,10 +16,10 @@ class ContactsPage extends StatefulWidget {
 }
 
 class _ContactPage extends State<ContactsPage> {
-  //Datafields
+  /// Data fields
   List<Contact> kContacts;
 
-  //Constructor
+  /// Constructor
   _ContactPage(List<Contact> kContacts) {
     this.kContacts = kContacts;
   }

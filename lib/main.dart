@@ -9,11 +9,12 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 ///Used for API Key Retrieval
-import 'dart:async' show Future;
+import 'dart:async' show Future, Timer;
 import 'package:flutter/services.dart';
 import 'dart:convert'; //Converts Json into Map
 
 import 'package:outreachcrm_app/Contact.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 /// used for caching
 import 'package:outreachcrm_app/util.dart';
@@ -84,7 +85,6 @@ class _LoginPageState extends State<LoginPage>
 
   ///Data fields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  LoginFields _fields = new LoginFields();
   final LoginFields loginFields;
   _LoginPageState({this.loginFields});
 
@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage>
   //Puts app in demo mode (If you want to switch out the mode then you have
   //change the boolean and rerun the app. If someone finds a fix that would be
   //great)
-  bool _demoMode = true;
+  bool _demoMode = false;
   @override
   void initState() {
     super.initState();
@@ -226,8 +226,7 @@ class _LoginPageState extends State<LoginPage>
     try {
       if(_wifiEnabled) {
         if ((_loginFormKey.currentState.validate()) ||
-            (_demoMode && !_loginFormKey.currentState.validate()) ||
-            (_attemptingAutoLogin)) {
+            (_demoMode && !_loginFormKey.currentState.validate())) {
 
             _loginFormKey.currentState.save();
 
@@ -238,6 +237,7 @@ class _LoginPageState extends State<LoginPage>
           setState(() {
             _inAsyncCall = true;
             _getAPIKeyRetrieval();
+          });
 
             /*
         Just used for debugging
@@ -248,13 +248,9 @@ class _LoginPageState extends State<LoginPage>
         print('Domain: ${loginFields._domain}');
         print('\n \n');
          */
-          });
-
-          ///Retrieve the API Key
-          _getAPIKeyRetrieval();
 
           /// Set the login cache with the validated fields
-          _setLoginDetails(_fields._domain, _fields._username, _fields._password);
+          _setLoginDetails(loginFields._domain, loginFields._username, loginFields._password);
 
           // Buy us some time while logging in
           Future.delayed(Duration(seconds: 5), () {
@@ -276,16 +272,7 @@ class _LoginPageState extends State<LoginPage>
   ///                     A U T O   L O G I N
   ///***************************************************************************
 
-
-  /// method to get login details from cache and store them in local variables
-  Future<Null> _getLoginDetails() async {
-    final SharedPreferences prefs = await _sPrefs;
-
-    _cacheDomain = prefs.getString('domain') ?? null;
-    _cacheUsername = prefs.getString('username') ?? null;
-    _cachePassword = prefs.getString('password') ?? null;
-  }
-
+  /// method used to clear cache on logout
   void _clearLoginDetails() {
     _cachePassword = null;
     _cacheUsername = null;
@@ -296,6 +283,15 @@ class _LoginPageState extends State<LoginPage>
     Util.removeCacheItem('password');
   }
 
+  /// method to get login details from cache and store them in local variables
+  Future _getLoginDetails() async {
+    final SharedPreferences prefs = await _sPrefs;
+
+    _cacheDomain = prefs.getString('domain') ?? null;
+    _cacheUsername = prefs.getString('username') ?? null;
+    _cachePassword = prefs.getString('password') ?? null;
+  }
+
   /// method to set the cache values for login details.
   void _setLoginDetails(String domain, String username, String password){
 
@@ -303,9 +299,12 @@ class _LoginPageState extends State<LoginPage>
     print("caching deets my dude");
     print("----------------------------------");
 
-    Util.setString('domain', domain);
-    Util.setString('username', username);
-    Util.setString('password', password);
+    if(domain != "" && username != ""
+        && password != "") {
+      Util.setString('domain', domain);
+      Util.setString('username', username);
+      Util.setString('password', password);
+    }
   }
 
   /// method checks if there are login values in cache.
@@ -319,9 +318,9 @@ class _LoginPageState extends State<LoginPage>
       print("details were in cache my dude");
       print("----------------------------------");
 
-      _fields._domain = _cacheDomain;
-      _fields._username = _cacheUsername;
-      _fields._password = _cachePassword;
+      loginFields._domain = _cacheDomain;
+      loginFields._username = _cacheUsername;
+      loginFields._password = _cachePassword;
 
       return true;
     }
@@ -526,6 +525,39 @@ class _LoginPageState extends State<LoginPage>
     });
   }
 
+  dynamic afterSplash(){
+    if(_attemptingAutoLogin) {
+      return null;
+    }
+    else {
+      return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      body: new Container(
+        decoration: new BoxDecoration(
+          image: new DecorationImage(
+            image: new AssetImage('assets/images/login-background.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: ModalProgressHUD(
+          child: LoginForm(
+            loginFormKey: _loginFormKey,
+            login: _login,
+            forgotPassword: _forgotPassword,
+            loginFields: loginFields,
+            validateUserName: _validateUserName,
+            validatePassword: _validatePassword,
+          ),
+          inAsyncCall: _inAsyncCall,
+
+          //additional options for loading modal
+          opacity: 0.5,
+          progressIndicator: CircularProgressIndicator(),
+        ),
+      )
+    );}
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -536,7 +568,6 @@ class _LoginPageState extends State<LoginPage>
     if(_attemptingAutoLogin == false) {
       /// attempt to retrieve details from cache
       _getLoginDetails();
-
       /// if the user has logged in before, attempt to get new API key
       if (_userHasLoggedIn()) {
         print("------------------------------------");
@@ -545,13 +576,27 @@ class _LoginPageState extends State<LoginPage>
         print(_cachePassword);
         print("------------------------------------");
 
+        _getAPIKeyRetrieval();
+//        _login();
         _attemptingAutoLogin = true;
-        _login();
-//        _getAPIKeyRetrieval();
       }
     }
 
-
+//    return new SplashScreen(
+//      seconds: 5,
+//      navigateAfterSeconds: afterSplash(),
+//      title: new Text('Welcome In SplashScreen',
+//        style: new TextStyle(
+//            fontWeight: FontWeight.bold,
+//            fontSize: 20.0
+//        ),),
+//      image: new Image.network('https://flutter.io/images/catalog-widget-placeholder.png'),
+//      backgroundColor: Colors.white,
+//      styleTextUnderTheLoader: new TextStyle(),
+//      photoSize: 100.0,
+//      onClick: ()=>print("Flutter Egypt"),
+//      loaderColor: Colors.red,
+//    );
 
     //Build the scaffold of the page
     return Scaffold(
@@ -579,6 +624,26 @@ class _LoginPageState extends State<LoginPage>
           progressIndicator: CircularProgressIndicator(),
         ),
       )
+    );
+  }
+}
+
+class AfterSplash extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Welcome In SplashScreen Package"),
+        automaticallyImplyLeading: false,
+      ),
+      body: new Center(
+        child: new Text("Succeeded!",
+          style: new TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 30.0
+          ),),
+
+      ),
     );
   }
 }
