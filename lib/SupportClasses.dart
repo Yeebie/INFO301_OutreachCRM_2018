@@ -131,7 +131,8 @@ class ContactListJson {
   //Soft of like a method that'll be executed somewhere
   factory ContactListJson.fromJson(Map<String, dynamic> json) {
     var list = json["data"] as List;
-    List<ContactListData> dataList = list.map((i) => ContactListData.fromJson(i)).toList();
+    List<ContactListData> dataList =
+        list.map((i) => ContactListData.fromJson(i)).toList();
     return ContactListJson(data: dataList);
   }
 }
@@ -167,7 +168,6 @@ class ContactListData {
         nameProcessed: json["name_processed"],
         oid: json["oid"],
         o_company: json["o_company"]);
-
   }
 }
 

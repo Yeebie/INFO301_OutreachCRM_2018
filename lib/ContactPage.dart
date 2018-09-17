@@ -9,8 +9,26 @@ import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert'; //Converts Json into Map
 
-///Stateless Widget Call
-class ContactsPage extends StatefulWidget {
+///StatelessWidget call
+class ContactsPageApp extends StatelessWidget {
+  //Datafields
+  String _apiKey;
+  String _domain;
+  List<Contact> contacts;
+
+  //Constructor
+  ContactsPageApp(this._apiKey, this._domain, {Key key, this.contacts})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: "Contacts",
+        home: _ContactsPage(_apiKey, _domain, contacts: contacts));
+  }
+}
+
+///Stateful Widget Call
+class _ContactsPage extends StatefulWidget {
   Widget appBarTitle = new Text("Contacts");
   Icon actionIcon = new Icon(Icons.search);
 
@@ -20,29 +38,59 @@ class ContactsPage extends StatefulWidget {
   List<Contact> contacts;
 
   //Constructor
-  ContactsPage(this._apiKey, this._domain, {Key key, this.contacts})
+  _ContactsPage(this._apiKey, this._domain, {Key key, this.contacts})
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return new _ContactPage(_apiKey, _domain, contacts);
-  }
+  _ContactPage createState() => new _ContactPage(_apiKey, _domain, contacts);
 }
 
 ///Defines the page's structure
-class _ContactPage extends State<ContactsPage> {
+class _ContactPage extends State<_ContactsPage> {
   //Datafields
   String _apiKey;
   String _domain;
-  List<Contact> kContacts;
+  List<Contact> _contacts;
   ScrollController controller;
-  List<String> items = new List.generate(100, (index) => 'Hello $index');
 
   //Constructor
   _ContactPage(String apiKey, String domain, List<Contact> kContacts) {
     this._apiKey = apiKey;
     this._domain = domain;
-    this.kContacts = kContacts;
+    this._contacts = kContacts;
+  }
+
+  void getData(index) {
+//      setState(() { ///setState called during build
+        getContactsList(index, _apiKey, _domain);
+//      });
+  }
+
+  ///List that shows contacts
+  Widget _buildContacts() {
+    return ListView.builder(
+      padding: new EdgeInsets.symmetric(vertical: 8.0),
+      itemBuilder: (context, index) {
+        if (index >= (_contacts.length - 1)) {
+          print("\n");
+          print("Pagination get!");
+          print("\n\n");
+            getData(index);
+        }
+        return buildRow(_contacts[index]);
+      },
+      itemCount: _contacts.length,
+    );
+  }
+
+  ///Stylised contact item
+  Widget buildRow(Contact contact) {
+    return ListTile(
+      title: new Text("${contact.fullName}"),
+      leading: new CircleAvatar(
+        child: new Text(contact.fullName[0]),
+      ),
+    );
   }
 
   @override
@@ -84,73 +132,25 @@ class _ContactPage extends State<ContactsPage> {
           ),
 
           ///Used to be called kContacts
-          body: new ContactList(_apiKey, _domain, kContacts)),
+          body: _buildContacts()),
     );
   }
-}
-
-///Defines the item that'll pop up in the list
-class ContactList extends StatelessWidget {
-  //Datafields
-  String _apiKey;
-  String _domain;
-  int _index;
-  List<Contact> _contacts;
-  List<Contact> contactsList = new List();
-
-  //Constructor
-  ContactList(String apiKey, String domain, List<Contact> kContacts) {
-    this._apiKey = apiKey;
-    this._domain = domain;
-    this._contacts = kContacts;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new ListView.builder(
-      padding: new EdgeInsets.symmetric(vertical: 8.0),
-      itemBuilder: (context, index) {
-        if (index >= (_contacts.length - 1)) {
-          print("Pagination get!");
-          print("Thank you " + _contacts[index].getFullName() + "!");
-          _getContactsList(index);
-//        _contacts.addAll(_getContactsList(index));
-        } else {
-          print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-          print(index);
-          print(_contacts.length);
-        }
-        return _ContactListItem(_contacts[index]);
-      },
-      itemCount: _contacts.length,
-    );
-  }
-
-  ///A modified ContactsListRetrieval
-
-  ///***************************************************************************
-  ///             C O N T A C T S   L I S T   R E T R I E V A L
-  ///***************************************************************************
 
   ///Loading the Contacts List into a Collection
-  List<Contact> _getContactsList(int index) {
+  Future<Contact> getContactsList(int index, String _apiKey, String _domain) async {
     int _indexPagination = index;
-    print("Index toString");
-    print(_indexPagination);
-    print(_indexPagination.toString());
-
-    print('Retrieving Contacts List\n');
+    print('Retrieving Contacts List');
 
     ///Specify the API Query here, type it according to the API Specification, the app'll convert it to encoded HTML
     String apikey = "?apikey=" + _apiKey;
-    String properties = "&properties=" + "['name_processed']";
+    String properties = "&properties=" + "['name_processed','oid','o_company']";
     String conditions =
         "&conditions=" + "[['status','=','O'],['oid','>=','100']]";
     String order = "&order=" +
         "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], used to sort people with the same first or last name so its alphabetical
     String limit = "&limit=" +
         "[24," +
-        _indexPagination.toString() +
+        (_indexPagination + 1).toString() +
         "]"; //[Load this amount of contacts at a time, Start from this index]. Loading 25 at a time, lists start with index 0, baka.
 
     ///Specifying the URL we'll make to call the API
@@ -171,78 +171,32 @@ class ContactList extends StatelessWidget {
       //Print the API Key, just so we can compare it to the subset String
       print("Contact List Response:");
       print(response.body);
-      contactsList.clear();
+      List<Contact> contactsList = new List();
       //Turning the json into a map
-      Map<String, dynamic> contactListMap = json.decode(response.body);
-      print("Printing all contacts in Map");
-      print(contactListMap['data']);
-      print('\n \n');
+      final contactListMap = json.decode(response.body);
+      ContactListJson contactListJson =
+          new ContactListJson.fromJson(contactListMap);
+      print("\n\n");
 
-      ///Load all of the json from the old map into a new map(Easier to work on indexes)
-      Map map = new Map();
-      int index;
-      String name = '';
-      index = 0;
-      contactListMap['data'].forEach((dynamic) {
-        map[index] = '$dynamic';
-        name = map[index];
-        name = name.substring(
-            17,
-            (name.length -
-                1)); //Assumes we're getting {name_processed: ###} from the map request
-        map[index] = name;
-        index++;
-      });
-
-      String fullName;
-
-      ///Convert the String in the map into a Contact (Turns the string into a fullName)
-      int i = 0;
-      while (i < map.length) {
-        fullName = map[i];
+      ///Creates a new contact filled with data, adds it to List<Contact>
+      for (ContactListData data in contactListJson.data) {
         Contact contact = new Contact();
-        contact.setFullName(fullName);
+        contact.setFullName(data.getNameProcessed());
+        contact.setOid(data.getOid());
+        contact.setCompany(data.getCompany());
         contactsList.add(contact);
-        i++;
       }
 
       ///Printing the contactList, sanity check
       print("Printing contactsList");
-      i = 0;
-      while (i < contactsList.length) {
+      int i = 0;
+      while (i < contactsList.length && contactsList.length == 25) {
         print(contactsList[i].getFullName());
         i++;
       }
-      print('\n\n');
-
-      print("What happened to index?");
-      print(_indexPagination);
-      print(_indexPagination.toString());
-
-      print("widgetTest Done!");
-      setContact();
+      print("\n");
+//      return contactsList;
+      _contacts.addAll(contactsList);
     });
   }
-
-  void setContact() {
-    int i = 0;
-    print("While loop hit!");
-      while (i < contactsList.length && contactsList.length == 25) {
-
-        _contacts.add(contactsList[i]);
-        print(contactsList[i].getFullName());
-        i++;
-      }
-      i = 0;
-      print(_contacts.length);
-      contactsList.clear();
-    }
-  }
-
-///Defines how the list item'll be styled
-class _ContactListItem extends ListTile {
-  _ContactListItem(Contact contact)
-      : super(
-            title: new Text("${contact.fullName}"),
-            leading: new CircleAvatar(child: new Text(contact.fullName[0])));
 }

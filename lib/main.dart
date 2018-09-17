@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'ContactPage.dart';
+import 'package:outreachcrm_app/ContactPage.dart';
+import 'package:outreachcrm_app/ContactPage.dart';
 import 'package:validate/validate.dart';
 
 ///Used to utilise REST operations
@@ -18,7 +19,8 @@ void main() {
   print("Outreach Mobile Application");
   print("Branch: UI_Pagination");
   print("Build:  Sprint 2 Release | Pre-UI & Cache Overhaul");
-  print("Task:   Loading Contact Data into Map");
+  print("Task:   Updating kContact after retrieving new data");
+  print("NEW PAGE");
   print("\n");
 }
 
@@ -413,45 +415,12 @@ class LoginPageState extends State<LoginPage>
         contact.setCompany(data.getCompany());
         contactsList.add(contact);
       }
-      print("\n");
 
-
-//      ///Load all of the json from the old map into a new map(Easier to work on indexes)
-//      Map map = new Map();
-//      int index;
-//      String name = '';
-//      index = 0;
-//      contactListMap['data'].forEach((dynamic) {
-//        map[index] = '$dynamic';
-//        name = map[index];
-//        name = name.substring(
-//            17,
-//            (name.length -
-//                1)); //Assumes we're getting {name_processed: ###} from the map request
-//        map[index] = name;
-//        index++;
-//      });
-//
-//      String fullName;
-//
-//      ///Convert the String in the map into a Contact (Turns the string into a fullName)
-//      int i = 0;
-//      while (i < map.length) {
-//        fullName = map[i];
-//        Contact contact = new Contact();
-//        contact.setFullName(fullName);
-//        contactsList.add(contact);
-//        i++;
-//      }
-//
       ///Printing the contactList, sanity check
       print("Printing contactsList");
       int i = 0;
       while (i < contactsList.length) {
-        print("name_processed:  " + contactsList[i].getFullName());
-        print("oid:             " + contactsList[i].getOid());
-        print("o_company:       " + contactsList[i].getCompany());
-        print("\n");
+        print(contactsList[i].getFullName());
         i++;
       }
       print('\n');
@@ -462,7 +431,7 @@ class LoginPageState extends State<LoginPage>
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ContactsPage(_apiKeyFields._apiKey, _fields._domain, contacts: contactsList)),
+            builder: (context) => ContactsPageApp(_apiKeyFields._apiKey, _fields._domain, contacts: contactsList)),
       );
     });
   }
