@@ -79,7 +79,6 @@ class _LoginPageState extends State<LoginPage>
 
   /// cache login variables
   Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
-  String _cacheDomain, _cacheUsername, _cachePassword;
   // boolean to lock cache check when logging in
   bool _attemptingAutoLogin = false;
 
@@ -99,11 +98,8 @@ class _LoginPageState extends State<LoginPage>
 
   Map<String, dynamic> apiKey;
 
-  AnimationController _iconAnimationController;
-  Animation<double> _iconAnimation;
-
   //triggers modal loading overlay
-  bool _inAsyncCall = false;
+  static bool _inAsyncCall = false;
   //Puts app in demo mode (If you want to switch out the mode then you have
   //change the boolean and rerun the app. If someone finds a fix that would be
   //great)
@@ -111,14 +107,13 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
-    _iconAnimationController = new AnimationController(
-        vsync: this, duration: new Duration(milliseconds: 1000));
-    _iconAnimation = new CurvedAnimation(
-        parent: _iconAnimationController, curve: Curves.easeOut);
 
-    _iconAnimation.addListener(() => this.setState(() {}));
-    _iconAnimationController.forward();
+    // call this to clear cache
+    _clearLoginDetails();
 
+    new Timer(new Duration(milliseconds: 200), () {
+      checkLoggedIn();
+    });
   }
 
 
@@ -249,7 +244,7 @@ class _LoginPageState extends State<LoginPage>
         print('\n \n');
          */
 
-          /// Set the login cache with the validated fields
+          // set the cache with the validated login fields
           _setLoginDetails(loginFields._domain, loginFields._username, loginFields._password);
 
           // Buy us some time while logging in
@@ -274,57 +269,73 @@ class _LoginPageState extends State<LoginPage>
 
   /// method used to clear cache on logout
   void _clearLoginDetails() {
-    _cachePassword = null;
-    _cacheUsername = null;
-    _cacheDomain = null;
+    print("------------------");
+    print("CLEARING DETAILS IN CACHE");
+    print("------------------");
 
     Util.removeCacheItem('domain');
     Util.removeCacheItem('username');
     Util.removeCacheItem('password');
   }
 
-  /// method to get login details from cache and store them in local variables
-  Future _getLoginDetails() async {
-    final SharedPreferences prefs = await _sPrefs;
-
-    _cacheDomain = prefs.getString('domain') ?? null;
-    _cacheUsername = prefs.getString('username') ?? null;
-    _cachePassword = prefs.getString('password') ?? null;
-  }
-
   /// method to set the cache values for login details.
   void _setLoginDetails(String domain, String username, String password){
+    // check if the field is being passed null
+    if(domain != "" && username != "" && password != "") {
+      print("------------------");
+      print("SAVING DETAILS IN CACHE");
+      print("------------------");
 
-    print("----------------------------------");
-    print("caching deets my dude");
-    print("----------------------------------");
-
-    if(domain != "" && username != ""
-        && password != "") {
       Util.setString('domain', domain);
       Util.setString('username', username);
       Util.setString('password', password);
     }
   }
 
-  /// method checks if there are login values in cache.
-  /// if yes; update the class variables with cached data
-  /// and return true.
-  bool _userHasLoggedIn() {
-    if(_cacheDomain != null &&_cacheUsername != null
-        && _cachePassword != null) {
+  Future checkLoggedIn() async {
+    // instantiate shared preferences (cache)
+    SharedPreferences prefs = await _sPrefs;
 
-      print("----------------------------------");
-      print("details were in cache my dude");
-      print("----------------------------------");
+    // attempt to read in cache values, return null if not found
+    String _cachedDomain = (prefs.getString('domain') ?? null);
+    String _cachedUsername = (prefs.getString('username') ?? null);
+    String _cachedPassword = (prefs.getString('password') ?? null);
 
-      loginFields._domain = _cacheDomain;
-      loginFields._username = _cacheUsername;
-      loginFields._password = _cachePassword;
+    // check if the login details are in cache
+    if (_cachedDomain != null && _cachedUsername != null
+        && _cachedPassword != null){
 
-      return true;
+      print("------------------");
+      print("FOUND DETAILS IN CACHE");
+      print("------------------");
+      loginFields._domain = _cachedDomain;
+      loginFields._username = _cachedUsername;
+      loginFields._password = _cachedPassword;
+
+      print(_cachedDomain);
+      print(_cachedUsername);
+      print(_cachedPassword);
+      print("------------------");
+
+      // attempt the login
+
+      // if we are not currently trying to login
+      if(_attemptingAutoLogin == false) {
+        // attempt to get API key
+          _getAPIKeyRetrieval();
+          _attemptingAutoLogin = true;
+        // push to contacts page
+      }
+
+
+    } else { // else return you found nothing
+
+      print("------------------");
+      print("FOUND NO DETAILS IN CACHE");
+      print("------------------");
+
+      // push to domain page
     }
-    return false;
   }
 
 
@@ -517,6 +528,8 @@ class _LoginPageState extends State<LoginPage>
       print('\n\n');
       contacts = contactsList;
 
+//      contactsPage = new ContactsPage(contacts: contacts);
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -525,65 +538,44 @@ class _LoginPageState extends State<LoginPage>
     });
   }
 
-  dynamic afterSplash(){
-    if(_attemptingAutoLogin) {
-      return null;
-    }
-    else {
-      return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      body: new Container(
-        decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new AssetImage('assets/images/login-background.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: ModalProgressHUD(
-          child: LoginForm(
-            loginFormKey: _loginFormKey,
-            login: _login,
-            forgotPassword: _forgotPassword,
-            loginFields: loginFields,
-            validateUserName: _validateUserName,
-            validatePassword: _validatePassword,
-          ),
-          inAsyncCall: _inAsyncCall,
-
-          //additional options for loading modal
-          opacity: 0.5,
-          progressIndicator: CircularProgressIndicator(),
-        ),
-      )
-    );}
-  }
+//  dynamic afterSplash(){
+//    if(_attemptingAutoLogin && contactsPage != null) {
+//      return contactsPage;
+//    }
+//    else {
+//      return Scaffold(
+//      resizeToAvoidBottomPadding: false,
+//      body: new Container(
+//        decoration: new BoxDecoration(
+//          image: new DecorationImage(
+//            image: new AssetImage('assets/images/login-background.jpg'),
+//            fit: BoxFit.cover,
+//          ),
+//        ),
+//        child: ModalProgressHUD(
+//          child: LoginForm(
+//            loginFormKey: _loginFormKey,
+//            login: _login,
+//            forgotPassword: _forgotPassword,
+//            loginFields: loginFields,
+//            validateUserName: _validateUserName,
+//            validatePassword: _validatePassword,
+//          ),
+//          inAsyncCall: _inAsyncCall,
+//
+//          //additional options for loading modal
+//          opacity: 0.5,
+//          progressIndicator: CircularProgressIndicator(),
+//        ),
+//      )
+//    );}
+//  }
 
   @override
   Widget build(BuildContext context) {
 
-    /// call this to clear cache
-//    _clearLoginDetails();
-
-    /// if we are not currently trying to login
-    if(_attemptingAutoLogin == false) {
-      /// attempt to retrieve details from cache
-      _getLoginDetails();
-      /// if the user has logged in before, attempt to get new API key
-      if (_userHasLoggedIn()) {
-        print("------------------------------------");
-        print(_cacheDomain);
-        print(_cacheUsername);
-        print(_cachePassword);
-        print("------------------------------------");
-
-        _getAPIKeyRetrieval();
-//        _login();
-        _attemptingAutoLogin = true;
-      }
-    }
-
 //    return new SplashScreen(
-//      seconds: 5,
+//      seconds: 8,
 //      navigateAfterSeconds: afterSplash(),
 //      title: new Text('Welcome In SplashScreen',
 //        style: new TextStyle(
@@ -601,52 +593,42 @@ class _LoginPageState extends State<LoginPage>
     //Build the scaffold of the page
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      body: new Container(
-        decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new AssetImage('assets/images/login-background.jpg'),
-            fit: BoxFit.cover,
-          ),
+      body: new LoginForm(
+          loginFormKey: _loginFormKey,
+          login: _login,
+          forgotPassword: _forgotPassword,
+          loginFields: loginFields,
+          validateUserName: _validateUserName,
+          validatePassword: _validatePassword,
         ),
-        child: ModalProgressHUD(
-          child: LoginForm(
-            loginFormKey: _loginFormKey,
-            login: _login,
-            forgotPassword: _forgotPassword,
-            loginFields: loginFields,
-            validateUserName: _validateUserName,
-            validatePassword: _validatePassword,
-          ),
-          inAsyncCall: _inAsyncCall,
-
-          //additional options for loading modal
-          opacity: 0.5,
-          progressIndicator: CircularProgressIndicator(),
-        ),
-      )
     );
   }
 }
 
-class AfterSplash extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Welcome In SplashScreen Package"),
-        automaticallyImplyLeading: false,
-      ),
-      body: new Center(
-        child: new Text("Succeeded!",
-          style: new TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 30.0
-          ),),
-
-      ),
-    );
-  }
-}
+//class AfterSplash extends StatelessWidget {
+//  @override
+//  Widget build(BuildContext context) {
+//
+//    if(_LoginPageState._attemptingAutoLogin){
+//
+//    }
+//
+//    return new Scaffold(
+//      appBar: new AppBar(
+//        title: new Text("Welcome In SplashScreen Package"),
+//        automaticallyImplyLeading: false,
+//      ),
+//      body: new Center(
+//        child: new Text("Succeeded!",
+//          style: new TextStyle(
+//              fontWeight: FontWeight.bold,
+//              fontSize: 30.0
+//          ),),
+//
+//      ),
+//    );
+//  }
+//}
 
 class LoginForm extends StatelessWidget {
   final GlobalKey<FormState> loginFormKey;
@@ -675,91 +657,109 @@ class LoginForm extends StatelessWidget {
     final theme = Theme.of(context);
     //final String url = 'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
     //Build the form and attach to the scaffold
-    return Form(
-      key: this.loginFormKey,
-        child: new ListView(
-          children: [
-            new Container(
-                margin: const EdgeInsets.only(top: 40.0),
-                child: new Image.asset(
-                  'assets/images/OutreachCRM_vert_logo.png',
-                  width: 200.0,
-                  height: 200.0,
-                )
+    return Scaffold(
+        resizeToAvoidBottomPadding: false,
+        body:  new ModalProgressHUD(
+          child: new Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+              image: new AssetImage('assets/images/login-background.jpg'),
+              fit: BoxFit.cover,
+              ),
             ),
-            new Theme( // this colors the underline
-            data: theme.copyWith(
-                primaryColor: Colors.white,
-                hintColor: Colors.white,
+          child: Form(
+          key: this.loginFormKey,
+            child: new ListView(
+              children: [
+                new Container(
+                    margin: const EdgeInsets.only(top: 40.0),
+                    child: new Image.asset(
+                      'assets/images/OutreachCRM_vert_logo.png',
+                      width: 200.0,
+                      height: 200.0,
+                    )
                 ),
-              child: new Padding(
-                padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
-                child: TextFormField(
-                  key: Key('username'),
-                  keyboardType: TextInputType.text,
-                  controller: usernameController,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    labelStyle: new TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0)),
-                  style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
-                  validator: validateUserName,
-                  onSaved: (val) => this.loginFields._username = val),
-              ),
-            ),
-            new Theme(
-            data: theme.copyWith(
-              primaryColor: Colors.white,
-              hintColor: Colors.white,
-              ),
-              child: new Padding(
-                padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
-                child: TextFormField(
-                  key: Key('password'),
-                  obscureText: true,
-                  keyboardType: TextInputType.text,
-                  controller: passwordController,
-                  decoration: InputDecoration(
+                new Theme( // this colors the underline
+                data: theme.copyWith(
+                    primaryColor: Colors.white,
+                    hintColor: Colors.white,
+                    ),
+                  child: new Padding(
+                    padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
+                    child: TextFormField(
+                      key: Key('username'),
+                      keyboardType: TextInputType.text,
+                      controller: usernameController,
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                        labelStyle: new TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0)),
+                      style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                      validator: validateUserName,
+                      onSaved: (val) => this.loginFields._username = val),
+                  ),
+                ),
+                new Theme(
+                data: theme.copyWith(
+                  primaryColor: Colors.white,
+                  hintColor: Colors.white,
+                  ),
+                  child: new Padding(
+                    padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
+                    child: TextFormField(
+                      key: Key('password'),
+                      obscureText: true,
+                      keyboardType: TextInputType.text,
+                      controller: passwordController,
+                      decoration: InputDecoration(
 
-                      labelText: 'Password',
-                      labelStyle: new TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0)),
-                  style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
-                  validator: validatePassword,
-                  onSaved: (val) => this.loginFields._password = val,
+                          labelText: 'Password',
+                          labelStyle: new TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0)),
+                      style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                      validator: validatePassword,
+                      onSaved: (val) => this.loginFields._password = val,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
-              child: Material(
-                borderRadius: BorderRadius.circular(30.0),
-                shadowColor: Colors.lightBlueAccent.shade100,
-                elevation: 5.0,
-                color: color,
-                child: MaterialButton(
-                  minWidth: 320.0,
-                  height: 42.00,
-                  onPressed: () {
-                    login();
-                    /// change color here to show its been pressed
-                  },
-                  child: Text('LOGIN',
-                      style: TextStyle(fontSize: 17.0, color: Colors.white)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(30.0),
+                    shadowColor: Colors.lightBlueAccent.shade100,
+                    elevation: 5.0,
+                    color: color,
+                    child: MaterialButton(
+                      minWidth: 320.0,
+                      height: 42.00,
+                      onPressed: () {
+                        login();
+                        /// change color here to show its been pressed
+                      },
+                      child: Text('LOGIN',
+                          style: TextStyle(fontSize: 17.0, color: Colors.white)),
+                    ),
+                  ),
                 ),
-              ),
+                FlatButton(
+                  child: Text(
+                    "Forgot Password?",
+                    style: TextStyle(fontSize: 14.0, color: Colors.white),
+                  ),
+                  onPressed: forgotPassword,
+                ),
+              ],
             ),
-            FlatButton(
-              child: Text(
-                "Forgot Password?",
-                style: TextStyle(fontSize: 14.0, color: Colors.white),
-              ),
-              onPressed: forgotPassword,
-            ),
-          ],
+          ),
         ),
+          inAsyncCall: _LoginPageState._inAsyncCall,
+
+          //additional options for loading modal
+          opacity: 0.5,
+          progressIndicator: CircularProgressIndicator(),
+      ),
     );
   }
 }
