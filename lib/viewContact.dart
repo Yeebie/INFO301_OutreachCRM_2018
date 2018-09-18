@@ -3,8 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 
 //Define "root widget"
-void main() => runApp(new MyApp());//one-line function
-class MyApp extends StatelessWidget {
+//one-line function
+
+class viewContact extends StatelessWidget {
 
   final homePh = "07 645 8524";
   final mobilePh = '027 452 4318';

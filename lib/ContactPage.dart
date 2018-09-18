@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/contact_data.dart';
 import 'package:outreachcrm_app/viewContact.dart';
 
-void main() {
-  runApp(new MyApp());
-}
+void main() => runApp(new ContactsPage());
 
 class ContactsPage extends StatefulWidget {
   Widget appBarTitle = new Text("Contacts");
@@ -41,7 +39,7 @@ class _ContactPage extends State<ContactsPage> {
                             hintStyle: new TextStyle(color: Colors.white)),
                         onChanged: (value) {
                           print(value);
-                          //filter your contact list based on value
+
                         },
                       );
                     } else {
@@ -56,6 +54,7 @@ class _ContactPage extends State<ContactsPage> {
           ),
           body: new ContactList(kContacts)),
 
+
     );
   }
 }
@@ -68,6 +67,7 @@ class ContactPage extends StatelessWidget {
           title: new Text("Contacts"),
         ),
         body: new ContactList(kContacts));
+
   }
 }
 
@@ -83,10 +83,10 @@ class ContactList extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
         return GestureDetector(
-          onTap: () {
+          onTap: () { // On tap take to contactview
 
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => MyHomePage()));
+                builder: (BuildContext context) => new viewContact()));
           },
           child: _ContactListItem(_contacts[index]),
         );
