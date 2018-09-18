@@ -13,13 +13,15 @@ class viewContact extends StatelessWidget {
   final emailAd = 'namerson@gmail.com';
   final client = 'Thomas Green Industries';
 
+
+
   @override
   Widget build(BuildContext context) {
 
     //build function returns a "Widget"
     var card = new Card(
       child: new Column(
-
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
 
           new ListTile(
@@ -117,10 +119,19 @@ class viewContact extends StatelessWidget {
     );
 
     final sizedBox = new Container(
+      decoration: new BoxDecoration(boxShadow: [
+        new BoxShadow(
+            color: Colors.grey,
+            blurRadius: 8.0,
+            spreadRadius: 6.0
+        ),
+      ]),
 
       margin: new EdgeInsets.only(left: 10.0, right: 10.0),
-      child: new SizedBox(
-        height: 520.0,
+      child: new SizedBox.expand(
+
+        //height: 520.0,
+
         child: card,
       ),
       alignment: Alignment(-1.0, -1.0),
@@ -135,12 +146,23 @@ class viewContact extends StatelessWidget {
         title: "",
 //      home: new Text("Add Google fonts to Flutter App")
         home: new Scaffold(appBar: new AppBar(
-            title: new Text("Contact Details")
+            title: new Text("Contact Details"),
+            leading: IconButton(
+              tooltip: "Previous page",
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+             //   Navigator.push(
+             //     context,
+             //     MaterialPageRoute(builder: (context) => ContactsPage()),
+             //   );
+              },
+            )
         ),
           body: center,
 
 
         )
+
     );
   }
 }
@@ -161,6 +183,7 @@ class ClientNotes extends StatelessWidget {
         new Card(
           child: new Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               const ListTile(
                 leading: const Icon(Icons.note),
