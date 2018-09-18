@@ -60,12 +60,6 @@ class _ContactPage extends State<_ContactsPage> {
     this._contacts = kContacts;
   }
 
-  void getData(index) {
-//      setState(() { ///setState called during build
-        getContactsList(index, _apiKey, _domain);
-//      });
-  }
-
   ///List that shows contacts
   Widget _buildContacts() {
     return ListView.builder(
@@ -74,8 +68,8 @@ class _ContactPage extends State<_ContactsPage> {
         if (index >= (_contacts.length - 1)) {
           print("\n");
           print("Pagination get!");
-          print("\n\n");
-            getData(index);
+          print("\n");
+          getContactsList(index, _apiKey, _domain);
         }
         return buildRow(_contacts[index]);
       },
@@ -137,7 +131,8 @@ class _ContactPage extends State<_ContactsPage> {
   }
 
   ///Loading the Contacts List into a Collection
-  Future<Contact> getContactsList(int index, String _apiKey, String _domain) async {
+  Future<Contact> getContactsList(
+      int index, String _apiKey, String _domain) async {
     int _indexPagination = index;
     print('Retrieving Contacts List');
 
@@ -195,8 +190,10 @@ class _ContactPage extends State<_ContactsPage> {
         i++;
       }
       print("\n");
-//      return contactsList;
+
+      ///Add the new contacts to the current List, refresh list
       _contacts.addAll(contactsList);
+      setState(() {});
     });
   }
 }

@@ -16,11 +16,10 @@ import 'package:outreachcrm_app/SupportClasses.dart';
 void main() {
   runApp(new MyApp());
   print("\n");
-  print("Outreach Mobile Application");
-  print("Branch: UI_Pagination");
-  print("Build:  Sprint 2 Release | Pre-UI & Cache Overhaul");
-  print("Task:   Updating kContact after retrieving new data");
-  print("NEW PAGE");
+  print("Outreach: Flutter Application");
+  print("Branch:   UI_Pagination");
+  print("Build:    Sprint 2 Release | Pre-UI & Cache Overhaul, Local ContactPage Rewrite");
+  print("Task:     Pagination setState");
   print("\n");
 }
 
