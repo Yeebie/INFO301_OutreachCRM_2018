@@ -19,11 +19,38 @@ class _ContactPage extends State<ContactsPage> {
   Widget build(BuildContext context) {
     return new MaterialApp(
       home: new Scaffold(
+        drawer: Drawer(
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text('Drawer Header'),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+              ),
+              ListTile(
+                title: Text('Item 1'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                },
+              ),
+              ListTile(
+                title: Text('Item 2'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                },
+              ),
+            ],
+          ),
+        ),
           appBar: new AppBar(
             title: widget.appBarTitle,
             actions: <Widget>[
               new IconButton(
-
                 icon: widget.actionIcon,
                 onPressed: () {
                   setState(() {
@@ -35,32 +62,27 @@ class _ContactPage extends State<ContactsPage> {
                         ),
                         decoration: new InputDecoration(
                             prefixIcon:
-                            new Icon(Icons.search, color: Colors.white),
+                                new Icon(Icons.search, color: Colors.white),
                             hintText: "Search...",
                             hintStyle: new TextStyle(color: Colors.white)),
                         onChanged: (value) {
                           print(value);
-
                         },
                       );
                     } else {
                       widget.actionIcon =
-                      new Icon(Icons.search); //reset to initial state
+                          new Icon(Icons.search); //reset to initial state
                       widget.appBarTitle = new Text("Contacts");
                     }
                   });
                 },
               ),
               new IconButton(
-                icon: new Icon(Icons.settings), // Settings cog
-                onPressed: (null)
-              )
-
+                  icon: new Icon(Icons.settings), // Settings cog
+                  onPressed: (null))
             ],
           ),
           body: new ContactList(kContacts)),
-
-
     );
   }
 }
@@ -69,14 +91,16 @@ class ContactPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+
         appBar: new AppBar(
+
           title: new Text("Contacts"),
         ),
-        body: new ContactList(kContacts));
+        body: new ContactList(kContacts),
+        );
 
   }
 }
-
 
 class ContactList extends StatelessWidget {
   final List<Contact> _contacts;
@@ -89,7 +113,8 @@ class ContactList extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
         return GestureDetector(
-          onTap: () { // On tap take to contactview
+          onTap: () {
+            // On tap take to contactview
 
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => new viewContact()));
@@ -102,11 +127,9 @@ class ContactList extends StatelessWidget {
   }
 }
 
-
-
 class _ContactListItem extends ListTile {
   _ContactListItem(Contact contact)
       : super(
-      title: new Text(contact.fullName),
-      leading: new CircleAvatar(child: new Text(contact.fullName[0])));
+            title: new Text(contact.fullName),
+            leading: new CircleAvatar(child: new Text(contact.fullName[0])));
 }
