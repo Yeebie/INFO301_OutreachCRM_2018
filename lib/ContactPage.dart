@@ -23,6 +23,7 @@ class _ContactPage extends State<ContactsPage> {
             title: widget.appBarTitle,
             actions: <Widget>[
               new IconButton(
+
                 icon: widget.actionIcon,
                 onPressed: () {
                   setState(() {
@@ -50,6 +51,11 @@ class _ContactPage extends State<ContactsPage> {
                   });
                 },
               ),
+              new IconButton(
+                icon: new Icon(Icons.settings), // Settings cog
+                onPressed: (null)
+              )
+
             ],
           ),
           body: new ContactList(kContacts)),
