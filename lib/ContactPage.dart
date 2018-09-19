@@ -15,17 +15,19 @@ class ContactsPage extends StatefulWidget {
 }
 
 class _ContactPage extends State<ContactsPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       home: new Scaffold(
-        drawer: Drawer(
+        key: _scaffoldKey,
+        drawer: Drawer( // Drawer settings
+
           child: ListView(
-            // Important: Remove any padding from the ListView.
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
-                child: Text('Drawer Header'),
+                child: Text('Settings'),
                 decoration: BoxDecoration(
                   color: Colors.blue,
                 ),
@@ -48,6 +50,7 @@ class _ContactPage extends State<ContactsPage> {
           ),
         ),
           appBar: new AppBar(
+
             title: widget.appBarTitle,
             actions: <Widget>[
               new IconButton(
@@ -78,8 +81,9 @@ class _ContactPage extends State<ContactsPage> {
                 },
               ),
               new IconButton(
-                  icon: new Icon(Icons.settings), // Settings cog
-                  onPressed: (null))
+                  icon: new IconButton(icon: new Icon(Icons.settings),
+                      onPressed: () => _scaffoldKey.currentState.openDrawer()),
+              )
             ],
           ),
           body: new ContactList(kContacts)),
