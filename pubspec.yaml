@@ -3,21 +3,33 @@ description: OutReachCRM Project
 
 dependencies:
   validate: ^1.6.0
+  flutter_launcher_icons: ^0.6.1
   flutter:
     sdk: flutter
-    
+  shared_preferences: ^0.4.2
+  splashscreen: ^1.1.0
+  http: ^0.11.3+16
 
-  http: 0.11.3+17 # Can this be updated automatically? Devs'll have to keep an eye on dependencies.
 
- 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   url_launcher: ^3.0.3
 
+  modal_progress_hud: ^0.1.0
+
+flutter_icons:
+    image_path: "assets/icon_android.png"
+    android: true
+    ios: true
+
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
@@ -30,11 +42,24 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-assets:
-- assets/logo.png
+  assets:
+    - assets/images/logo.png
+    - assets/images/OutreachCRM_vert_logo.jpg
+    - assets/images/OutreachCRM_vert_logo.png
+    - assets/images/background-image.png
+    - assets/images/login-background.jpg
+    - assets/images/icon_android.png
+    - assets/images/icon_ios.png
 
-  #  - images/a_dot_ham.jpeg
+
+  fonts:
+    - family: Signika
+      fonts:
+        - asset: assets/fonts/Signika-Light.ttf
+        - asset: assets/fonts/Signika-Regular.ttf
+        - asset: assets/fonts/Signika-SemiBold.ttf
+        - asset: assets/fonts/Signika-Bold.ttf
+
 
 
 

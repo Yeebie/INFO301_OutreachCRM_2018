@@ -89,10 +89,13 @@ class _ContactPage extends State<_ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final color = const Color(0xFF0085CA);
     return new MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: new Scaffold(
           appBar: new AppBar(
             title: widget.appBarTitle,
+            backgroundColor: color,
             actions: <Widget>[
               new IconButton(
                 icon: widget.actionIcon,
