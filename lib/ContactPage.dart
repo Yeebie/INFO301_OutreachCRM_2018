@@ -14,11 +14,11 @@ class ContactsPageApp extends StatelessWidget {
   //Datafields
   String _apiKey;
   String _domain;
-  List<Contact> contacts;
+  List<Contact> contacts = [];
 
   //Constructor
-  ContactsPageApp(this._apiKey, this._domain, {Key key, this.contacts})
-      : super(key: key);
+  ContactsPageApp(this._apiKey, this._domain);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -62,19 +62,30 @@ class _ContactPage extends State<_ContactsPage> {
 
   ///List that shows contacts
   Widget _buildContacts() {
-    return ListView.builder(
-      padding: new EdgeInsets.symmetric(vertical: 8.0),
-      itemBuilder: (context, index) {
-        if (index >= (_contacts.length - 1)) {
-          print("\n");
-          print("Pagination get!");
-          print("\n");
-          getContactsList(index, _apiKey, _domain);
-        }
-        return buildRow(_contacts[index]);
-      },
-      itemCount: _contacts.length,
-    );
+    print("Checking if _contacts has any data");
+    print("_contacts length: " + (_contacts.length).toString());
+    if (_contacts.length == 0) {
+      print("_contacts is empty, requesting resupply");
+      print("\n\n");
+      getContactsList(0, _apiKey, _domain);
+
+    } else if(_contacts.length != 0) {
+      print("_contacts has data, displaying list");
+      print("\n");
+      return ListView.builder(
+        padding: new EdgeInsets.symmetric(vertical: 8.0),
+        itemBuilder: (context, index) {
+          if (index >= (_contacts.length - 1)) {
+            print("\n");
+            print("Pagination get!");
+            print("\n");
+            getContactsList(index, _apiKey, _domain);
+          }
+          return buildRow(_contacts[index]);
+        },
+        itemCount: _contacts.length,
+      );
+    }
   }
 
   ///Stylised contact item
@@ -136,7 +147,12 @@ class _ContactPage extends State<_ContactsPage> {
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactsList(
       int index, String _apiKey, String _domain) async {
-    int _indexPagination = index;
+    int _indexPagination;
+    if(index == 0) { //If there is nothing in the list, get contacts starting at index 0
+      _indexPagination = index;
+    } else { //If there is something in the list, get contacts starting at the index that triggered the pagination + 1
+      _indexPagination = (index + 1);
+    }
     print('Retrieving Contacts List');
 
     ///Specify the API Query here, type it according to the API Specification, the app'll convert it to encoded HTML
@@ -148,7 +164,7 @@ class _ContactPage extends State<_ContactsPage> {
         "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], used to sort people with the same first or last name so its alphabetical
     String limit = "&limit=" +
         "[24," +
-        (_indexPagination + 1).toString() +
+        (_indexPagination).toString() +
         "]"; //[Load this amount of contacts at a time, Start from this index]. Loading 25 at a time, lists start with index 0, baka.
 
     ///Specifying the URL we'll make to call the API

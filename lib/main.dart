@@ -438,7 +438,7 @@ class _LoginPageState extends State<LoginPage>
       if (apiPattern.hasMatch(_apiKeyFields._apiKey)) {
         print("API Key Matches Format");
         print("\n\n");
-        _getContactsList();
+        _getContactPage();
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
       }
@@ -446,66 +446,11 @@ class _LoginPageState extends State<LoginPage>
   }
 
   ///***************************************************************************
-  ///             C O N T A C T S   L I S T   R E T R I E V A L
+  ///             C O N T A C T S   P A G E   R E T R I E V A L
   ///***************************************************************************
 
   ///Loading the Contacts List into a Collection
-  void _getContactsList() {
-    print('Retrieving Contacts List\n');
-
-    ///Specify the API Query here, type it according to the API Specification, the app'll convert it to encoded HTML
-    String apikey = "?apikey=" + _apiKeyFields._apiKey;
-    String properties = "&properties=" + "['name_processed','oid','o_company']";
-    String conditions =
-        "&conditions=" + "[['status','=','O'],['oid','>=','100']]";
-    String order = "&order=" +
-        "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], Ordered by o_first_name, o_first_name are ordered by o_last_name
-    String limit = "&limit=" +
-        "[24,0]"; //[Load this amount of contacts at a time, Start from this index]. Loading 25 at a time, loads from index 0 to index 24, baka.
-
-    ///Specifying the URL we'll make to call the API
-    String _requestContactList = "https://" +
-        loginFields._domain +
-        ".outreach.co.nz/api/0.2/query/user" +
-        (apikey + properties + conditions + order + limit);
-
-    ///Encoding the String so its HTML safe
-    _requestContactList = _requestContactList.replaceAll("[", "%5B");
-    _requestContactList = _requestContactList.replaceAll("]", "%5D");
-    _requestContactList = _requestContactList.replaceAll("'", "%27");
-    _requestContactList = _requestContactList.replaceAll(">", "%3E");
-    print('Get Contact List URL: ' + _requestContactList);
-
-    ///Send an API request, load all of the json into a map
-    http.post(_requestContactList).then((response) {
-      //Print the API Key, just so we can compare it to the subset String
-      print("Contact List Response:");
-      print(response.body);
-      List<Contact> contactsList = new List();
-      //Turning the json into a map
-      final contactListMap = json.decode(response.body);
-      ContactListJson contactListJson =
-          new ContactListJson.fromJson(contactListMap);
-      print("\n\n");
-
-      ///Creates a new contact filled with data, adds it to List<Contact>
-      for (ContactListData data in contactListJson.data) {
-        Contact contact = new Contact();
-        contact.setFullName(data.getNameProcessed());
-        contact.setOid(data.getOid());
-        contact.setCompany(data.getCompany());
-        contactsList.add(contact);
-      }
-
-      ///Printing the contactList, sanity check
-      print("Printing contactsList");
-      int i = 0;
-      while (i < contactsList.length) {
-        print(contactsList[i].getFullName());
-        i++;
-      }
-      print('\n');
-
+  void _getContactPage() {
       ///Send the contactsList to be displayed on the ContactsPage
       usernameController.clear();
       passwordController.clear();
@@ -513,11 +458,10 @@ class _LoginPageState extends State<LoginPage>
         context,
         MaterialPageRoute(
             builder: (context) => ContactsPageApp(
-                _apiKeyFields._apiKey, loginFields._domain,
-                contacts: contactsList)),
+                _apiKeyFields._apiKey, loginFields._domain)),
       );
-    });
-  }
+    }
+
 
   dynamic afterSplash() {
     if (_attemptingAutoLogin) {
