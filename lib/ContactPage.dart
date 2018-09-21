@@ -52,6 +52,7 @@ class _ContactPage extends State<_ContactsPage> {
   String _domain;
   List<Contact> _contacts;
   ScrollController controller;
+  int count;
 
   //Constructor
   _ContactPage(String apiKey, String domain, List<Contact> kContacts) {
@@ -60,23 +61,31 @@ class _ContactPage extends State<_ContactsPage> {
     this._contacts = kContacts;
   }
 
-  ///List that shows contacts
+  ///The list that holds all the contacts onscreen
   Widget _buildContacts() {
+    print("buildContacts() empty list check");
     print("Checking if _contacts has any data");
     print("_contacts length: " + (_contacts.length).toString());
+
+    ///The list starts with no data in it, since the getContactsList() method is in this class, we have to load it here
     if (_contacts.length == 0) {
       print("_contacts is empty, requesting resupply");
       print("\n\n");
       getContactsList(0, _apiKey, _domain);
+    }
 
-    } else if(_contacts.length != 0) {
+    ///As soon as the getContactsList() setState is called, this code runs the if statement again
+    else if (_contacts.length != 0) {
       print("_contacts has data, displaying list");
-      print("\n");
+      print("Amount of Contacts from API Request: " + count.toString());
+      print("\n\n");
       return ListView.builder(
         padding: new EdgeInsets.symmetric(vertical: 8.0),
         itemBuilder: (context, index) {
-          if (index >= (_contacts.length - 1)) {
-            print("\n");
+          //If we hit the end of the client's contacts list, the app'll spam getContactsList()
+          //This is due to the List staying at the max index and triggering the call over and over
+          //count tracks the size of the last API call, you get the point
+          if (index >= (_contacts.length - 1) && count != 0) {
             print("Pagination get!");
             print("\n");
             getContactsList(index, _apiKey, _domain);
@@ -148,24 +157,29 @@ class _ContactPage extends State<_ContactsPage> {
   Future<Contact> getContactsList(
       int index, String _apiKey, String _domain) async {
     int _indexPagination;
-    if(index == 0) { //If there is nothing in the list, get contacts starting at index 0
-      _indexPagination = index;
-    } else { //If there is something in the list, get contacts starting at the index that triggered the pagination + 1
-      _indexPagination = (index + 1);
-    }
-    print('Retrieving Contacts List');
 
     ///Specify the API Query here, type it according to the API Specification, the app'll convert it to encoded HTML
     String apikey = "?apikey=" + _apiKey;
     String properties = "&properties=" + "['name_processed','oid','o_company']";
     String conditions =
         "&conditions=" + "[['status','=','O'],['oid','>=','100']]";
-    String order = "&order=" +
-        "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], used to sort people with the same first or last name so its alphabetical
+    String order;
+    if (index == 0) {
+      //If there is nothing in the list, get last modified contacts starting at index 0
+      _indexPagination = index;
+      order = "&order=" + "[['modified','DESC']]";
+    } else {
+      //If there is something in the list, get contacts starting at the index that triggered the pagination + 1, minus the 25 recently modified contacts
+      _indexPagination = ((index + 1) - 25);
+      order = "&order=" +
+          "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]"; //[[Primary sort],[Secondary sort]], used to sort people with the same first or last name so its alphabetical
+    }
     String limit = "&limit=" +
         "[24," +
         (_indexPagination).toString() +
         "]"; //[Load this amount of contacts at a time, Start from this index]. Loading 25 at a time, lists start with index 0, baka.
+
+    print('Retrieving Contacts List');
 
     ///Specifying the URL we'll make to call the API
     String _requestContactList = "https://" +
@@ -190,7 +204,7 @@ class _ContactPage extends State<_ContactsPage> {
       final contactListMap = json.decode(response.body);
       ContactListJson contactListJson =
           new ContactListJson.fromJson(contactListMap);
-      print("\n\n");
+      print("\n");
 
       ///Creates a new contact filled with data, adds it to List<Contact>
       for (ContactListData data in contactListJson.data) {
@@ -201,10 +215,12 @@ class _ContactPage extends State<_ContactsPage> {
         contactsList.add(contact);
       }
 
+      count = contactsList.length;
+
       ///Printing the contactList, sanity check
       print("Printing contactsList");
       int i = 0;
-      while (i < contactsList.length && contactsList.length == 25) {
+      while (i < contactsList.length) {
         print(contactsList[i].getFullName());
         i++;
       }

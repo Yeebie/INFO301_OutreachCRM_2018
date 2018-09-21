@@ -451,17 +451,16 @@ class _LoginPageState extends State<LoginPage>
 
   ///Loading the Contacts List into a Collection
   void _getContactPage() {
-      ///Send the contactsList to be displayed on the ContactsPage
-      usernameController.clear();
-      passwordController.clear();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ContactsPageApp(
-                _apiKeyFields._apiKey, loginFields._domain)),
-      );
-    }
-
+    ///Send the contactsList to be displayed on the ContactsPage
+    usernameController.clear();
+    passwordController.clear();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              ContactsPageApp(_apiKeyFields._apiKey, loginFields._domain)),
+    );
+  }
 
   dynamic afterSplash() {
     if (_attemptingAutoLogin) {
