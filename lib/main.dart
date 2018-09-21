@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 ///Used for API Key Retrieval
 import 'dart:async' show Future, Timer;
+import 'package:flutter/services.dart';
 import 'dart:convert'; //Converts Json into Map
 
 import 'package:outreachcrm_app/SupportClasses.dart';
@@ -24,8 +25,7 @@ void main() {
   print("\n");
   print("Outreach: Flutter Application");
   print("Branch:   Master");
-  print(
-      "Build:    Sprint 3 Release | Post-UI & Cache Overhaul, Local ContactPage Rewrite, SupportClasses addition");
+  print("Build:    Sprint 3 Pre-Release | Master & UI_Pagination merge");
   print("Task:     Manually merge Master & UI_Pagination");
   print("\n");
 }
@@ -203,7 +203,6 @@ class _LoginPageState extends State<LoginPage>
             ));
   }
 
-
   void _forgotPassword() async {
     String url = 'https://' +
         loginFields._domain +
@@ -215,9 +214,7 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
-
   void _login() {
-
     _checkWifi();
     //Future.delayed(const Duration(seconds: 3));
     /*
@@ -229,10 +226,9 @@ class _LoginPageState extends State<LoginPage>
     }
     */
     try {
-      if(_wifiEnabled) {
+      if (_wifiEnabled) {
         if ((_loginFormKey.currentState.validate()) ||
             (_demoMode && !_loginFormKey.currentState.validate())) {
-
           _loginFormKey.currentState.save();
 
           // dismiss keyboard
@@ -255,7 +251,8 @@ class _LoginPageState extends State<LoginPage>
          */
 
           /// Set the login cache with the validated fields
-          _setLoginDetails(loginFields._domain, loginFields._username, loginFields._password);
+          _setLoginDetails(loginFields._domain, loginFields._username,
+              loginFields._password);
 
           // Buy us some time while logging in
           Future.delayed(Duration(seconds: 5), () {
@@ -271,7 +268,6 @@ class _LoginPageState extends State<LoginPage>
       print(e);
     }
   }
-
 
   ///***************************************************************************
   ///                     A U T O   L O G I N
@@ -298,14 +294,16 @@ class _LoginPageState extends State<LoginPage>
   }
 
   /// method to set the cache values for login details.
-  void _setLoginDetails(String domain, String username, String password){
+  void _setLoginDetails(String domain, String username, String password) {
+    print("-----------------------------------------");
+    print("Storing Login Details into Cache");
+    print("Username: " + username);
+    print("Password: " + password);
+    print("Domain: " + domain);
+    print("-----------------------------------------");
+    print('\n \n');
 
-    print("----------------------------------");
-    print("caching deets my dude");
-    print("----------------------------------");
-
-    if(domain != "" && username != ""
-        && password != "") {
+    if (domain != "" && username != "" && password != "") {
       Util.setString('domain', domain);
       Util.setString('username', username);
       Util.setString('password', password);
@@ -316,12 +314,13 @@ class _LoginPageState extends State<LoginPage>
   /// if yes; update the class variables with cached data
   /// and return true.
   bool _userHasLoggedIn() {
-    if(_cacheDomain != null &&_cacheUsername != null
-        && _cachePassword != null) {
-
-      print("----------------------------------");
-      print("details were in cache my dude");
-      print("----------------------------------");
+    if (_cacheDomain != null &&
+        _cacheUsername != null &&
+        _cachePassword != null) {
+      print("-------------------------------------");
+      print("Login details found in Cache, loading");
+      print("-------------------------------------");
+      print("\n");
 
       loginFields._domain = _cacheDomain;
       loginFields._username = _cacheUsername;
@@ -337,11 +336,11 @@ class _LoginPageState extends State<LoginPage>
   ///***************************************************************************
 
   ///Retrieving API Key
-    void _getAPIKeyRetrieval() {
-      if (_demoMode) {
-        loginFields._username = "andaa635@student.otago.ac.nz";
-        loginFields._password = "andaa635";
-      }
+  void _getAPIKeyRetrieval() {
+    if (_demoMode) {
+      loginFields._username = "andaa635@student.otago.ac.nz";
+      loginFields._password = "andaa635";
+    }
 
     //Kind of like a method, will do all sorts of fantastic things in the future
     //Creating the URL that'll query the database for our API Key
@@ -519,11 +518,11 @@ class _LoginPageState extends State<LoginPage>
       );
     });
   }
-  dynamic afterSplash(){
-    if(_attemptingAutoLogin) {
+
+  dynamic afterSplash() {
+    if (_attemptingAutoLogin) {
       return null;
-    }
-    else {
+    } else {
       return Scaffold(
           resizeToAvoidBottomPadding: false,
           body: new Container(
@@ -548,27 +547,27 @@ class _LoginPageState extends State<LoginPage>
               opacity: 0.5,
               progressIndicator: CircularProgressIndicator(),
             ),
-          )
-      );}
+          ));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-
     /// call this to clear cache
 //    _clearLoginDetails();
 
     /// if we are not currently trying to login
-    if(_attemptingAutoLogin == false) {
+    if (_attemptingAutoLogin == false) {
       /// attempt to retrieve details from cache
       _getLoginDetails();
+
       /// if the user has logged in before, attempt to get new API key
       if (_userHasLoggedIn()) {
-        print("------------------------------------");
-        print(_cacheDomain);
-        print(_cacheUsername);
-        print(_cachePassword);
-        print("------------------------------------");
+        print("Login Details loaded from Cache");
+        print("Username: " + _cacheUsername);
+        print("Password: " + _cachePassword);
+        print("Domain: " + _cacheDomain);
+        print('\n \n');
 
         _getAPIKeyRetrieval();
 //        _login();
@@ -616,8 +615,7 @@ class _LoginPageState extends State<LoginPage>
             opacity: 0.5,
             progressIndicator: CircularProgressIndicator(),
           ),
-        )
-    );
+        ));
   }
 }
 
@@ -630,12 +628,10 @@ class AfterSplash extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
       body: new Center(
-        child: new Text("Succeeded!",
-          style: new TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 30.0
-          ),),
-
+        child: new Text(
+          "Succeeded!",
+          style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),
+        ),
       ),
     );
   }
@@ -678,9 +674,9 @@ class LoginForm extends StatelessWidget {
                 'assets/images/OutreachCRM_vert_logo.png',
                 width: 200.0,
                 height: 200.0,
-              )
-          ),
-          new Theme( // this colors the underline
+              )),
+          new Theme(
+            // this colors the underline
             data: theme.copyWith(
               primaryColor: Colors.white,
               hintColor: Colors.white,
@@ -693,10 +689,10 @@ class LoginForm extends StatelessWidget {
                   controller: usernameController,
                   decoration: InputDecoration(
                       labelText: 'Username',
-                      labelStyle: new TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0)),
-                  style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                      labelStyle:
+                          new TextStyle(color: Colors.white, fontSize: 16.0)),
+                  style:
+                      TextStyle(fontSize: 20.0, color: textTheme.button.color),
                   validator: validateUserName,
                   onSaved: (val) => this.loginFields._username = val),
             ),
@@ -714,11 +710,9 @@ class LoginForm extends StatelessWidget {
                 keyboardType: TextInputType.text,
                 controller: passwordController,
                 decoration: InputDecoration(
-
                     labelText: 'Password',
-                    labelStyle: new TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0)),
+                    labelStyle:
+                        new TextStyle(color: Colors.white, fontSize: 16.0)),
                 style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
                 validator: validatePassword,
                 onSaved: (val) => this.loginFields._password = val,
@@ -737,6 +731,7 @@ class LoginForm extends StatelessWidget {
                 height: 42.00,
                 onPressed: () {
                   login();
+
                   /// change color here to show its been pressed
                 },
                 child: Text('LOGIN',
@@ -756,4 +751,3 @@ class LoginForm extends StatelessWidget {
     );
   }
 }
-
