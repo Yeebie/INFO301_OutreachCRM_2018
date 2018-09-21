@@ -6,6 +6,8 @@ class Util {
   /// data fields
   static Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
 
+
+
   ///***************************************************************************
   ///                     C A C H E   M E T H O D S
   ///***************************************************************************
@@ -23,9 +25,12 @@ class Util {
     return prefs.getString(key) ?? "";
   }
 
+
   /// method used to clear a single value from cache
   static Future<Null> removeCacheItem(String key) async {
     final SharedPreferences prefs = await _sPrefs;
     prefs.remove(key);
   }
+
+
 }
