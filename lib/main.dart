@@ -26,7 +26,7 @@ void main() {
   print("Outreach: Flutter Application");
   print("Branch:   Master");
   print("Build:    Sprint 3 Pre-Release | Master & UI_Pagination merge");
-  print("Task:     Manually merge Master & UI_Pagination");
+  print("Task:     Load individual user's details");
   print("\n");
 }
 
@@ -446,7 +446,7 @@ class _LoginPageState extends State<LoginPage>
   }
 
   ///***************************************************************************
-  ///             C O N T A C T S   P A G E   R E T R I E V A L
+  ///                   C O N T A C T S   P A G E   C A L L
   ///***************************************************************************
 
   ///Loading the Contacts List into a Collection

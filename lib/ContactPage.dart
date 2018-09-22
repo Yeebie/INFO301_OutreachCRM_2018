@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
+import 'package:outreachcrm_app/viewContact.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -22,6 +23,7 @@ class ContactsPageApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: "Contacts",
         home: _ContactsPage(_apiKey, _domain, contacts: contacts));
   }
@@ -90,7 +92,15 @@ class _ContactPage extends State<_ContactsPage> {
             print("\n");
             getContactsList(index, _apiKey, _domain);
           }
-          return buildRow(_contacts[index]);
+          return GestureDetector(
+            onTap: () {
+              String _oid = (_contacts[index].getOid());
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      new viewContact(_apiKey, _domain, _oid)));
+            },
+            child: buildRow(_contacts[index]),
+          );
         },
         itemCount: _contacts.length,
       );
