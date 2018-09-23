@@ -16,41 +16,42 @@ class ContactsPage extends StatefulWidget {
 
 class _ContactPage extends State<ContactsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       home: new Scaffold(
-        key: _scaffoldKey,
-        drawer: Drawer( // Drawer settings
+          key: _scaffoldKey,
+          drawer: Drawer(
+            // Drawer settings
 
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                child: Text('Settings'),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  child: Text('Settings'),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
                 ),
-              ),
-              ListTile(
-                title: Text('Item 1'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                },
-              ),
-              ListTile(
-                title: Text('Item 2'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                },
-              ),
-            ],
+                ListTile(
+                  title: Text('Item 1'),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                  },
+                ),
+                ListTile(
+                  title: Text('Item 2'),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
           appBar: new AppBar(
-
             title: widget.appBarTitle,
             actions: <Widget>[
               new IconButton(
@@ -81,8 +82,9 @@ class _ContactPage extends State<ContactsPage> {
                 },
               ),
               new IconButton(
-                  icon: new IconButton(icon: new Icon(Icons.settings),
-                      onPressed: () => _scaffoldKey.currentState.openDrawer()),
+                icon: new IconButton(
+                    icon: new Icon(Icons.settings),
+                    onPressed: () => _scaffoldKey.currentState.openDrawer()),
               )
             ],
           ),
@@ -95,14 +97,11 @@ class ContactPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-
-        appBar: new AppBar(
-
-          title: new Text("Contacts"),
-        ),
-        body: new ContactList(kContacts),
-        );
-
+      appBar: new AppBar(
+        title: new Text("Contacts"),
+      ),
+      body: new ContactList(kContacts),
+    );
   }
 }
 
