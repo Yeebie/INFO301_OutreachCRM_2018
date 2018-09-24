@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage>
   /// cache login variables
   Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
   // boolean to lock cache check when logging in
-  bool _attemptingAutoLogin = false;
+  bool _cachedLoginValid = false;
 
   ///Data fields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -112,7 +112,7 @@ class _LoginPageState extends State<LoginPage>
     _clearLoginDetails();
 
     new Timer(new Duration(milliseconds: 200), () {
-      checkLoggedIn();
+      _checkLoggedIn();
     });
   }
 
@@ -269,9 +269,9 @@ class _LoginPageState extends State<LoginPage>
 
   /// method used to clear cache on logout
   void _clearLoginDetails() {
-    print("------------------");
+    print("-------------------------");
     print("CLEARING DETAILS IN CACHE");
-    print("------------------");
+    print("-------------------------");
 
     Util.removeCacheItem('domain');
     Util.removeCacheItem('username');
@@ -282,9 +282,9 @@ class _LoginPageState extends State<LoginPage>
   void _setLoginDetails(String domain, String username, String password){
     // check if the field is being passed null
     if(domain != "" && username != "" && password != "") {
-      print("------------------");
+      print("-------------------------");
       print("SAVING DETAILS IN CACHE");
-      print("------------------");
+      print("-------------------------");
 
       Util.setString('domain', domain);
       Util.setString('username', username);
@@ -292,7 +292,7 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
-  Future checkLoggedIn() async {
+  Future _checkLoggedIn() async {
     // instantiate shared preferences (cache)
     SharedPreferences prefs = await _sPrefs;
 
@@ -305,9 +305,9 @@ class _LoginPageState extends State<LoginPage>
     if (_cachedDomain != null && _cachedUsername != null
         && _cachedPassword != null){
 
-      print("------------------");
+      print("-------------------------");
       print("FOUND DETAILS IN CACHE");
-      print("------------------");
+      print("-------------------------");
       loginFields._domain = _cachedDomain;
       loginFields._username = _cachedUsername;
       loginFields._password = _cachedPassword;
@@ -315,15 +315,15 @@ class _LoginPageState extends State<LoginPage>
       print(_cachedDomain);
       print(_cachedUsername);
       print(_cachedPassword);
-      print("------------------");
+      print("-------------------------");
 
       // attempt the login
 
       // if we are not currently trying to login
-      if(_attemptingAutoLogin == false) {
+      if(_cachedLoginValid == false) {
         // attempt to get API key
           _getAPIKeyRetrieval();
-          _attemptingAutoLogin = true;
+          _cachedLoginValid = true;
         // push to contacts page
       }
 
