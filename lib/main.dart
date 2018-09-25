@@ -83,13 +83,9 @@ class ContactListFields {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  /// cache login variables
-  Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
 
-  // boolean to lock cache check when logging in
-  bool _cachedLoginValid = false;
 
-  //Datafields
+  // data fields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final LoginFields loginFields;
 
@@ -101,12 +97,17 @@ class _LoginPageState extends State<LoginPage>
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   APIKeyFields _apiKeyFields = new APIKeyFields();
   APIKeyValidationFields _apiKeyValidationFields = new APIKeyValidationFields();
-//  ContactListFields _contactListFields = new ContactListFields();
 
   Map<String, dynamic> apiKey;
 
   //triggers modal loading overlay
   static bool _inAsyncCall = false;
+
+  /// cache login variables
+  // the cache object itself
+  Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
+  // boolean to lock cache check when logging in
+  bool _cachedLoginValid = false;
 
   //Puts app in demo mode (If you want to switch out the mode then you have
   //change the boolean and rerun the app. If someone finds a fix that would be
@@ -118,7 +119,7 @@ class _LoginPageState extends State<LoginPage>
     super.initState();
 
     // call this to clear cache
-//    _clearLoginDetails();
+    _clearLoginDetails();
 
     new Timer(new Duration(milliseconds: 300), () {
       _checkLoggedIn();
@@ -301,7 +302,7 @@ class _LoginPageState extends State<LoginPage>
 
   Future _checkLoggedIn() async {
     // instantiate shared preferences (cache)
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await _sPrefs;
 
     // attempt to read in cache values, return null if not found
     String _cachedDomain = (prefs.getString('domain') ?? null);
@@ -319,21 +320,32 @@ class _LoginPageState extends State<LoginPage>
       loginFields._password = _cachedPassword;
 
       // attempt the login
-
       // if we are not currently trying to login
       if (_cachedLoginValid == false) {
         // attempt to get API key
         _getAPIKeyRetrieval();
         _cachedLoginValid = true;
-        // push to contacts page
       }
-    } else { // else return you found nothing
+    } else { // else you found nothing, redirect to login
 
-      print("------------------");
+      print("-------------------------");
       print("FOUND NO DETAILS IN CACHE");
-      print("------------------");
+      print("-------------------------");
 
       // push to domain page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => new LoginForm(
+            loginFormKey: _loginFormKey,
+            login: _login,
+            forgotPassword: _forgotPassword,
+            loginFields: loginFields,
+            validateUserName: _validateUserName,
+            validatePassword: _validatePassword,
+          )
+        )
+      );
     }
   }
 
@@ -444,7 +456,14 @@ class _LoginPageState extends State<LoginPage>
       if (apiPattern.hasMatch(_apiKeyFields._apiKey)) {
         print("API Key Matches Format");
         print("\n\n");
+
+//        Navigator.push(
+//            context,
+//            MaterialPageRoute(
+//                builder: (context) =>
         _getContactPage();
+//      )
+//        );
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
       }
@@ -466,149 +485,40 @@ class _LoginPageState extends State<LoginPage>
           builder: (context) =>
               ContactsPageApp(_apiKeyFields._apiKey, loginFields._domain)),
     );
+//    return new ContactsPageApp(_apiKeyFields._apiKey, loginFields._domain);
   }
 
-//  dynamic afterSplash(){
-//    if(_attemptingAutoLogin && contactsPage != null) {
-//      return contactsPage;
-//    }
-//    else {
-//      return Scaffold(
-//      resizeToAvoidBottomPadding: false,
-//      body: new Container(
-//        decoration: new BoxDecoration(
-//          image: new DecorationImage(
-//            image: new AssetImage('assets/images/login-background.jpg'),
-//            fit: BoxFit.cover,
-//          ),
-//        ),
-//        child: ModalProgressHUD(
-//          child: LoginForm(
-//            loginFormKey: _loginFormKey,
-//            login: _login,
-//            forgotPassword: _forgotPassword,
-//            loginFields: loginFields,
-//            validateUserName: _validateUserName,
-//            validatePassword: _validatePassword,
-//          ),
-//          inAsyncCall: _inAsyncCall,
-//
-//          //additional options for loading modal
-//          opacity: 0.5,
-//          progressIndicator: CircularProgressIndicator(),
-//        ),
-//      )
-//    );}
-//  }
-
-    dynamic afterSplash() {
-      if (_cachedLoginValid) {
-        return null;
-      } else {
-        return Scaffold(
-            resizeToAvoidBottomPadding: false,
-            body: new Container(
-              decoration: new BoxDecoration(
-                image: new DecorationImage(
-                  image: new AssetImage('assets/images/login-background.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: ModalProgressHUD(
-                child: LoginForm(
-                  loginFormKey: _loginFormKey,
-                  login: _login,
-                  forgotPassword: _forgotPassword,
-                  loginFields: loginFields,
-                  validateUserName: _validateUserName,
-                  validatePassword: _validatePassword,
-                ),
-                inAsyncCall: _inAsyncCall,
-
-                //additional options for loading modal
-                opacity: 0.5,
-                progressIndicator: CircularProgressIndicator(),
-              ),
-            ));
-      }
-    }
 
     @override
     Widget build(BuildContext context) {
 
-//    return new SplashScreen(
-//      seconds: 8,
-//      navigateAfterSeconds: afterSplash(),
-//      title: new Text('Welcome In SplashScreen',
-//        style: new TextStyle(
-//            fontWeight: FontWeight.bold,
-//            fontSize: 20.0
-//        ),),
-//      image: new Image.network('https://flutter.io/images/catalog-widget-placeholder.png'),
-//      backgroundColor: Colors.white,
-//      styleTextUnderTheLoader: new TextStyle(),
-//      photoSize: 100.0,
-//      onClick: ()=>print("Flutter Egypt"),
-//      loaderColor: Colors.red,
-//    );
+      return new ModalProgressHUD(
+          child: Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new AssetImage('assets/images/background-image.png'),
+                fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        inAsyncCall: true,
+      );
 
       //Build the scaffold of the page
-      return Scaffold(
-        resizeToAvoidBottomPadding: false,
-        body: new LoginForm(
-          loginFormKey: _loginFormKey,
-          login: _login,
-          forgotPassword: _forgotPassword,
-          loginFields: loginFields,
-          validateUserName: _validateUserName,
-          validatePassword: _validatePassword,
-        ),
-      );
+//      return Scaffold(
+//        resizeToAvoidBottomPadding: false,
+//        body: new LoginForm(
+//          loginFormKey: _loginFormKey,
+//          login: _login,
+//          forgotPassword: _forgotPassword,
+//          loginFields: loginFields,
+//          validateUserName: _validateUserName,
+//          validatePassword: _validatePassword,
+//        ),
+//      );
     }
   }
 
-//class AfterSplash extends StatelessWidget {
-//  @override
-//  Widget build(BuildContext context) {
-//
-//    if(_LoginPageState._attemptingAutoLogin){
-//
-//    }
-//
-//    return new Scaffold(
-//      appBar: new AppBar(
-//        title: new Text("Welcome In SplashScreen Package"),
-//        automaticallyImplyLeading: false,
-//      ),
-//      body: new Center(
-//        child: new Text("Succeeded!",
-//          style: new TextStyle(
-//              fontWeight: FontWeight.bold,
-//              fontSize: 30.0
-//          ),),
-//
-//      ),
-//    );
-//  }
-//}
-
-class AfterSplash extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Welcome In SplashScreen Package"),
-        automaticallyImplyLeading: false,
-      ),
-      body: new Center(
-        child: new Text(
-          "Succeeded!",
-          style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),
-        ),
-      ),
-    );
-  }
-}
 
 class LoginForm extends StatelessWidget {
   final GlobalKey<FormState> loginFormKey;
@@ -636,6 +546,7 @@ class LoginForm extends StatelessWidget {
     final color = const Color(0xFF0085CA);
     final theme = Theme.of(context);
     //final String url = 'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
+
     //Build the form and attach to the scaffold
     return Scaffold(
       resizeToAvoidBottomPadding: false,
