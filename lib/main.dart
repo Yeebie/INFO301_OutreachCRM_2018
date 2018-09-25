@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ContactPage.dart';
+import 'package:outreachcrm_app/ContactPage.dart';
 import 'package:validate/validate.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,25 +13,32 @@ import 'dart:async' show Future, Timer;
 import 'package:flutter/services.dart';
 import 'dart:convert'; //Converts Json into Map
 
-import 'package:outreachcrm_app/Contact.dart';
+import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:splashscreen/splashscreen.dart';
 
 /// used for caching
 import 'package:outreachcrm_app/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-List<Contact> contacts;
-
-void main() => runApp(MyApp());
+void main() {
+  runApp(new MyApp());
+  print("\n");
+  print("Outreach: Flutter Application");
+  print("Branch:   Master");
+  print("Build:    Sprint 3 Pre-Release | Master & UI_Pagination merge");
+  print("Task:     Load individual user's details");
+  print("\n");
+}
 
 class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    return MaterialApp(
+    return new MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -76,15 +83,16 @@ class ContactListFields {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-
   /// cache login variables
   Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
+
   // boolean to lock cache check when logging in
   bool _cachedLoginValid = false;
 
-  ///Data fields
+  //Datafields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final LoginFields loginFields;
+
   _LoginPageState({this.loginFields});
 
   final TextEditingController usernameController = new TextEditingController();
@@ -93,35 +101,34 @@ class _LoginPageState extends State<LoginPage>
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   APIKeyFields _apiKeyFields = new APIKeyFields();
   APIKeyValidationFields _apiKeyValidationFields = new APIKeyValidationFields();
-  ContactListFields _contactListFields = new ContactListFields();
-
+//  ContactListFields _contactListFields = new ContactListFields();
 
   Map<String, dynamic> apiKey;
 
   //triggers modal loading overlay
   static bool _inAsyncCall = false;
+
   //Puts app in demo mode (If you want to switch out the mode then you have
   //change the boolean and rerun the app. If someone finds a fix that would be
   //great)
   bool _demoMode = false;
+
   @override
   void initState() {
     super.initState();
 
     // call this to clear cache
-    _clearLoginDetails();
+//    _clearLoginDetails();
 
-    new Timer(new Duration(milliseconds: 200), () {
+    new Timer(new Duration(milliseconds: 300), () {
       _checkLoggedIn();
     });
   }
 
-
   bool _wifiEnabled = true;
 
-  //Not used anymore since Andrew said that user names can be emails or alphanumeric
+  //Not used anymore since Andrew said that usernames can be emails or alphanumeric
   //See _validateUsername for current validator
-
   String _validateEmail(String value) {
     try {
       Validate.isEmail(value);
@@ -189,10 +196,11 @@ class _LoginPageState extends State<LoginPage>
   void showDialogParent(String title, String content) {
     showDialog(
         context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(title),
-              content: new Text(content),
-            ));
+        builder: (_) =>
+        new AlertDialog(
+          title: new Text(title),
+          content: new Text(content),
+        ));
   }
 
   void _forgotPassword() async {
@@ -207,7 +215,6 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _login() {
-
     _checkWifi();
     //Future.delayed(const Duration(seconds: 3));
     /*
@@ -219,11 +226,11 @@ class _LoginPageState extends State<LoginPage>
     }
     */
     try {
-      if(_wifiEnabled) {
+      if (_wifiEnabled) {
         if ((_loginFormKey.currentState.validate()) ||
             (_demoMode && !_loginFormKey.currentState.validate())) {
 
-            _loginFormKey.currentState.save();
+          _loginFormKey.currentState.save();
 
           // dismiss keyboard
           FocusScope.of(context).requestFocus(new FocusNode());
@@ -234,7 +241,7 @@ class _LoginPageState extends State<LoginPage>
             _getAPIKeyRetrieval();
           });
 
-            /*
+          /*
         Just used for debugging
         print("");
         print('Login Details');
@@ -244,8 +251,9 @@ class _LoginPageState extends State<LoginPage>
         print('\n \n');
          */
 
-          // set the cache with the validated login fields
-          _setLoginDetails(loginFields._domain, loginFields._username, loginFields._password);
+          /// Set the login cache with the validated fields
+          _setLoginDetails(loginFields._domain, loginFields._username,
+              loginFields._password);
 
           // Buy us some time while logging in
           Future.delayed(Duration(seconds: 5), () {
@@ -261,7 +269,6 @@ class _LoginPageState extends State<LoginPage>
       print(e);
     }
   }
-
 
   ///***************************************************************************
   ///                     A U T O   L O G I N
@@ -279,9 +286,9 @@ class _LoginPageState extends State<LoginPage>
   }
 
   /// method to set the cache values for login details.
-  void _setLoginDetails(String domain, String username, String password){
+  void _setLoginDetails(String domain, String username, String password) {
     // check if the field is being passed null
-    if(domain != "" && username != "" && password != "") {
+    if (domain != "" && username != "" && password != "") {
       print("-------------------------");
       print("SAVING DETAILS IN CACHE");
       print("-------------------------");
@@ -294,7 +301,7 @@ class _LoginPageState extends State<LoginPage>
 
   Future _checkLoggedIn() async {
     // instantiate shared preferences (cache)
-    SharedPreferences prefs = await _sPrefs;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // attempt to read in cache values, return null if not found
     String _cachedDomain = (prefs.getString('domain') ?? null);
@@ -303,8 +310,7 @@ class _LoginPageState extends State<LoginPage>
 
     // check if the login details are in cache
     if (_cachedDomain != null && _cachedUsername != null
-        && _cachedPassword != null){
-
+        && _cachedPassword != null) {
       print("-------------------------");
       print("FOUND DETAILS IN CACHE");
       print("-------------------------");
@@ -312,22 +318,15 @@ class _LoginPageState extends State<LoginPage>
       loginFields._username = _cachedUsername;
       loginFields._password = _cachedPassword;
 
-      print(_cachedDomain);
-      print(_cachedUsername);
-      print(_cachedPassword);
-      print("-------------------------");
-
       // attempt the login
 
       // if we are not currently trying to login
-      if(_cachedLoginValid == false) {
+      if (_cachedLoginValid == false) {
         // attempt to get API key
-          _getAPIKeyRetrieval();
-          _cachedLoginValid = true;
+        _getAPIKeyRetrieval();
+        _cachedLoginValid = true;
         // push to contacts page
       }
-
-
     } else { // else return you found nothing
 
       print("------------------");
@@ -337,7 +336,6 @@ class _LoginPageState extends State<LoginPage>
       // push to domain page
     }
   }
-
 
   ///***************************************************************************
   ///                  A P I   K E Y   R E T R I E V A L
@@ -362,8 +360,6 @@ class _LoginPageState extends State<LoginPage>
     print('Creating the URL to generate API Keys via Login Details: ' +
         _requestAPIKeyRetrieval);
 
-    ///This section is delayed until first login attempt has been done,
-    /// results in invalid verification
     http.post(_requestAPIKeyRetrieval).then((response) {
       //Print the API Key, just so we can compare it to the final result
       print("Original Response body: ${response.body}");
@@ -371,7 +367,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyRetrievalMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyRetrievalData data =
-          new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
+      new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyFields._apiKey = data.getAPIKey();
       _apiKeyFields._expiry = data.getExpiry();
@@ -384,8 +380,6 @@ class _LoginPageState extends State<LoginPage>
       }
 
       //Retrieving the API Key from the array
-      ///This parts important, we're generating 2 API Keys, this is the one
-      /// from this login attempt
       print("Printing getAPIKey()");
       print(_apiKeyFields._apiKey);
       print("Printing getExpiry()");
@@ -425,7 +419,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyVerificationMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyValidationData data =
-          new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
+      new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyValidationFields._verify = data.getVerify();
       _apiKeyValidationFields._expiry = data.getExpiry();
@@ -450,7 +444,7 @@ class _LoginPageState extends State<LoginPage>
       if (apiPattern.hasMatch(_apiKeyFields._apiKey)) {
         print("API Key Matches Format");
         print("\n\n");
-        _getContactsList();
+        _getContactPage();
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
       }
@@ -458,84 +452,20 @@ class _LoginPageState extends State<LoginPage>
   }
 
   ///***************************************************************************
-  ///             C O N T A C T S   L I S T   R E T R I E V A L
+  ///                   C O N T A C T S   P A G E   C A L L
   ///***************************************************************************
 
   ///Loading the Contacts List into a Collection
-  void _getContactsList() {
-    print('Retrieving Contacts List\n');
-    String _requestContactList = "https://" +
-        loginFields._domain +
-        ".outreach.co.nz/api/0.2/query/user?apikey=" +
-        _apiKeyFields._apiKey +
-        "&properties=%5B%27name_processed%27%5D&conditions=%5B%5B%27status%27,%27=%27,%27O%27%5D,%5B%27oid%27,%27%3E=%27,%27100%27%5D%5D";
-//    Dart Encode doesn't convert apostrophes, it may be easier to write the query by hand, then CTRL + H all the necessary bits
-//    Can we do this conversion cleanly in app?
-//    %5B = "[" | %5D = "]" | %27 = "'" | %20 = " "
-
-    print('Get Contact List URL: ' + _requestContactList);
-
-    http.post(_requestContactList).then((response) {
-      //Print the API Key, just so we can compare it to the subset String
-      print("Contact List Response:");
-      print(response.body);
-      List<Contact> contactsList = new List();
-      //Turning the json into a map
-      Map<String, dynamic> contactListMap = json.decode(response.body);
-
-      ///Load all of the json into a map
-      print("Printing all contacts in Map");
-      print(contactListMap['data']);
-      print('\n \n');
-
-      Map map = new Map();
-      int index;
-      String name = '';
-
-      ///Load all of the json into a map
-      index = 0;
-      contactListMap['data'].forEach((dynamic) {
-        map[index] = '$dynamic';
-        name = map[index];
-        name = name.substring(
-            17,
-            (name.length -
-                1)); //Assumes we're getting {name_processed: ###} from the map request
-        map[index] = name;
-        index++;
-      });
-
-      String fullName;
-
-      ///Convert the String in the map into a Contact (Turns the string into a fullName)
-      int i = 0;
-      while (i < map.length) {
-        fullName = map[i];
-        Contact contact = new Contact();
-        contact.setFullName(fullName);
-        contactsList.add(contact);
-        i++;
-      }
-
-      ///Printing the contactList, sanity check
-      print("Printing contactsList");
-      i = 0;
-      while (i < contactsList.length) {
-        print(contactsList[i].getFullName());
-        i++;
-      }
-
-      print('\n\n');
-      contacts = contactsList;
-
-//      contactsPage = new ContactsPage(contacts: contacts);
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ContactsPage(contacts: contacts)),
-      );
-    });
+  void _getContactPage() {
+    ///Send the contactsList to be displayed on the ContactsPage
+    usernameController.clear();
+    passwordController.clear();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              ContactsPageApp(_apiKeyFields._apiKey, loginFields._domain)),
+    );
   }
 
 //  dynamic afterSplash(){
@@ -571,8 +501,40 @@ class _LoginPageState extends State<LoginPage>
 //    );}
 //  }
 
-  @override
-  Widget build(BuildContext context) {
+    dynamic afterSplash() {
+      if (_cachedLoginValid) {
+        return null;
+      } else {
+        return Scaffold(
+            resizeToAvoidBottomPadding: false,
+            body: new Container(
+              decoration: new BoxDecoration(
+                image: new DecorationImage(
+                  image: new AssetImage('assets/images/login-background.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: ModalProgressHUD(
+                child: LoginForm(
+                  loginFormKey: _loginFormKey,
+                  login: _login,
+                  forgotPassword: _forgotPassword,
+                  loginFields: loginFields,
+                  validateUserName: _validateUserName,
+                  validatePassword: _validatePassword,
+                ),
+                inAsyncCall: _inAsyncCall,
+
+                //additional options for loading modal
+                opacity: 0.5,
+                progressIndicator: CircularProgressIndicator(),
+              ),
+            ));
+      }
+    }
+
+    @override
+    Widget build(BuildContext context) {
 
 //    return new SplashScreen(
 //      seconds: 8,
@@ -590,10 +552,10 @@ class _LoginPageState extends State<LoginPage>
 //      loaderColor: Colors.red,
 //    );
 
-    //Build the scaffold of the page
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      body: new LoginForm(
+      //Build the scaffold of the page
+      return Scaffold(
+        resizeToAvoidBottomPadding: false,
+        body: new LoginForm(
           loginFormKey: _loginFormKey,
           login: _login,
           forgotPassword: _forgotPassword,
@@ -601,9 +563,9 @@ class _LoginPageState extends State<LoginPage>
           validateUserName: _validateUserName,
           validatePassword: _validatePassword,
         ),
-    );
+      );
+    }
   }
-}
 
 //class AfterSplash extends StatelessWidget {
 //  @override
@@ -629,6 +591,24 @@ class _LoginPageState extends State<LoginPage>
 //    );
 //  }
 //}
+
+class AfterSplash extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Welcome In SplashScreen Package"),
+        automaticallyImplyLeading: false,
+      ),
+      body: new Center(
+        child: new Text(
+          "Succeeded!",
+          style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),
+        ),
+      ),
+    );
+  }
+}
 
 class LoginForm extends StatelessWidget {
   final GlobalKey<FormState> loginFormKey;
@@ -658,17 +638,17 @@ class LoginForm extends StatelessWidget {
     //final String url = 'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
     //Build the form and attach to the scaffold
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
-        body:  new ModalProgressHUD(
-          child: new Container(
-            decoration: new BoxDecoration(
-              image: new DecorationImage(
+      resizeToAvoidBottomPadding: false,
+      body:  new ModalProgressHUD(
+        child: new Container(
+          decoration: new BoxDecoration(
+            image: new DecorationImage(
               image: new AssetImage('assets/images/login-background.jpg'),
               fit: BoxFit.cover,
-              ),
             ),
+          ),
           child: Form(
-          key: this.loginFormKey,
+            key: this.loginFormKey,
             child: new ListView(
               children: [
                 new Container(
@@ -680,30 +660,30 @@ class LoginForm extends StatelessWidget {
                     )
                 ),
                 new Theme( // this colors the underline
-                data: theme.copyWith(
+                  data: theme.copyWith(
                     primaryColor: Colors.white,
                     hintColor: Colors.white,
-                    ),
+                  ),
                   child: new Padding(
                     padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
                     child: TextFormField(
-                      key: Key('username'),
-                      keyboardType: TextInputType.text,
-                      controller: usernameController,
-                      decoration: InputDecoration(
-                        labelText: 'Username',
-                        labelStyle: new TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0)),
-                      style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
-                      validator: validateUserName,
-                      onSaved: (val) => this.loginFields._username = val),
+                        key: Key('username'),
+                        keyboardType: TextInputType.text,
+                        controller: usernameController,
+                        decoration: InputDecoration(
+                            labelText: 'Username',
+                            labelStyle: new TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0)),
+                        style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                        validator: validateUserName,
+                        onSaved: (val) => this.loginFields._username = val),
                   ),
                 ),
                 new Theme(
-                data: theme.copyWith(
-                  primaryColor: Colors.white,
-                  hintColor: Colors.white,
+                  data: theme.copyWith(
+                    primaryColor: Colors.white,
+                    hintColor: Colors.white,
                   ),
                   child: new Padding(
                     padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
@@ -754,147 +734,12 @@ class LoginForm extends StatelessWidget {
             ),
           ),
         ),
-          inAsyncCall: _LoginPageState._inAsyncCall,
+        inAsyncCall: _LoginPageState._inAsyncCall,
 
-          //additional options for loading modal
-          opacity: 0.5,
-          progressIndicator: CircularProgressIndicator(),
+        //additional options for loading modal
+        opacity: 0.5,
+        progressIndicator: CircularProgressIndicator(),
       ),
     );
-  }
-}
-
-///***************************************************************************
-///                     S U P P O R T   C L A S S E S
-///***************************************************************************
-
-///API Key Retrieval
-///Represents the bits inside the nested json
-class APIKeyRetrievalData {
-  String key;
-  String expiry;
-  bool passwordVerify;
-
-  //Constructor
-  APIKeyRetrievalData({this.key, this.expiry, this.passwordVerify});
-
-  //Getter method
-  String getAPIKey() {
-    return key;
-  }
-
-  //Getter method
-  String getExpiry() {
-    return expiry;
-  }
-
-  //Getter method
-  bool getPasswordVerify() {
-    return passwordVerify;
-  }
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyRetrievalData.fromJson(Map<String, dynamic> json) {
-    return APIKeyRetrievalData(
-        key: json['key'],
-        expiry: json['expiry'],
-        passwordVerify: json['password']);
-  }
-}
-
-///Represents the base json, the data array
-class APIKeyRetrievalJson {
-  //Datafields
-  APIKeyRetrievalData data;
-
-  //Constructor
-  APIKeyRetrievalJson({this.data});
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyRetrievalJson.fromJson(Map<String, dynamic> parsedJson) {
-    return APIKeyRetrievalJson(
-        data: APIKeyRetrievalData.fromJson(parsedJson['data']));
-  }
-}
-
-///API Key Validation
-///Represents the bits inside the nested json
-class APIKeyValidationData {
-  bool verify;
-  String expiry;
-  String oid;
-
-  //Constructor
-  APIKeyValidationData({this.verify, this.expiry, this.oid});
-
-  //Getter method
-  bool getVerify() {
-    return verify;
-  }
-
-  //Getter method
-  String getExpiry() {
-    return expiry;
-  }
-
-  //Getter method
-  String getOid() {
-    return oid;
-  }
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyValidationData.fromJson(Map<String, dynamic> json) {
-    return APIKeyValidationData(
-        verify: json['verify'], expiry: json['expiry'], oid: json['oid']);
-  }
-}
-
-///Data is different between requests, we need to copy this format multiple times
-///Represents the base json, the data array
-class APIKeyValidationJson {
-  //Datafields
-  APIKeyValidationData data;
-
-  //Constructor
-  APIKeyValidationJson({this.data});
-
-  //Soft of like a method that'll be executed somewhere
-  factory APIKeyValidationJson.fromJson(Map<String, dynamic> parsedJson) {
-    return APIKeyValidationJson(
-        data: APIKeyValidationData.fromJson(parsedJson['data']));
-  }
-}
-
-///Contact List Retrieval
-///Represents the bits inside the nested json
-class ContactListData {
-  String nameProcessed;
-
-  //Constructor
-  ContactListData({this.nameProcessed});
-
-  //Getter method
-  String getNameProcessed() {
-    return nameProcessed;
-  }
-
-  //Soft of like a method that'll be executed somewhere
-  factory ContactListData.fromJson(Map<String, dynamic> json) {
-    return ContactListData(nameProcessed: json['name_processed']);
-  }
-}
-
-///Data is different between requests, we need to copy this format multiple times
-///Represents the base json, the data array
-class ContactListJson {
-  //Datafields
-  ContactListData data;
-
-  //Constructor
-  ContactListJson({this.data});
-
-  //Soft of like a method that'll be executed somewhere
-  factory ContactListJson.fromJson(Map<String, dynamic> parsedJson) {
-    return ContactListJson(data: ContactListData.fromJson(parsedJson['data']));
   }
 }
