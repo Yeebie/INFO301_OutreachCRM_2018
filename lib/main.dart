@@ -14,7 +14,6 @@ import 'package:flutter/services.dart';
 import 'dart:convert'; //Converts Json into Map
 
 import 'package:outreachcrm_app/SupportClasses.dart';
-import 'package:splashscreen/splashscreen.dart';
 
 /// used for caching
 import 'package:outreachcrm_app/util.dart';
@@ -24,9 +23,9 @@ void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   Master");
-  print("Build:    Sprint 3 Pre-Release | Master & UI_Pagination merge");
-  print("Task:     Load individual user's details");
+  print("Branch:   domain_page");
+  print("Build:    Sprint 3 Pre-Release | Master & domain_page merge");
+  print("Task:     Load contactts if user has logged in");
   print("\n");
 }
 
@@ -76,7 +75,6 @@ class APIKeyValidationFields {
   String _oid = '';
 }
 
-///Make this an array? How can we do this?
 class ContactListFields {
   String nameProcessed = '';
 }
@@ -86,7 +84,7 @@ class _LoginPageState extends State<LoginPage>
 
 
   // data fields
-  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+//  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final LoginFields loginFields;
 
   _LoginPageState({this.loginFields});
@@ -119,9 +117,9 @@ class _LoginPageState extends State<LoginPage>
     super.initState();
 
     // call this to clear cache
-    _clearLoginDetails();
+//    _clearLoginDetails();
 
-    new Timer(new Duration(milliseconds: 300), () {
+    new Timer(new Duration(milliseconds: 3000), () {
       _checkLoggedIn();
     });
   }
@@ -332,11 +330,15 @@ class _LoginPageState extends State<LoginPage>
       print("FOUND NO DETAILS IN CACHE");
       print("-------------------------");
 
+      if(_loginFormKey == null){
+        print("shits null dude");
+      }
+
       // push to domain page
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => new LoginForm(
+        new MaterialPageRoute(
+          builder: (context) => new MyLoginForm(
             loginFormKey: _loginFormKey,
             login: _login,
             forgotPassword: _forgotPassword,
@@ -457,13 +459,8 @@ class _LoginPageState extends State<LoginPage>
         print("API Key Matches Format");
         print("\n\n");
 
-//        Navigator.push(
-//            context,
-//            MaterialPageRoute(
-//                builder: (context) =>
         _getContactPage();
-//      )
-//        );
+
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
       }
@@ -485,42 +482,61 @@ class _LoginPageState extends State<LoginPage>
           builder: (context) =>
               ContactsPageApp(_apiKeyFields._apiKey, loginFields._domain)),
     );
-//    return new ContactsPageApp(_apiKeyFields._apiKey, loginFields._domain);
   }
 
 
-    @override
-    Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
 
-      return new ModalProgressHUD(
-          child: Container(
-            decoration: new BoxDecoration(
-              image: new DecorationImage(
-                image: new AssetImage('assets/images/background-image.png'),
-                fit: BoxFit.cover,
-            ),
+    return new ModalProgressHUD(
+      child: Container(
+        decoration: new BoxDecoration(
+          image: new DecorationImage(
+            image: new AssetImage('assets/images/background-image.png'),
+            fit: BoxFit.cover,
           ),
         ),
-        inAsyncCall: true,
-      );
-
-      //Build the scaffold of the page
-//      return Scaffold(
-//        resizeToAvoidBottomPadding: false,
-//        body: new LoginForm(
-//          loginFormKey: _loginFormKey,
-//          login: _login,
-//          forgotPassword: _forgotPassword,
-//          loginFields: loginFields,
-//          validateUserName: _validateUserName,
-//          validatePassword: _validatePassword,
-//        ),
-//      );
-    }
+      ),
+    inAsyncCall: true,
+    );
   }
+}
 
+class MyLoginForm extends StatefulWidget {
+  final GlobalKey<FormState> loginFormKey;
+  final LoginFields loginFields;
+  final Function validateUserName;
+  final Function validatePassword;
+  final Function login;
+  final Function forgotPassword;
 
-class LoginForm extends StatelessWidget {
+  MyLoginForm({
+    @required this.loginFormKey,
+    @required this.login,
+    @required this.forgotPassword,
+    @required this.loginFields,
+    @required this.validateUserName,
+    @required this.validatePassword,
+  });
+
+  @override
+  MyLoginFormState createState() {
+    return MyLoginFormState(
+      loginFormKey: loginFormKey,
+      login: login,
+      forgotPassword: forgotPassword,
+      loginFields: loginFields,
+      validateUserName: validateUserName,
+      validatePassword: validatePassword,
+    );
+  }
+}
+
+//class MyLoginFormState extends State<MyLoginForm> {
+//
+//}
+
+class MyLoginFormState extends State<MyLoginForm> {
   final GlobalKey<FormState> loginFormKey;
   final LoginFields loginFields;
   final Function validateUserName;
@@ -530,7 +546,7 @@ class LoginForm extends StatelessWidget {
   final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
-  LoginForm({
+  MyLoginFormState({
     @required this.loginFormKey,
     @required this.login,
     @required this.forgotPassword,
@@ -603,8 +619,10 @@ class LoginForm extends StatelessWidget {
                       obscureText: true,
                       keyboardType: TextInputType.text,
                       controller: passwordController,
+//                      onEditingComplete: () {
+//                        loginFormKey.currentState.save();
+//                      },
                       decoration: InputDecoration(
-
                           labelText: 'Password',
                           labelStyle: new TextStyle(
                               color: Colors.white,

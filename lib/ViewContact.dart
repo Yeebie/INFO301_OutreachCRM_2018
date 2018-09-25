@@ -14,7 +14,7 @@ import 'dart:convert'; //Converts Json into Map
 //Define "root widget"
 //one-line function
 
-class viewContact extends StatelessWidget {
+class ViewContact extends StatelessWidget {
   String _apiKey;
   String _domain;
   String _oid;
@@ -27,7 +27,7 @@ class viewContact extends StatelessWidget {
 
   ViewContactFields viewContactFields = new ViewContactFields();
 
-  viewContact(String apiKey, String domain, String oid) {
+  ViewContact(String apiKey, String domain, String oid) {
     this._apiKey = apiKey;
     this._domain = domain;
     this._oid = oid;

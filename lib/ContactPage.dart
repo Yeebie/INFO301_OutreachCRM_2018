@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
-import 'package:outreachcrm_app/viewContact.dart';
+import 'package:outreachcrm_app/ViewContact.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -120,7 +120,7 @@ class _ContactPage extends State<_ContactsPage> {
               String _oid = (_contacts[index].getOid());
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (BuildContext context) =>
-                      new viewContact(_apiKey, _domain, _oid)));
+                      new ViewContact(_apiKey, _domain, _oid)));
             },
             child: buildRow(_contacts[index]),
           );
