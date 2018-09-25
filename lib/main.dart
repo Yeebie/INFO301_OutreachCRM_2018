@@ -25,8 +25,8 @@ void main() {
   print("\n");
   print("Outreach: Flutter Application");
   print("Branch:   Master");
-  print("Build:    Sprint 3 Pre-Release | Master & UI_Pagination merge");
-  print("Task:     Load individual user's details");
+  print("Build:    Sprint 3 Pre-Release | Master, UI_Pagination, UI_Development merge");
+  print("Task:     Merge Master & UI_Development's ContactPage");
   print("\n");
 }
 
@@ -517,21 +517,6 @@ class _LoginPageState extends State<LoginPage>
         _attemptingAutoLogin = true;
       }
     }
-//    return new SplashScreen(
-//      seconds: 5,
-//      navigateAfterSeconds: afterSplash(),
-//      title: new Text('Welcome In SplashScreen',
-//        style: new TextStyle(
-//            fontWeight: FontWeight.bold,
-//            fontSize: 20.0
-//        ),),
-//      image: new Image.network('https://flutter.io/images/catalog-widget-placeholder.png'),
-//      backgroundColor: Colors.white,
-//      styleTextUnderTheLoader: new TextStyle(),
-//      photoSize: 100.0,
-//      onClick: ()=>print("Flutter Egypt"),
-//      loaderColor: Colors.red,
-//    );
 
     //Build the scaffold of the page
     return Scaffold(

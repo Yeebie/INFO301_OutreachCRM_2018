@@ -59,6 +59,7 @@ class _ContactPage extends State<_ContactsPage> {
   //Datafields for the app bar
   final formKey = new GlobalKey<FormState>();
   final key = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _filter = new TextEditingController();
   final color = const Color(0xFF0085CA);
   final white = const Color(0xFFFFFFFF);
@@ -184,11 +185,19 @@ class _ContactPage extends State<_ContactsPage> {
       centerTitle: true,
       title: _appBarTitle,
       backgroundColor: color,
+
       leading: new IconButton(
         icon: _searchIcon,
         onPressed: _searchPressed,
         color: Colors.white,
       ),
+      ///UI_Development settings cog
+      actions: <Widget>[
+        new IconButton(
+          ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
+            icon: new Icon(Icons.settings),
+            onPressed: () => _scaffoldKey.currentState.openDrawer()),
+      ],
     );
   }
 
@@ -198,9 +207,43 @@ class _ContactPage extends State<_ContactsPage> {
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       home: new Scaffold(
+          key: _scaffoldKey,
+          drawer: _drawer(),
           resizeToAvoidBottomPadding: false,
           appBar: _buildBar(context),
           body: _buildContacts()),
+    );
+  }
+
+  ///Settings menu
+  Widget _drawer() {
+    return Drawer(
+      child: ListView(
+        // Important: Remove any padding from the ListView.
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Text('Settings | Widget Port'),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+          ),
+          ListTile(
+            title: Text('Item 1'),
+            onTap: () {
+              // Update the state of the app
+              // ...
+            },
+          ),
+          ListTile(
+            title: Text('Item 2'),
+            onTap: () {
+              // Update the state of the app
+              // ...
+            },
+          ),
+        ],
+      ),
     );
   }
 
