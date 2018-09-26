@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage>
     super.initState();
 
     // call this to clear cache
-    _clearLoginDetails();
+//    _clearLoginDetails();
 
     // buy us some time so the splash screen is displayed
     new Timer(new Duration(milliseconds: 3000), () {
@@ -255,9 +255,9 @@ class _LoginPageState extends State<LoginPage>
         print('\n \n');
          */
 
-//          /// Set the login cache with the validated fields
-//          _setLoginDetails(loginFields._domain, loginFields._username,
-//              loginFields._password);
+          /// Set the login cache with the validated fields
+          _setLoginDetails(loginFields._domain, loginFields._username,
+              loginFields._password);
 
           // Buy us some time while logging in
           Future.delayed(Duration(seconds: 5), () {
@@ -303,6 +303,8 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
+  /// this method checks if there are login values in the cache, if yes
+  /// then verify and push to contacts; else we push to domain entry
   Future _checkLoggedIn() async {
     // instantiate shared preferences (cache)
     SharedPreferences prefs = await _sPrefs;
@@ -335,11 +337,8 @@ class _LoginPageState extends State<LoginPage>
       print("FOUND NO DETAILS IN CACHE");
       print("-------------------------");
 
-      if(_loginFormKey == null){
-        print("shits null dude");
-      }
-
       // push to domain page
+      // pass all the details the login form needs too
       Navigator.push(
         context,
         new MaterialPageRoute(
@@ -477,7 +476,7 @@ class _LoginPageState extends State<LoginPage>
   ///                   C O N T A C T S   P A G E   C A L L
   ///***************************************************************************
 
-  ///Loading the Contacts List into a Collection
+  /// pushing to contact page
   void _getContactPage() {
     ///Send the contactsList to be displayed on the ContactsPage
     usernameController.clear();
@@ -508,6 +507,12 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 }
+
+
+///***************************************************************************
+///                   D O M A I N  P A G E  B U I L D
+///***************************************************************************
+
 
 class DomainForm extends StatefulWidget {
   // fields required for domain form
@@ -691,6 +696,11 @@ class DomainFormState extends State<DomainForm> {
     );
   }
 }
+
+
+///***************************************************************************
+///                   L O  G I N  P A G E  B U I L D
+///***************************************************************************
 
 
 class LoginForm extends StatefulWidget {
