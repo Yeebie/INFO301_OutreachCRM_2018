@@ -23,9 +23,10 @@ void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   domain_page");
-  print("Build:    Sprint 3 Pre-Release | Master & domain_page merge");
-  print("Task:     Load contactts if user has logged in");
+  print("Branch:   Master");
+  print("Build:    Sprint 3 Pre-Release | Master, UI_Pagination,"
+      " UI_Development, domain_page merge");
+  print("Task:     Merge Master & UI_Development's ContactPage");
   print("\n");
 }
 
@@ -200,11 +201,10 @@ class _LoginPageState extends State<LoginPage>
   void showDialogParent(String title, String content) {
     showDialog(
         context: context,
-        builder: (_) =>
-        new AlertDialog(
-          title: new Text(title),
-          content: new Text(content),
-        ));
+        builder: (_) => new AlertDialog(
+              title: new Text(title),
+              content: new Text(content),
+            ));
   }
 
   void _forgotPassword() async {
@@ -386,7 +386,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyRetrievalMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyRetrievalData data =
-      new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
+          new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyFields._apiKey = data.getAPIKey();
       _apiKeyFields._expiry = data.getExpiry();
@@ -438,7 +438,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyVerificationMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyValidationData data =
-      new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
+          new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyValidationFields._verify = data.getVerify();
       _apiKeyValidationFields._expiry = data.getExpiry();

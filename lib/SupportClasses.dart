@@ -1,17 +1,3 @@
-import 'package:flutter/material.dart';
-import 'ContactPage.dart';
-import 'package:validate/validate.dart';
-
-///Used to utilise REST operations
-import 'package:http/http.dart' as http;
-
-///Used for API Key Retrieval
-import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert'; //Converts Json into Map
-
-import 'package:outreachcrm_app/SupportClasses.dart';
-
 ///***************************************************************************
 ///                  A P I   K E Y   R E T R I E V A L
 ///***************************************************************************
