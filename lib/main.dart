@@ -38,7 +38,8 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
     return new MaterialApp(
-      debugShowCheckedModeBanner: false,
+      // debug banner now shows if demo mode is up
+      debugShowCheckedModeBanner: _LoginPageState._demoMode,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'Signika',
@@ -93,6 +94,8 @@ class _LoginPageState extends State<LoginPage>
   final TextEditingController passwordController = new TextEditingController();
 
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _domainFormKey = GlobalKey<FormState>();
+
   APIKeyFields _apiKeyFields = new APIKeyFields();
   APIKeyValidationFields _apiKeyValidationFields = new APIKeyValidationFields();
 
@@ -110,16 +113,18 @@ class _LoginPageState extends State<LoginPage>
   //Puts app in demo mode (If you want to switch out the mode then you have
   //change the boolean and rerun the app. If someone finds a fix that would be
   //great)
-  bool _demoMode = false;
+  static bool _demoMode = false;
 
   @override
   void initState() {
     super.initState();
 
     // call this to clear cache
-//    _clearLoginDetails();
+    _clearLoginDetails();
 
+    // buy us some time so the splash screen is displayed
     new Timer(new Duration(milliseconds: 3000), () {
+      // check if the user has saved details
       _checkLoggedIn();
     });
   }
@@ -250,9 +255,9 @@ class _LoginPageState extends State<LoginPage>
         print('\n \n');
          */
 
-          /// Set the login cache with the validated fields
-          _setLoginDetails(loginFields._domain, loginFields._username,
-              loginFields._password);
+//          /// Set the login cache with the validated fields
+//          _setLoginDetails(loginFields._domain, loginFields._username,
+//              loginFields._password);
 
           // Buy us some time while logging in
           Future.delayed(Duration(seconds: 5), () {
@@ -338,7 +343,8 @@ class _LoginPageState extends State<LoginPage>
       Navigator.push(
         context,
         new MaterialPageRoute(
-          builder: (context) => new MyLoginForm(
+          builder: (context) => new DomainForm(
+            domainFormKey: _domainFormKey,
             loginFormKey: _loginFormKey,
             login: _login,
             forgotPassword: _forgotPassword,
@@ -488,6 +494,7 @@ class _LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
 
+    // this is the splash screen
     return new ModalProgressHUD(
       child: Container(
         decoration: new BoxDecoration(
@@ -502,15 +509,19 @@ class _LoginPageState extends State<LoginPage>
   }
 }
 
-class MyLoginForm extends StatefulWidget {
-  final GlobalKey<FormState> loginFormKey;
+class DomainForm extends StatefulWidget {
+  // fields required for domain form
   final LoginFields loginFields;
+  final GlobalKey<FormState> domainFormKey;
+  // fields required for login form
+  final GlobalKey<FormState> loginFormKey;
   final Function validateUserName;
   final Function validatePassword;
   final Function login;
   final Function forgotPassword;
 
-  MyLoginForm({
+  DomainForm({
+    @required this.domainFormKey,
     @required this.loginFormKey,
     @required this.login,
     @required this.forgotPassword,
@@ -520,8 +531,9 @@ class MyLoginForm extends StatefulWidget {
   });
 
   @override
-  MyLoginFormState createState() {
-    return MyLoginFormState(
+  DomainFormState createState() {
+    return DomainFormState(
+      domainFormKey: domainFormKey,
       loginFormKey: loginFormKey,
       login: login,
       forgotPassword: forgotPassword,
@@ -532,21 +544,18 @@ class MyLoginForm extends StatefulWidget {
   }
 }
 
-//class MyLoginFormState extends State<MyLoginForm> {
-//
-//}
-
-class MyLoginFormState extends State<MyLoginForm> {
+class DomainFormState extends State<DomainForm> {
+  final GlobalKey<FormState> domainFormKey;
   final GlobalKey<FormState> loginFormKey;
   final LoginFields loginFields;
   final Function validateUserName;
   final Function validatePassword;
   final Function login;
   final Function forgotPassword;
-  final TextEditingController usernameController = new TextEditingController();
-  final TextEditingController passwordController = new TextEditingController();
+  final TextEditingController domainController = new TextEditingController();
 
-  MyLoginFormState({
+  DomainFormState({
+    @required this.domainFormKey,
     @required this.loginFormKey,
     @required this.login,
     @required this.forgotPassword,
@@ -561,7 +570,187 @@ class MyLoginFormState extends State<MyLoginForm> {
     final TextTheme textTheme = themeData.textTheme;
     final color = const Color(0xFF0085CA);
     final theme = Theme.of(context);
-    //final String url = 'https://' + loginFields._domain + '.outreach.co.nz/?Na=forgot-password-public';
+
+    //Build the form and attach to the scaffold
+    return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      body: new Container(
+          decoration: new BoxDecoration(
+            image: new DecorationImage(
+              image: new AssetImage('assets/images/login-background.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Form(
+            key: this.domainFormKey,
+            child: new ListView(
+              children: [
+                new Container(
+                    margin: const EdgeInsets.only(top: 40.0),
+                    child: new Image.asset(
+                      'assets/images/OutreachCRM_vert_logo.png',
+                      width: 200.0,
+                      height: 200.0,
+                    )
+                ),
+                new Theme( // this colors the underline
+                  data: theme.copyWith(
+                    primaryColor: Colors.white,
+                    hintColor: Colors.white,
+                  ),
+                  child: new Padding(
+                    padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
+                    child: TextFormField(
+                        key: Key('domain'),
+                        keyboardType: TextInputType.text,
+                        controller: domainController,
+                        decoration: InputDecoration(
+                            labelText: 'Company Domain',
+                            labelStyle: new TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0)),
+                        style: TextStyle(
+                            fontSize: 20.0, color: textTheme.button.color),
+                        validator: (val) {
+                          if(val.isEmpty){
+                            return 'Please enter some text';
+                          }
+                        },
+                        onSaved: (val) => this.loginFields._domain = val),
+                  ),
+                ),
+                new Theme(
+                  data: theme.copyWith(
+                    primaryColor: Colors.white,
+                    hintColor: Colors.white,
+                  ),
+                  child: new Padding(
+                    padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
+//                    child: TextFormField(
+//                      key: Key('password'),
+//                      obscureText: true,
+//                      keyboardType: TextInputType.text,
+//                      controller: passwordController,
+//                      decoration: InputDecoration(
+//                          labelText: 'Password',
+//                          labelStyle: new TextStyle(
+//                              color: Colors.white,
+//                              fontSize: 16.0)),
+//                      style: TextStyle(
+//                          fontSize: 20.0, color: textTheme.button.color),
+//                      validator: validatePassword,
+//                      onSaved: (val) => this.loginFields._password = val,
+//                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(30.0),
+                    shadowColor: Colors.lightBlueAccent.shade100,
+                    elevation: 5.0,
+                    color: color,
+                    child: MaterialButton(
+                      minWidth: 320.0,
+                      height: 42.00,
+                      onPressed: () {
+                        if(domainFormKey.currentState.validate()) {
+                          Navigator.push(
+                              context,
+                              new MaterialPageRoute(
+                                  builder: (context) =>
+                                  new LoginForm(
+                                    loginFormKey: loginFormKey,
+                                    login: login,
+                                    forgotPassword: forgotPassword,
+                                    loginFields: loginFields,
+                                    validateUserName: validateUserName,
+                                    validatePassword: validatePassword,
+                                  )
+                              )
+                          );
+                        }
+                      },
+                      child: Text('NEXT',
+                          style: TextStyle(
+                              fontSize: 17.0, color: Colors.white)),
+                    ),
+                  ),
+                ),
+                FlatButton(
+                  child: Text(
+                    "What is a domain?",
+                    style: TextStyle(fontSize: 14.0, color: Colors.white),
+                  ),
+                  onPressed: forgotPassword,
+                ),
+              ],
+            ),
+          ),
+        ),
+    );
+  }
+}
+
+
+class LoginForm extends StatefulWidget {
+  final GlobalKey<FormState> loginFormKey;
+  final LoginFields loginFields;
+  final Function validateUserName;
+  final Function validatePassword;
+  final Function login;
+  final Function forgotPassword;
+
+  LoginForm({
+    @required this.loginFormKey,
+    @required this.login,
+    @required this.forgotPassword,
+    @required this.loginFields,
+    @required this.validateUserName,
+    @required this.validatePassword,
+  });
+
+  @override
+  LoginFormState createState() {
+    return LoginFormState(
+      loginFormKey: loginFormKey,
+      login: login,
+      forgotPassword: forgotPassword,
+      loginFields: loginFields,
+      validateUserName: validateUserName,
+      validatePassword: validatePassword,
+    );
+  }
+}
+
+
+
+
+class LoginFormState extends State<LoginForm> {
+  final GlobalKey<FormState> loginFormKey;
+  final LoginFields loginFields;
+  final Function validateUserName;
+  final Function validatePassword;
+  final Function login;
+  final Function forgotPassword;
+  final TextEditingController usernameController = new TextEditingController();
+  final TextEditingController passwordController = new TextEditingController();
+
+  LoginFormState({
+    @required this.loginFormKey,
+    @required this.login,
+    @required this.forgotPassword,
+    @required this.loginFields,
+    @required this.validateUserName,
+    @required this.validatePassword,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData themeData = Theme.of(context);
+    final TextTheme textTheme = themeData.textTheme;
+    final color = const Color(0xFF0085CA);
+    final theme = Theme.of(context);
 
     //Build the form and attach to the scaffold
     return Scaffold(
