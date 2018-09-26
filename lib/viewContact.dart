@@ -93,6 +93,7 @@ class viewContact extends StatelessWidget {
                   launch('tel:' + workPh);
                 } else if (Platform.isIOS) {
                   //add IOS compatible number here (need to format incoming strings probably)
+                  launch('tel:' + workPh);
                 }
               },
             ),
@@ -115,6 +116,7 @@ class viewContact extends StatelessWidget {
                   launch('tel:' + mobilePh);
                 } else if (Platform.isIOS) {
                   //add IOS compatible number here (need to format incoming strings probably)
+                  launch('tel:' + mobilePh);
                 }
               },
             ),
@@ -191,10 +193,7 @@ class viewContact extends StatelessWidget {
                 tooltip: "Previous page",
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  //   Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => ContactsPage()),
-                  //   );
+                  Navigator.pop(context);
                 },
               )),
           body: center,
