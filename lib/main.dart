@@ -631,6 +631,7 @@ class DomainFormState extends State<DomainForm> {
                   ),
                   child: new Padding(
                     padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
+                    // INSERT A PADDED PLACEHOLDER IN HERE
 //                    child: TextFormField(
 //                      key: Key('password'),
 //                      obscureText: true,
