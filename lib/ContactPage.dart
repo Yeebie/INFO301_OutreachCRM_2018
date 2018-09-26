@@ -223,25 +223,66 @@ class _ContactPage extends State<_ContactsPage> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Text('Settings | Widget Port'),
+            child: Text('Settings'),
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
           ),
-          ListTile(
-            title: Text('Item 1'),
-            onTap: () {
-              // Update the state of the app
-              // ...
-            },
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+            child: Material(
+              borderRadius: BorderRadius.circular(30.0),
+              shadowColor: Colors.lightBlueAccent.shade100,
+              elevation: 5.0,
+              color: color,
+              child: MaterialButton(
+                minWidth: 320.0,
+                height: 42.00,
+                onPressed: () {
+                  /// Navigate to Switch Account
+                },
+                child: Text('Switch Account',
+                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
+              ),
+            ),
           ),
-          ListTile(
-            title: Text('Item 2'),
-            onTap: () {
-              // Update the state of the app
-              // ...
-            },
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+            child: Material(
+              borderRadius: BorderRadius.circular(30.0),
+              shadowColor: Colors.lightBlueAccent.shade100,
+              elevation: 5.0,
+              color: color,
+              child: MaterialButton(
+                minWidth: 320.0,
+                height: 42.00,
+                onPressed: () {
+                  /// Route to Outreach website to change password
+                },
+                child: Text('Contact Us',
+                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
+              ),
+            ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+            child: Material(
+              borderRadius: BorderRadius.circular(30.0),
+              shadowColor: Colors.lightBlueAccent.shade100,
+              elevation: 5.0,
+              color: color,
+              child: MaterialButton(
+                minWidth: 320.0,
+                height: 42.00,
+                onPressed: () {
+                  /// Logout of app
+                },
+                child: Text('Logout',
+                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
+              ),
+            ),
+          )
+
         ],
       ),
     );
