@@ -341,15 +341,7 @@ class ClientNotes extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Thomas Green Industries"),
-          actions: <Widget>[
-            new IconButton(
-                icon: const Icon(Icons.keyboard_backspace),
-                onPressed: () {
-                  Navigator.pop(context);
-                })
-          ], // won't text input the name
-        ),
+          title: Text("Thomas Green Industries")),
         body: new Card(
           child: new Column(
             mainAxisSize: MainAxisSize.min,
