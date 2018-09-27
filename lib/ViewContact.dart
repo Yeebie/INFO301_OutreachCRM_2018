@@ -191,10 +191,7 @@ class ViewContact extends StatelessWidget {
                 tooltip: "Previous page",
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  //   Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => ContactsPage()),
-                  //   );
+                    Navigator.pop(context, true);
                 },
               )),
           body: center,
