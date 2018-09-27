@@ -195,6 +195,7 @@ class _ContactPage extends State<_ContactsPage> {
       actions: <Widget>[
         new IconButton(
           ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
+          ///
             icon: new Icon(Icons.settings),
             onPressed: () => _scaffoldKey.currentState.openDrawer()),
       ],
@@ -204,11 +205,13 @@ class _ContactPage extends State<_ContactsPage> {
   @override
   Widget build(BuildContext context) {
     final color = const Color(0xFF0085CA);
+
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       home: new Scaffold(
           key: _scaffoldKey,
           drawer: _drawer(),
+
           resizeToAvoidBottomPadding: false,
           appBar: _buildBar(context),
           body: _buildContacts()),
@@ -216,25 +219,59 @@ class _ContactPage extends State<_ContactsPage> {
   }
 
   ///Settings menu
+  /// Drawer but will persist appbar but will go over the entire page. Maybe need later.
+ /* Widget _drawer(){
+    return Scaffold(
+      primary: true,
+      appBar: AppBar(
+        title: Text("Parent Scaffold"),
+        automaticallyImplyLeading: false,
+      ),
+      body: Scaffold(
+        drawer: Drawer(
+
+
+);
+  }
+*/
   Widget _drawer() {
+
+
     return Drawer(
+
       child: ListView(
-        // Important: Remove any padding from the ListView.
+
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
             child: Text('Settings'),
-            decoration: BoxDecoration(
-              color: Colors.blue,
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 80.0, 20.0, 5.0),
+            child: Material(
+              borderRadius: BorderRadius.horizontal(),
+              //  shadowColor: Colors.lightBlueAccent.shade100,
+              elevation: 5.0,
+              //  color: color,
+              child: MaterialButton(
+                minWidth: 320.0,
+                height: 42.00,
+                onPressed: () {
+                  /// Will just show name. Not sure how to link
+                },
+                child: Text('Users Name',
+                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 40.0),
             child: Material(
               borderRadius: BorderRadius.circular(30.0),
-              shadowColor: Colors.lightBlueAccent.shade100,
+              //  shadowColor: Colors.lightBlueAccent.shade100,
               elevation: 5.0,
-              color: color,
+              //   color: color,
               child: MaterialButton(
                 minWidth: 320.0,
                 height: 42.00,
@@ -247,12 +284,12 @@ class _ContactPage extends State<_ContactsPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 40.0),
             child: Material(
               borderRadius: BorderRadius.circular(30.0),
-              shadowColor: Colors.lightBlueAccent.shade100,
+              // shadowColor: Colors.lightBlueAccent.shade100,
               elevation: 5.0,
-              color: color,
+              //  color: color,
               child: MaterialButton(
                 minWidth: 320.0,
                 height: 42.00,
@@ -268,9 +305,9 @@ class _ContactPage extends State<_ContactsPage> {
             padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
             child: Material(
               borderRadius: BorderRadius.circular(30.0),
-              shadowColor: Colors.lightBlueAccent.shade100,
+              // shadowColor: Colors.lightBlueAccent.shade100,
               elevation: 5.0,
-              color: color,
+              // color: color,
               child: MaterialButton(
                 minWidth: 320.0,
                 height: 42.00,
@@ -281,13 +318,26 @@ class _ContactPage extends State<_ContactsPage> {
                     style: TextStyle(fontSize: 17.0, color: Colors.black)),
               ),
             ),
-          )
+          ),
+    TextField(
+      textAlign: TextAlign.center,
+    decoration: InputDecoration(
+    border: InputBorder.none,
+
+    hintText: 'Copyright Outreach CRM 2018 © '
+    ),
+    )
 
         ],
+
       ),
+
+
+
     );
   }
 
+  
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactsList(
       int index, String _apiKey, String _domain) async {
