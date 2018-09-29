@@ -173,10 +173,14 @@ class _ContactPage extends State<_ContactsPage> {
   Widget buildRow(Contact contact) {
     return ListTile(
       title: new Text("${contact.fullName}"),
+
       leading: new CircleAvatar(
         child: new Text(contact.fullName[0]),
+
       ),
+
     );
+
   }
 
   //Method for building a custom app bar
@@ -184,7 +188,7 @@ class _ContactPage extends State<_ContactsPage> {
     return new AppBar(
       centerTitle: true,
       title: _appBarTitle,
-      backgroundColor: color,
+      backgroundColor: Colors.blue,
 
       leading: new IconButton(
         icon: _searchIcon,

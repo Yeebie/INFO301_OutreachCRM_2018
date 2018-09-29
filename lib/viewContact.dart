@@ -46,13 +46,14 @@ class viewContact extends StatelessWidget {
             leading: new Icon(
               Icons.account_box,
               color: Colors.blue,
-              size: 26.0,
+              size: 36.0,
             ),
             title: new Text(
               client,
-              style: new TextStyle(fontWeight: FontWeight.bold),
+              style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
             ),
             subtitle: new Text("Organisation"),
+
           ),
           new Divider(
             color: Colors.blue,
@@ -63,7 +64,7 @@ class viewContact extends StatelessWidget {
                 icon: new Icon(
                   Icons.email,
                   color: Colors.blue,
-                  size: 26.0,
+                  size: 36.0,
                 ),
                 tooltip: '',
                 padding: new EdgeInsets.all(0.0),
@@ -77,7 +78,7 @@ class viewContact extends StatelessWidget {
             //leading: new Icon(Icons.email, color: Colors.blue, size: 26.0,),
             title: new Text(
               emailAd,
-              style: new TextStyle(fontWeight: FontWeight.w400),
+              style: new TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
             ),
           ),
           new ListTile(
@@ -85,7 +86,7 @@ class viewContact extends StatelessWidget {
               icon: new Icon(
                 Icons.phone,
                 color: Colors.green,
-                size: 26.0,
+                size: 36.0,
               ),
               tooltip: 'Contact work phone%',
               onPressed: () {
@@ -99,7 +100,7 @@ class viewContact extends StatelessWidget {
             ),
             title: Text(
               workPh,
-              style: new TextStyle(color: Colors.black),
+              style: new TextStyle(color: Colors.black, fontSize: 18.0),
             ),
             subtitle: new Text("Work Phone"),
           ),
@@ -108,7 +109,7 @@ class viewContact extends StatelessWidget {
               icon: new Icon(
                 Icons.phone,
                 color: Colors.green,
-                size: 26.0,
+                size: 36.0,
               ),
               tooltip: 'Contact mobile phone%',
               onPressed: () {
@@ -122,7 +123,7 @@ class viewContact extends StatelessWidget {
             ),
             title: Text(
               mobilePh,
-              style: new TextStyle(color: Colors.black),
+              style: new TextStyle(color: Colors.black, fontSize: 18.0),
             ),
             subtitle: new Text("Mobie Phone"),
           ),
@@ -131,7 +132,7 @@ class viewContact extends StatelessWidget {
               icon: new Icon(
                 Icons.note,
                 color: Colors.blue,
-                size: 26.0,
+                size: 36.0,
               ),
               tooltip: 'View client notes',
               onPressed: () {
@@ -143,23 +144,7 @@ class viewContact extends StatelessWidget {
             ),
             title: Text(
               'Client Notes',
-              style: new TextStyle(fontWeight: FontWeight.normal),
-            ),
-          ),
-          new Divider(
-            color: Colors.blue,
-            indent: 16.0,
-          ),
-          new ListTile(
-            leading: new Icon(
-              Icons.home,
-              color: Colors.blue,
-              size: 26.0,
-            ),
-            title: Text(
-              "Organisation Details",
-              style: new TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.bold),
+              style: new TextStyle(fontWeight: FontWeight.normal, fontSize: 18.0),
             ),
           ),
         ],
