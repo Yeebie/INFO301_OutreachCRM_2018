@@ -84,7 +84,7 @@ class viewContact extends StatelessWidget {
             leading: new IconButton(
               icon: new Icon(
                 Icons.phone,
-                color: Colors.blue,
+                color: Colors.green,
                 size: 26.0,
               ),
               tooltip: 'Contact work phone%',
@@ -107,7 +107,7 @@ class viewContact extends StatelessWidget {
             leading: new IconButton(
               icon: new Icon(
                 Icons.phone,
-                color: Colors.blue,
+                color: Colors.green,
                 size: 26.0,
               ),
               tooltip: 'Contact mobile phone%',

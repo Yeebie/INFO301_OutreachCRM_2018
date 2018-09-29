@@ -28,6 +28,7 @@ void main() {
   print("Build:    Sprint 3 Pre-Release | Master, UI_Pagination, UI_Development merge");
   print("Task:     Merge Master & UI_Development's ContactPage");
   print("\n");
+
 }
 
 class MyApp extends StatelessWidget {
@@ -56,6 +57,7 @@ class LoginPage extends StatefulWidget {
   LoginPage({@required this.loginFields});
   @override
   _LoginPageState createState() => _LoginPageState(loginFields: loginFields);
+
 }
 
 class LoginFields {
@@ -88,6 +90,7 @@ class _LoginPageState extends State<LoginPage>
   String _cacheDomain, _cacheUsername, _cachePassword;
   // boolean to lock cache check when logging in
   bool _attemptingAutoLogin = false;
+
 
   //Datafields
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -124,6 +127,9 @@ class _LoginPageState extends State<LoginPage>
 
     _iconAnimation.addListener(() => this.setState(() {}));
     _iconAnimationController.forward();
+
+
+
   }
 
   bool _wifiEnabled = true;
@@ -469,12 +475,15 @@ class _LoginPageState extends State<LoginPage>
       return Scaffold(
           resizeToAvoidBottomPadding: false,
           body: new Container(
+
             decoration: new BoxDecoration(
               image: new DecorationImage(
-                image: new AssetImage('assets/images/login-background.jpg'),
+                image: new AssetImage('assets/images/login-image.png'),
                 fit: BoxFit.cover,
               ),
             ),
+
+
             child: ModalProgressHUD(
               child: LoginForm(
                 loginFormKey: _loginFormKey,
@@ -490,8 +499,13 @@ class _LoginPageState extends State<LoginPage>
               opacity: 0.5,
               progressIndicator: CircularProgressIndicator(),
             ),
-          ));
+
+          )
+
+      );
+
     }
+
   }
 
   @override
@@ -524,7 +538,7 @@ class _LoginPageState extends State<LoginPage>
         body: new Container(
           decoration: new BoxDecoration(
             image: new DecorationImage(
-              image: new AssetImage('assets/images/login-background.jpg'),
+              image: new AssetImage('assets/images/background-image.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -575,6 +589,8 @@ class LoginForm extends StatelessWidget {
   final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
+
+
   LoginForm({
     @required this.loginFormKey,
     @required this.login,
@@ -597,6 +613,7 @@ class LoginForm extends StatelessWidget {
       child: new ListView(
         children: [
           new Container(
+
               margin: const EdgeInsets.only(top: 40.0),
               child: new Image.asset(
                 'assets/images/OutreachCRM_vert_logo.png',
@@ -607,15 +624,39 @@ class LoginForm extends StatelessWidget {
             // this colors the underline
             data: theme.copyWith(
               primaryColor: Colors.white,
-              hintColor: Colors.white,
+              hintColor: Colors.transparent,
             ),
             child: new Padding(
               padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
               child: TextFormField(
+
+
+
                   key: Key('username'),
                   keyboardType: TextInputType.text,
                   controller: usernameController,
                   decoration: InputDecoration(
+
+                      fillColor: Colors.black.withOpacity(0.6),
+                      filled: true,
+
+
+
+                      border: new OutlineInputBorder(
+
+                        borderRadius: const BorderRadius.all(
+
+                          const Radius.circular(8.0),
+                        ),
+                        borderSide: new BorderSide(
+                          color: Colors.transparent,
+                          width: 1.0,
+                        ),
+                      ),
+
+
+
+
                       labelText: 'Username',
                       labelStyle:
                           new TextStyle(color: Colors.white, fontSize: 16.0)),
@@ -624,32 +665,58 @@ class LoginForm extends StatelessWidget {
                   validator: validateUserName,
                   onSaved: (val) => this.loginFields._username = val),
             ),
+
           ),
+
           new Theme(
             data: theme.copyWith(
               primaryColor: Colors.white,
-              hintColor: Colors.white,
+              hintColor: Colors.transparent,
+
             ),
+
             child: new Padding(
+
               padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
               child: TextFormField(
+
                 key: Key('password'),
                 obscureText: true,
                 keyboardType: TextInputType.text,
                 controller: passwordController,
                 decoration: InputDecoration(
+                    fillColor: Colors.black.withOpacity(0.6),
+                    filled: true,
+
+
+
+                    border: new OutlineInputBorder(
+
+                      borderRadius: const BorderRadius.all(
+
+                        const Radius.circular(8.0),
+                      ),
+                      borderSide: new BorderSide(
+                        color: Colors.transparent,
+                        width: 1.0,
+                      ),
+                    ),
+
                     labelText: 'Password',
                     labelStyle:
                         new TextStyle(color: Colors.white, fontSize: 16.0)),
-                style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                style: TextStyle(fontSize: 20.0, color: textTheme.button.color,),
+
                 validator: validatePassword,
                 onSaved: (val) => this.loginFields._password = val,
               ),
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
             child: Material(
+
               borderRadius: BorderRadius.circular(30.0),
               shadowColor: Colors.lightBlueAccent.shade100,
               elevation: 5.0,
