@@ -29,18 +29,25 @@ VSCode or Android Studio
 
 ### Add flutter to your path
 
-#### Android Studio Setup
+Adding flutter to your path will enable you to run flutter commands with the CLI. Below is the documentation on how to do this for various operating systems.
 
+* [Windows](https://flutter.io/setup-windows/#update-your-path)
+* [MacOS](https://flutter.io/setup-macos/#update-your-path)
+* [Linux](https://flutter.io/setup-linux/#update-your-path)
 
-#### VSCode setup
+#### IDE Setup
 
+The following links show you how to setup either Android Studio or VS Code to interact with Flutter
 
-#### XCode setup
+* [Android Studio](https://flutter.io/using-ide/)
+* [VS Code](https://flutter.io/using-ide-vscode/)
 
+#### Android SDK Installation
 
-#### Android SDK installation
+If you want to install the SDK platform tools only without downloading Android Studio you can do in
+the command line tools only section [here](https://developer.android.com/studio/#downloads).
 
-### Installing
+### Installing the application
 
 Once you have installed flutter and successfuly setup your flutter environment you can run our 
 app in the CLI. These commands will work regardless of your environment.
@@ -79,9 +86,26 @@ flutter run
 
 ### Releasing
 
+The following details how to create an app release for Android and iOS. Detailed documentation for each platform can be found at these links.
+
+* [android](https://flutter.io/android-release/)
+* [iOS](https://flutter.io/ios-release/)
+
 #### Android
 
+To build a release for android run the following command in the project directory
+
+```
+flutter build apk
+```
+
 #### iOS
+
+To build a release for iOS run the following command in the project directory
+
+```
+flutter build ios
+```
 
 ## Authors
 
@@ -91,10 +115,6 @@ flutter run
 * **Sam Kerridge**
 * **Callum Crawford**
 * **John Poulgrain**
-
-## License
-
-This project is licensed under the flutter license [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
 
