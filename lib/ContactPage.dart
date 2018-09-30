@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:outreachcrm_app/viewContact.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -246,7 +247,7 @@ class _ContactPage extends State<_ContactsPage> {
        children: <Widget>[
          new UserAccountsDrawerHeader( //////// API Request to display users name and email maybe?//////////
            accountName: new Text("Callum Crawford"),
-           accountEmail: new Text("Otago@Emial.com"),
+           accountEmail: new Text("Otago@Email.com"),
            currentAccountPicture: new CircleAvatar(
              backgroundColor: Colors.white,
              child: new Text ("C"),
@@ -254,12 +255,13 @@ class _ContactPage extends State<_ContactsPage> {
 
          ),
          new ListTile(
-           title:new Text("Switch Account"),
+           title:new Text("Switch Account"), //// If it gets implemented later
            trailing: new Icon(Icons.arrow_right),
          ),
          new ListTile(
            title:new Text("Contact Us"),
            trailing: new Icon(Icons.arrow_right),
+           onTap: _launchURL,
          ),
          new ListTile(
            title:new Text("Logout"),
@@ -280,7 +282,14 @@ class _ContactPage extends State<_ContactsPage> {
 
  }
 
-
+  _launchURL() async {   //Launches to Outreach contact page
+    const url = 'https://www.outreachcrm.co.nz/#comp-jjp7272e';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
 /*
   Widget _drawer() {
