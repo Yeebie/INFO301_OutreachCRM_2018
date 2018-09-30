@@ -238,6 +238,51 @@ class _ContactPage extends State<_ContactsPage> {
 );
   }
 */
+
+ Widget _drawer(){
+
+   return Drawer(
+     child: new ListView(
+       children: <Widget>[
+         new UserAccountsDrawerHeader( //////// API Request to display users name and email maybe?//////////
+           accountName: new Text("Callum Crawford"),
+           accountEmail: new Text("Otago@Emial.com"),
+           currentAccountPicture: new CircleAvatar(
+             backgroundColor: Colors.white,
+             child: new Text ("C"),
+           ),
+
+         ),
+         new ListTile(
+           title:new Text("Switch Account"),
+           trailing: new Icon(Icons.arrow_right),
+         ),
+         new ListTile(
+           title:new Text("Contact Us"),
+           trailing: new Icon(Icons.arrow_right),
+         ),
+         new ListTile(
+           title:new Text("Logout"),
+           trailing: new Icon(Icons.close),
+           onTap: () =>Navigator.of(context).pop(),
+         ),
+   TextField(
+   textAlign: TextAlign.center,
+   decoration: InputDecoration(
+   border: InputBorder.none,
+
+   hintText: 'Copyright Outreach CRM 2018 © '
+   ),
+   ),
+       ],
+     )
+   );
+
+ }
+
+
+
+/*
   Widget _drawer() {
 
 
@@ -247,8 +292,11 @@ class _ContactPage extends State<_ContactsPage> {
 
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            child: Text('Settings'),
+          Container(
+            height: 100.0,
+            child: DrawerHeader(
+              child: Text('Setting'),
+            ),
           ),
 
           Padding(
@@ -339,7 +387,8 @@ class _ContactPage extends State<_ContactsPage> {
 
 
     );
-  }
+  }*/
+
 
   
   ///Loading the Contacts List into a Collection
