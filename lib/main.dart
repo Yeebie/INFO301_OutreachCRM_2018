@@ -23,11 +23,10 @@ void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   Master");
-  print("Build:    Sprint 3 Pre-Release | Master, UI_Pagination,"
-      " UI_Development, domain_page merge");
-  print("Task:     Merge Master & UI_Development's ContactPage");
-  print("\n");
+  print("Branch:   UI_ViewContact");
+  print("Build:    Sprint 4 Early Development | ViewContact & Drawer Development");
+  print("Task:     Load Contact Details into ViewContact, Show Username in Drawer");
+  print("\n\n");
 }
 
 class MyApp extends StatelessWidget {
@@ -83,8 +82,6 @@ class ContactListFields {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-
-
   // data fields
 //  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final LoginFields loginFields;
@@ -233,7 +230,6 @@ class _LoginPageState extends State<LoginPage>
       if (_wifiEnabled) {
         if ((_loginFormKey.currentState.validate()) ||
             (_demoMode && !_loginFormKey.currentState.validate())) {
-
           _loginFormKey.currentState.save();
 
           // dismiss keyboard
@@ -280,9 +276,9 @@ class _LoginPageState extends State<LoginPage>
 
   /// method used to clear cache on logout
   void _clearLoginDetails() {
-    print("-------------------------");
-    print("CLEARING DETAILS IN CACHE");
-    print("-------------------------");
+    print("Login Cache Check");
+    print("Clearing Login Details from Cache");
+    print("\n\n");
 
     Util.removeCacheItem('domain');
     Util.removeCacheItem('username');
@@ -293,9 +289,9 @@ class _LoginPageState extends State<LoginPage>
   void _setLoginDetails(String domain, String username, String password) {
     // check if the field is being passed null
     if (domain != "" && username != "" && password != "") {
-      print("-------------------------");
-      print("SAVING DETAILS IN CACHE");
-      print("-------------------------");
+      print("Login Cache Check");
+      print("Saving Login Details into Cache");
+      print("\n\n");
 
       Util.setString('domain', domain);
       Util.setString('username', username);
@@ -315,11 +311,12 @@ class _LoginPageState extends State<LoginPage>
     String _cachedPassword = (prefs.getString('password') ?? null);
 
     // check if the login details are in cache
-    if (_cachedDomain != null && _cachedUsername != null
-        && _cachedPassword != null) {
-      print("-------------------------");
-      print("FOUND DETAILS IN CACHE");
-      print("-------------------------");
+    if (_cachedDomain != null &&
+        _cachedUsername != null &&
+        _cachedPassword != null) {
+      print("Login Cache Check");
+      print("Previous Login Details Found");
+      print("\n\n");
       loginFields._domain = _cachedDomain;
       loginFields._username = _cachedUsername;
       loginFields._password = _cachedPassword;
@@ -331,28 +328,27 @@ class _LoginPageState extends State<LoginPage>
         _getAPIKeyRetrieval();
         _cachedLoginValid = true;
       }
-    } else { // else you found nothing, redirect to login
+    } else {
+      // else you found nothing, redirect to login
 
-      print("-------------------------");
-      print("FOUND NO DETAILS IN CACHE");
-      print("-------------------------");
+      print("Login Cache Check");
+      print("No Login Details Found");
+      print("\n\n");
 
       // push to domain page
       // pass all the details the login form needs too
       Navigator.push(
-        context,
-        new MaterialPageRoute(
-          builder: (context) => new DomainForm(
-            domainFormKey: _domainFormKey,
-            loginFormKey: _loginFormKey,
-            login: _login,
-            forgotPassword: _forgotPassword,
-            loginFields: loginFields,
-            validateUserName: _validateUserName,
-            validatePassword: _validatePassword,
-          )
-        )
-      );
+          context,
+          new MaterialPageRoute(
+              builder: (context) => new DomainForm(
+                    domainFormKey: _domainFormKey,
+                    loginFormKey: _loginFormKey,
+                    login: _login,
+                    forgotPassword: _forgotPassword,
+                    loginFields: loginFields,
+                    validateUserName: _validateUserName,
+                    validatePassword: _validatePassword,
+                  )));
     }
   }
 
@@ -465,7 +461,6 @@ class _LoginPageState extends State<LoginPage>
         print("\n\n");
 
         _getContactPage();
-
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
       }
@@ -484,15 +479,13 @@ class _LoginPageState extends State<LoginPage>
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              ContactsPageApp(_apiKeyFields._apiKey, loginFields._domain)),
+          builder: (context) => ContactsPageApp(_apiKeyFields._apiKey,
+              loginFields._domain, loginFields._username)),
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     // this is the splash screen
     return new ModalProgressHUD(
       child: Container(
@@ -503,16 +496,14 @@ class _LoginPageState extends State<LoginPage>
           ),
         ),
       ),
-    inAsyncCall: true,
+      inAsyncCall: true,
     );
   }
 }
 
-
 ///***************************************************************************
 ///                   D O M A I N  P A G E  B U I L D
 ///***************************************************************************
-
 
 class DomainForm extends StatefulWidget {
   // fields required for domain form
@@ -580,58 +571,57 @@ class DomainFormState extends State<DomainForm> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: new Container(
-          decoration: new BoxDecoration(
-            image: new DecorationImage(
-              image: new AssetImage('assets/images/login-background.jpg'),
-              fit: BoxFit.cover,
-            ),
+        decoration: new BoxDecoration(
+          image: new DecorationImage(
+            image: new AssetImage('assets/images/login-background.jpg'),
+            fit: BoxFit.cover,
           ),
-          child: Form(
-            key: this.domainFormKey,
-            child: new ListView(
-              children: [
-                new Container(
-                    margin: const EdgeInsets.only(top: 40.0),
-                    child: new Image.asset(
-                      'assets/images/OutreachCRM_vert_logo.png',
-                      width: 200.0,
-                      height: 200.0,
-                    )
+        ),
+        child: Form(
+          key: this.domainFormKey,
+          child: new ListView(
+            children: [
+              new Container(
+                  margin: const EdgeInsets.only(top: 40.0),
+                  child: new Image.asset(
+                    'assets/images/OutreachCRM_vert_logo.png',
+                    width: 200.0,
+                    height: 200.0,
+                  )),
+              new Theme(
+                // this colors the underline
+                data: theme.copyWith(
+                  primaryColor: Colors.white,
+                  hintColor: Colors.white,
                 ),
-                new Theme( // this colors the underline
-                  data: theme.copyWith(
-                    primaryColor: Colors.white,
-                    hintColor: Colors.white,
-                  ),
-                  child: new Padding(
-                    padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
-                    child: TextFormField(
-                        key: Key('domain'),
-                        keyboardType: TextInputType.text,
-                        controller: domainController,
-                        decoration: InputDecoration(
-                            labelText: 'Company Domain',
-                            labelStyle: new TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0)),
-                        style: TextStyle(
-                            fontSize: 20.0, color: textTheme.button.color),
-                        validator: (val) {
-                          if(val.isEmpty){
-                            return 'Please enter some text';
-                          }
-                        },
-                        onSaved: (val) => this.loginFields._domain = val),
-                  ),
+                child: new Padding(
+                  padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
+                  child: TextFormField(
+                      key: Key('domain'),
+                      keyboardType: TextInputType.text,
+                      controller: domainController,
+                      decoration: InputDecoration(
+                          labelText: 'Company Domain',
+                          labelStyle: new TextStyle(
+                              color: Colors.white, fontSize: 16.0)),
+                      style: TextStyle(
+                          fontSize: 20.0, color: textTheme.button.color),
+                      validator: (val) {
+                        if (val.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                      },
+                      onSaved: (val) => this.loginFields._domain = val),
                 ),
-                new Theme(
-                  data: theme.copyWith(
-                    primaryColor: Colors.white,
-                    hintColor: Colors.white,
-                  ),
-                  child: new Padding(
-                    padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
-                    // INSERT A PADDED PLACEHOLDER IN HERE
+              ),
+              new Theme(
+                data: theme.copyWith(
+                  primaryColor: Colors.white,
+                  hintColor: Colors.white,
+                ),
+                child: new Padding(
+                  padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
+                  // INSERT A PADDED PLACEHOLDER IN HERE
 //                    child: TextFormField(
 //                      key: Key('password'),
 //                      obscureText: true,
@@ -647,62 +637,56 @@ class DomainFormState extends State<DomainForm> {
 //                      validator: validatePassword,
 //                      onSaved: (val) => this.loginFields._password = val,
 //                    ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+                child: Material(
+                  borderRadius: BorderRadius.circular(30.0),
+                  shadowColor: Colors.lightBlueAccent.shade100,
+                  elevation: 5.0,
+                  color: color,
+                  child: MaterialButton(
+                    minWidth: 320.0,
+                    height: 42.00,
+                    onPressed: () {
+                      if (domainFormKey.currentState.validate()) {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) => new LoginForm(
+                                      loginFormKey: loginFormKey,
+                                      login: login,
+                                      forgotPassword: forgotPassword,
+                                      loginFields: loginFields,
+                                      validateUserName: validateUserName,
+                                      validatePassword: validatePassword,
+                                    )));
+                      }
+                    },
+                    child: Text('NEXT',
+                        style: TextStyle(fontSize: 17.0, color: Colors.white)),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
-                  child: Material(
-                    borderRadius: BorderRadius.circular(30.0),
-                    shadowColor: Colors.lightBlueAccent.shade100,
-                    elevation: 5.0,
-                    color: color,
-                    child: MaterialButton(
-                      minWidth: 320.0,
-                      height: 42.00,
-                      onPressed: () {
-                        if(domainFormKey.currentState.validate()) {
-                          Navigator.push(
-                              context,
-                              new MaterialPageRoute(
-                                  builder: (context) =>
-                                  new LoginForm(
-                                    loginFormKey: loginFormKey,
-                                    login: login,
-                                    forgotPassword: forgotPassword,
-                                    loginFields: loginFields,
-                                    validateUserName: validateUserName,
-                                    validatePassword: validatePassword,
-                                  )
-                              )
-                          );
-                        }
-                      },
-                      child: Text('NEXT',
-                          style: TextStyle(
-                              fontSize: 17.0, color: Colors.white)),
-                    ),
-                  ),
+              ),
+              FlatButton(
+                child: Text(
+                  "What is a domain?",
+                  style: TextStyle(fontSize: 14.0, color: Colors.white),
                 ),
-                FlatButton(
-                  child: Text(
-                    "What is a domain?",
-                    style: TextStyle(fontSize: 14.0, color: Colors.white),
-                  ),
-                  onPressed: forgotPassword,
-                ),
-              ],
-            ),
+                onPressed: forgotPassword,
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }
 
-
 ///***************************************************************************
 ///                   L O  G I N  P A G E  B U I L D
 ///***************************************************************************
-
 
 class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> loginFormKey;
@@ -734,9 +718,6 @@ class LoginForm extends StatefulWidget {
   }
 }
 
-
-
-
 class LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> loginFormKey;
   final LoginFields loginFields;
@@ -766,7 +747,7 @@ class LoginFormState extends State<LoginForm> {
     //Build the form and attach to the scaffold
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      body:  new ModalProgressHUD(
+      body: new ModalProgressHUD(
         child: new Container(
           decoration: new BoxDecoration(
             image: new DecorationImage(
@@ -784,9 +765,9 @@ class LoginFormState extends State<LoginForm> {
                       'assets/images/OutreachCRM_vert_logo.png',
                       width: 200.0,
                       height: 200.0,
-                    )
-                ),
-                new Theme( // this colors the underline
+                    )),
+                new Theme(
+                  // this colors the underline
                   data: theme.copyWith(
                     primaryColor: Colors.white,
                     hintColor: Colors.white,
@@ -800,9 +781,9 @@ class LoginFormState extends State<LoginForm> {
                         decoration: InputDecoration(
                             labelText: 'Username',
                             labelStyle: new TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0)),
-                        style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                                color: Colors.white, fontSize: 16.0)),
+                        style: TextStyle(
+                            fontSize: 20.0, color: textTheme.button.color),
                         validator: validateUserName,
                         onSaved: (val) => this.loginFields._username = val),
                   ),
@@ -825,9 +806,9 @@ class LoginFormState extends State<LoginForm> {
                       decoration: InputDecoration(
                           labelText: 'Password',
                           labelStyle: new TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0)),
-                      style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                              color: Colors.white, fontSize: 16.0)),
+                      style: TextStyle(
+                          fontSize: 20.0, color: textTheme.button.color),
                       validator: validatePassword,
                       onSaved: (val) => this.loginFields._password = val,
                     ),
@@ -845,10 +826,12 @@ class LoginFormState extends State<LoginForm> {
                       height: 42.00,
                       onPressed: () {
                         login();
+
                         /// change color here to show its been pressed
                       },
                       child: Text('LOGIN',
-                          style: TextStyle(fontSize: 17.0, color: Colors.white)),
+                          style:
+                              TextStyle(fontSize: 17.0, color: Colors.white)),
                     ),
                   ),
                 ),
