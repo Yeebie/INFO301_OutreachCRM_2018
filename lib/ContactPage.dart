@@ -38,6 +38,8 @@ class _ContactsPage extends StatefulWidget {
   String _apiKey;
   String _domain;
   List<Contact> contacts;
+  List<Contact> recentContacts;
+  bool finishedSearching;
 
   //Constructor
   _ContactsPage(this._apiKey, this._domain, {Key key, this.contacts})
@@ -53,8 +55,11 @@ class _ContactPage extends State<_ContactsPage> {
   String _apiKey;
   String _domain;
   List<Contact> _contacts;
+  List<Contact> _recentContacts;
   ScrollController controller;
   int count;
+  bool _finishedSearching = false;
+  bool _firstRun = true;
 
   //Datafields for the app bar
   final formKey = new GlobalKey<FormState>();
@@ -74,6 +79,7 @@ class _ContactPage extends State<_ContactsPage> {
     this._apiKey = apiKey;
     this._domain = domain;
     this._contacts = kContacts;
+    this._recentContacts = kContacts;
   }
 
   ///The list that holds all the contacts onscreen
@@ -89,46 +95,56 @@ class _ContactPage extends State<_ContactsPage> {
     print("Checking if _contacts has any data");
     print("_contacts length: " + (_contacts.length).toString());
 
-    ///The list starts with no data in it, since the getContactsList() method is in this class, we have to load it here
-    ///Added check to see if we are searching
-    if (_contacts.length == 0 && !searching) {
-      print("_contacts is empty, requesting resupply");
-      print("\n\n");
-      getContactsList(0, _apiKey, _domain);
+    //Once we're finished searching I just set the contacts list
+    //to the 25 most recent contacts which were stored in a list 
+    //in the first run of the application.
+    if (_finishedSearching) {
+      _contacts.clear();
+      _contacts = new List<Contact>.from(_recentContacts);
+      _finishedSearching = false;
     }
+    
+      ///The list starts with no data in it, since the getContactsList() method is in this class, we have to load it here
+      ///Added check to see if we are searching
+      if (_contacts.length == 0 && !searching) {
+        print("_contacts is empty, requesting resupply");
+        print("\n\n");
+        getContactsList(0, _apiKey, _domain);
+      }
 
-    ///As soon as the getContactsList() setState is called, this code runs the if statement again
-    else if (_contacts.length != 0) {
-      print("_contacts has data, displaying list");
-      print("Amount of Contacts from API Request: " + count.toString());
-      print("\n\n");
-      return ListView.builder(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
-        itemBuilder: (context, index) {
-          //If we hit the end of the client's contacts list, the app'll spam getContactsList()
-          //This is due to the List staying at the max index and triggering the call over and over
-          //count tracks the size of the last API call, you get the point.
+      ///As soon as the getContactsList() setState is called, this code runs the if statement again
+      else if (_contacts.length != 0) {
+        print("_contacts has data, displaying list");
+        print("Amount of Contacts from API Request: " + count.toString());
+        print("\n\n");
+        return ListView.builder(
+          padding: new EdgeInsets.symmetric(vertical: 8.0),
+          itemBuilder: (context, index) {
+            //If we hit the end of the client's contacts list, the app'll spam getContactsList()
+            //This is due to the List staying at the max index and triggering the call over and over
+            //count tracks the size of the last API call, you get the point.
 
-          //Added check to see if we are searching or not as we don't want to paginate if
-          //we are searching
-          if (index >= (_contacts.length - 1) && count != 0 && !searching) {
-            print("Pagination get!");
-            print("\n");
-            getContactsList(index, _apiKey, _domain);
-          }
-          return GestureDetector(
-            onTap: () {
-              String _oid = (_contacts[index].getOid());
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      new ViewContact(_apiKey, _domain, _oid)));
-            },
-            child: buildRow(_contacts[index]),
-          );
-        },
-        itemCount: _contacts.length,
-      );
-    }
+            //Added check to see if we are searching or not as we don't want to paginate if
+            //we are searching and also if we've just exited searching we just want to use
+            //the first 25 contacts in recent contacts.
+            if (index >= (_contacts.length - 1) && count != 0 && !searching && !_finishedSearching) {
+              print("Pagination get!");
+              print("\n");
+              getContactsList(index, _apiKey, _domain);
+            }
+            return GestureDetector(
+              onTap: () {
+                String _oid = (_contacts[index].getOid());
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        new ViewContact(_apiKey, _domain, _oid)));
+              },
+              child: buildRow(_contacts[index]),
+            );
+          },
+          itemCount: _contacts.length,
+        );
+      }
   }
 
   //This method gets called when the search icon is pressed
@@ -150,11 +166,11 @@ class _ContactPage extends State<_ContactsPage> {
           onChanged: (value) {
             if (value.length > 0) {
               searchContactsList(_apiKey, _domain, value);
-              _buildContacts();
+              //_buildContacts();
             } else {
-              _contacts.clear();
-              getContactsList(0, _apiKey, _domain);
-              _buildContacts();
+              //_contacts.clear();
+              //getContactsList(0, _apiKey, _domain);
+              //_buildContacts();
             }
           },
         );
@@ -162,9 +178,10 @@ class _ContactPage extends State<_ContactsPage> {
         this._searchIcon = new Icon(Icons.search);
         this._appBarTitle = new Text('Contacts');
         _filter.clear();
-        _contacts.clear();
-        getContactsList(0, _apiKey, _domain);
-        _buildContacts();
+       // _contacts.clear();
+        _finishedSearching = true;
+        //getContactsList(0, _apiKey, _domain);
+        //_buildContacts();
       }
     });
   }
@@ -191,10 +208,12 @@ class _ContactPage extends State<_ContactsPage> {
         onPressed: _searchPressed,
         color: Colors.white,
       ),
+
       ///UI_Development settings cog
       actions: <Widget>[
         new IconButton(
-          ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
+
+            ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
             icon: new Icon(Icons.settings),
             onPressed: () => _scaffoldKey.currentState.openDrawer()),
       ],
@@ -307,6 +326,14 @@ class _ContactPage extends State<_ContactsPage> {
         contact.setOid(data.getOid());
         contact.setCompany(data.getCompany());
         contactsList.add(contact);
+      }
+
+      //On the first run of the application only get the first 25
+      //contacts and store them in the recentContacts list for later
+      //use. No need to call the API again and fixes double list issue.
+      if (_firstRun) {
+      _recentContacts = new List<Contact>.from(contactsList);
+      _firstRun = false;
       }
 
       count = contactsList.length;
