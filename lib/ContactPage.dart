@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:outreachcrm_app/ViewContact.dart';
+import 'LoginPage.dart';
+import 'main.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -20,12 +22,43 @@ class ContactsPageApp extends StatelessWidget {
   //Constructor
   ContactsPageApp(this._apiKey, this._domain);
 
+
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    //Shows dialogue for the back button on Androids
+    Future<bool>_onBackPressed(){
+      return showDialog(context: context,
+          builder: (context)=> AlertDialog(
+            title: Text("Do you want to log out?"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("No"),
+                onPressed: ()=> Navigator.pop(context, false),
+              ),
+              FlatButton(
+                child: Text("Yes"),
+                onPressed: ()=>  Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (context) => new DomainForm(
+                        )
+                    )
+                    
+              )
+              )
+              ,
+            ],
+          )
+      );
+    }
+    return WillPopScope(
+        onWillPop: _onBackPressed,
+        child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Contacts",
-        home: _ContactsPage(_apiKey, _domain, contacts: contacts));
+        home: _ContactsPage(_apiKey, _domain, contacts: contacts))
+    );
   }
 }
 
@@ -213,7 +246,7 @@ class _ContactPage extends State<_ContactsPage> {
       actions: <Widget>[
         new IconButton(
 
-            ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
+          ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
             icon: new Icon(Icons.settings),
             onPressed: () => _scaffoldKey.currentState.openDrawer()),
       ],
