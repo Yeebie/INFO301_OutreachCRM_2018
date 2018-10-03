@@ -189,7 +189,7 @@ class _ContactPage extends State<_ContactsPage> {
     return new AppBar(
       centerTitle: true,
       title: _appBarTitle,
-      backgroundColor: Colors.blue,
+      backgroundColor: color,
 
       leading: new IconButton(
         icon: _searchIcon,
@@ -399,7 +399,7 @@ class _ContactPage extends State<_ContactsPage> {
   }*/
 
 
-  
+
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactsList(
       int index, String _apiKey, String _domain) async {

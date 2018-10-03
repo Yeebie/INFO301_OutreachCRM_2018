@@ -19,11 +19,14 @@ class viewContact extends StatelessWidget {
   String _domain;
   String _oid;
 
+
+  //Placeholder static values
   final homePh = "07 645 8524";
   final mobilePh = '027 452 4318';
   final workPh = '07 868 9678';
   final emailAd = 'namerson@gmail.com';
   final client = 'Thomas Green Industries';
+  final color = const Color(0xFF0085CA);
 
   ViewContactFields viewContactFields = new ViewContactFields();
 
@@ -45,7 +48,7 @@ class viewContact extends StatelessWidget {
           new ListTile(
             leading: new Icon(
               Icons.account_box,
-              color: Colors.blue,
+              color: color,
               size: 36.0,
             ),
             title: new Text(
@@ -56,14 +59,14 @@ class viewContact extends StatelessWidget {
 
           ),
           new Divider(
-            color: Colors.blue,
+            color: color,
             indent: 16.0,
           ),
           new ListTile(
             leading: new IconButton(
                 icon: new Icon(
                   Icons.email,
-                  color: Colors.blue,
+                  color: color,
                   size: 36.0,
                 ),
                 tooltip: '',
@@ -131,7 +134,7 @@ class viewContact extends StatelessWidget {
             leading: new IconButton(
               icon: new Icon(
                 Icons.note,
-                color: Colors.blue,
+                color: color,
                 size: 36.0,
               ),
               tooltip: 'View client notes',
@@ -154,7 +157,8 @@ class viewContact extends StatelessWidget {
     final sizedBox = new Container(
       decoration: new BoxDecoration(boxShadow: [
         new BoxShadow(color: Colors.grey, blurRadius: 8.0, spreadRadius: 6.0),
-      ]),
+      ]
+      ),
       margin: new EdgeInsets.only(left: 10.0, right: 10.0),
       child: new SizedBox.expand(
         //height: 520.0,
@@ -170,10 +174,10 @@ class viewContact extends StatelessWidget {
 
     return new MaterialApp(
         title: "",
-        //      home: new Text("Add Google fonts to Flutter App")
         home: new Scaffold(
           appBar: new AppBar(
               title: new Text("Contact Details"),
+              backgroundColor: color,
               leading: IconButton(
                 tooltip: "Previous page",
                 icon: const Icon(Icons.arrow_back),
@@ -326,28 +330,31 @@ class viewContact extends StatelessWidget {
 class ClientNotes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return new Container(
+    child: Scaffold(
         appBar: AppBar(
           title: Text("Thomas Green Industries"),
-          actions: <Widget>[
-            new IconButton(
-                icon: const Icon(Icons.keyboard_backspace),
-                onPressed: () {
-                  Navigator.pop(context);
-                })
-          ], // won't text input the name
         ),
+
         body: new Card(
+
           child: new Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
             children: <Widget>[
+
               const ListTile(
                 leading: const Icon(Icons.note),
-                title: const Text('Note title?'),
+                title: const Text('Additional Information'),
                 subtitle: const Text(
-                    'Preview note contents  contents  contents  contents  contents  contents '),
+                    'What the info is'),
               ),
+              new Divider(
+                color: Colors.blue,
+                indent: 16.0,
+              ),
+
               new ButtonTheme.bar(
                 // make buttons use the appropriate styles for cards
                 child: new ButtonBar(
@@ -358,9 +365,23 @@ class ClientNotes extends StatelessWidget {
                     ),
                   ],
                 ),
+
               ),
             ],
           ),
-        ));
+
+        ),
+
+    ),
+
+      //this is messed up because the container is around the scaffold
+      decoration: new BoxDecoration(boxShadow: [
+    //new BoxShadow(color: Colors.grey, blurRadius: 8.0, spreadRadius: 6.0),
+    ]
+
+    ),
+
+    );
+
   }
 }

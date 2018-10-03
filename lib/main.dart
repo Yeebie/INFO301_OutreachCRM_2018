@@ -625,6 +625,7 @@ class LoginForm extends StatelessWidget {
             data: theme.copyWith(
               primaryColor: Colors.white,
               hintColor: Colors.transparent,
+
             ),
             child: new Padding(
               padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
@@ -661,7 +662,7 @@ class LoginForm extends StatelessWidget {
                       labelStyle:
                           new TextStyle(color: Colors.white, fontSize: 16.0)),
                   style:
-                      TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                      TextStyle(fontSize: 20.0, color: Colors.white),
                   validator: validateUserName,
                   onSaved: (val) => this.loginFields._username = val),
             ),
@@ -705,7 +706,7 @@ class LoginForm extends StatelessWidget {
                     labelText: 'Password',
                     labelStyle:
                         new TextStyle(color: Colors.white, fontSize: 16.0)),
-                style: TextStyle(fontSize: 20.0, color: textTheme.button.color,),
+                style: TextStyle(fontSize: 20.0, color: Colors.white),
 
                 validator: validatePassword,
                 onSaved: (val) => this.loginFields._password = val,
@@ -737,7 +738,7 @@ class LoginForm extends StatelessWidget {
           FlatButton(
             child: Text(
               "Forgot Password?",
-              style: TextStyle(fontSize: 14.0, color: Colors.white),
+              style: TextStyle(fontSize: 14.0, color: Colors.grey),
             ),
             onPressed: forgotPassword,
           ),
