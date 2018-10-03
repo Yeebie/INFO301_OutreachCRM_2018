@@ -26,9 +26,8 @@ void main() {
   print("\n");
   print("Outreach: Flutter Application");
   print("Branch:   Master");
-  print("Build:    Sprint 3 Pre-Release | Master, UI_Pagination,"
-      " UI_Development, domain_page merge");
-  print("Task:     Merge Master & UI_Development's ContactPage");
+  print("Build:    Sprint 3 Pre-Release | Master + Touch-Ups merge");
+  print("Task:     Merge Master & login touch ups");
   print("\n");
 }
 
