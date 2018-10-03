@@ -19,6 +19,8 @@ import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:outreachcrm_app/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+bool _loginSuccess = false;
+
 void main() {
   runApp(new MyApp());
   print("\n");
@@ -109,7 +111,7 @@ class _LoginPageState extends State<LoginPage>
   // the cache object itself
   Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
   // boolean to lock cache check when logging in
-  bool _cachedLoginValid = false;
+  bool _cacheLoginSuccess = false;
 
   //Puts app in demo mode (If you want to switch out the mode then you have
   //change the boolean and rerun the app. If someone finds a fix that would be
@@ -120,32 +122,19 @@ class _LoginPageState extends State<LoginPage>
   void initState() {
     super.initState();
 
-    // call this to clear cache
-//    _clearLoginDetails();
+
 
     // buy us some time so the splash screen is displayed
-    new Timer(new Duration(milliseconds: 3000), () {
+    new Timer(new Duration(seconds: 3), () {
       // check if the user has saved details
       _checkLoggedIn();
     });
+
+    // call this to clear cache
+    _clearLoginDetails();
   }
 
   bool _wifiEnabled = true;
-
-  //Not used anymore since Andrew said that usernames can be emails or alphanumeric
-  //See _validateUsername for current validator
-  String _validateEmail(String value) {
-    try {
-      Validate.isEmail(value);
-    } catch (e) {
-      if (value == "") {
-        return "Please enter a username";
-      } else {
-        return 'The username must be a valid email address.';
-      }
-    }
-    return null;
-  }
 
   String _validateUserName(String value) {
     RegExp userNamePattern = new RegExp(
@@ -220,15 +209,7 @@ class _LoginPageState extends State<LoginPage>
 
   void _login() {
     _checkWifi();
-    //Future.delayed(const Duration(seconds: 3));
-    /*
-    if(_wifiEnabled) {
-      showDialogParent("Yay", "You have wifi!");
-    }
-    else {
-      showDialogParent("Boo", "You don't have wifi!");
-    }
-    */
+
     try {
       if (_wifiEnabled) {
         if ((_loginFormKey.currentState.validate()) ||
@@ -240,31 +221,14 @@ class _LoginPageState extends State<LoginPage>
           FocusScope.of(context).requestFocus(new FocusNode());
 
           // start the modal progress HUD
-          setState(() {
-            _inAsyncCall = true;
-            _getAPIKeyRetrieval();
-          });
+          _inAsyncCall = true;
+          _loginSuccess = true;
 
-          /*
-        Just used for debugging
-        print("");
-        print('Login Details');
-        print('Username: ${loginFields._username}');
-        print('Password: ${loginFields._password}');
-        print('Domain: ${loginFields._domain}');
-        print('\n \n');
-         */
+          _getAPIKeyRetrieval();
 
-          /// Set the login cache with the validated fields
-          _setLoginDetails(loginFields._domain, loginFields._username,
-              loginFields._password);
-
-          // Buy us some time while logging in
-          Future.delayed(Duration(seconds: 5), () {
-            setState(() {
-              // stop the modal progress HUD
-              _inAsyncCall = false;
-            });
+          Future.delayed(Duration(seconds: 4), () {
+            // stop the modal progress HUD
+            _inAsyncCall = false;
           });
         }
       }
@@ -326,10 +290,10 @@ class _LoginPageState extends State<LoginPage>
 
       // attempt the login
       // if we are not currently trying to login
-      if (_cachedLoginValid == false) {
+      if (_cacheLoginSuccess == false) {
         // attempt to get API key
         _getAPIKeyRetrieval();
-        _cachedLoginValid = true;
+        _cacheLoginSuccess = true;
       }
     } else { // else you found nothing, redirect to login
 
@@ -410,6 +374,7 @@ class _LoginPageState extends State<LoginPage>
       if (_apiKeyFields._passwordVerify == false) {
         showDialogParent(
             "Incorrect Login.", "Couldn't verify username or password.");
+        _loginSuccess = false;
       } else {
         ///Verify API Key
         _getAPIKeyVerification();
@@ -464,10 +429,15 @@ class _LoginPageState extends State<LoginPage>
         print("API Key Matches Format");
         print("\n\n");
 
+        /// Set the login cache with the validated fields
+//        _setLoginDetails(loginFields._domain, loginFields._username,
+//            loginFields._password);
+
         _getContactPage();
 
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
+        _loginSuccess = false;
       }
     });
   }
@@ -839,13 +809,22 @@ class LoginFormState extends State<LoginForm> {
                     borderRadius: BorderRadius.circular(30.0),
                     shadowColor: Colors.lightBlueAccent.shade100,
                     elevation: 5.0,
-                    color: color,
+                    color: _loginSuccess
+                        ? Colors.blueGrey
+                        : color,
                     child: MaterialButton(
                       minWidth: 320.0,
                       height: 42.00,
                       onPressed: () {
-                        login();
-                        /// change color here to show its been pressed
+                        setState(() {
+                          _loginSuccess
+                            ? print("login disabled")
+                            : login();
+                        });
+
+                        Future.delayed(Duration(seconds: 4), () {
+                          setState(() {});
+                        });
                       },
                       child: Text('LOGIN',
                           style: TextStyle(fontSize: 17.0, color: Colors.white)),
