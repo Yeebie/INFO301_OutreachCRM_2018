@@ -569,6 +569,24 @@ class DomainFormState extends State<DomainForm> {
     @required this.validatePassword,
   });
 
+  Future<bool>_onBackPressed(){
+    return showDialog(context: context,
+    builder: (context)=> AlertDialog(
+      title: Text("Do you want to exit?"),
+      actions: <Widget>[
+        FlatButton(
+          child: Text("No"),
+          onPressed: ()=> Navigator.pop(context, false),
+        ),
+        FlatButton(
+          child: Text("No"),
+          onPressed: ()=> Navigator.pop(context, false),
+        ),
+      ],
+     )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
@@ -577,7 +595,9 @@ class DomainFormState extends State<DomainForm> {
     final theme = Theme.of(context);
 
     //Build the form and attach to the scaffold
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
       resizeToAvoidBottomPadding: false,
       body: new Container(
           decoration: new BoxDecoration(
@@ -694,6 +714,7 @@ class DomainFormState extends State<DomainForm> {
             ),
           ),
         ),
+    )
     );
   }
 }
