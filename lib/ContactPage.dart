@@ -25,6 +25,7 @@ class ContactsPageApp extends StatelessWidget {
   //Constructor
   ContactsPageApp(this._apiKey, this._domain);
 
+  //wipes cache of user details, prevents future autologins
   void clearLoginDetails() {
     print("-------------------------");
     print("CLEARING DETAILS IN CACHE");
@@ -310,7 +311,6 @@ class _ContactPage extends State<_ContactsPage> {
 
   ///Loading the Contacts List into a Collection
   ///
-
   Future<Contact> getContactsList(
       int index, String _apiKey, String _domain) async {
     int _indexPagination;
