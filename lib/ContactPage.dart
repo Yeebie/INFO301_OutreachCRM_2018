@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:outreachcrm_app/ViewContact.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -20,14 +19,67 @@ class ContactsPageApp extends StatelessWidget {
   List<Contact> contacts = [];
 
   //Constructor
-  ContactsPageApp(this._apiKey, this._domain, this._username);
+  ContactsPageApp(this._apiKey, this._domain);
+
+  //wipes cache of user details, prevents future autologins
+  void clearLoginDetails() {
+    print("-------------------------");
+    print("CLEARING DETAILS IN CACHE");
+    print("-------------------------");
+    Util.removeCacheItem('domain');
+    Util.removeCacheItem('username');
+    Util.removeCacheItem('password');
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    //Shows dialogue for the back button on Androids
+    Future<bool>_onBackPressed(){
+      return showDialog(context: context,
+          builder: (context)=> AlertDialog(
+            title: Text("Do you want to log out?"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("No"),
+                onPressed: ()=> Navigator.pop(context, false),
+              ),
+              FlatButton(
+                child: Text("Yes"),
+                onPressed: (){
+                  deleteAPIKey();
+                  clearLoginDetails();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage
+                    (loginFields:LoginFields()))
+                  );
+                }
+              )
+            ],
+          )
+      );
+    }
+    return WillPopScope(
+        onWillPop: _onBackPressed,
+        child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Contacts",
-        home: _ContactsPage(_apiKey, _domain, _username, contacts: contacts));
+        home: _ContactsPage(_apiKey, _domain, _username, contacts: contacts))
+    );
+  }
+
+  void deleteAPIKey() {
+    //Purge ourselves of that pesky APIKey
+    String apikey = "?apikey=" + _apiKey;
+    String _requestAPIKeyRemoval = "https://" +
+        _domain +
+        ".outreach.co.nz/api/0.2/auth/logout/" +
+        apikey;
+
+    http.post(_requestAPIKeyRemoval).then((response) {
+      //Print the API Key, just so we can compare it to the final result
+      print("API Key Delete Check: ${response.body}");
+    });
   }
 }
 
@@ -225,7 +277,7 @@ class _ContactPage extends State<_ContactsPage> {
       actions: <Widget>[
         new IconButton(
 
-            ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
+          ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
             icon: new Icon(Icons.settings),
             onPressed: () => _scaffoldKey.currentState.openDrawer()),
       ],
