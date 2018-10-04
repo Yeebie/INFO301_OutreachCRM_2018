@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:outreachcrm_app/ViewContact.dart';
-import 'LoginPage.dart';
-import 'main.dart';
+import 'package:outreachcrm_app/util.dart';
+import 'package:outreachcrm_app/LoginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -11,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert'; //Converts Json into Map
+
 
 ///StatelessWidget call
 class ContactsPageApp extends StatelessWidget {
@@ -22,7 +25,14 @@ class ContactsPageApp extends StatelessWidget {
   //Constructor
   ContactsPageApp(this._apiKey, this._domain);
 
-
+  void clearLoginDetails() {
+    print("-------------------------");
+    print("CLEARING DETAILS IN CACHE");
+    print("-------------------------");
+    Util.removeCacheItem('domain');
+    Util.removeCacheItem('username');
+    Util.removeCacheItem('password');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,16 +48,15 @@ class ContactsPageApp extends StatelessWidget {
               ),
               FlatButton(
                 child: Text("Yes"),
-                onPressed: ()=>  Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (context) => new DomainForm(
-                        )
-                    )
-                    
+                onPressed: (){
+                  clearLoginDetails();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage
+                    (loginFields:LoginFields()))
+                  );
+                }
               )
-              )
-              ,
             ],
           )
       );
@@ -300,6 +309,8 @@ class _ContactPage extends State<_ContactsPage> {
   }
 
   ///Loading the Contacts List into a Collection
+  ///
+
   Future<Contact> getContactsList(
       int index, String _apiKey, String _domain) async {
     int _indexPagination;
@@ -444,3 +455,4 @@ class _ContactPage extends State<_ContactsPage> {
     });
   }
 }
+
