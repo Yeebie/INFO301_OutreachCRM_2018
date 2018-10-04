@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outreachcrm_app/LoginPage.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:outreachcrm_app/ViewContact.dart';
 
@@ -8,7 +9,10 @@ import 'package:http/http.dart' as http;
 ///Used for API Key Retrieval
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert'; //Converts Json into Map
+import 'dart:convert';
+
+import 'package:outreachcrm_app/util.dart';
+import 'package:url_launcher/url_launcher.dart'; //Converts Json into Map
 
 ///StatelessWidget call
 class ContactsPageApp extends StatelessWidget {
@@ -19,7 +23,7 @@ class ContactsPageApp extends StatelessWidget {
   List<Contact> contacts = [];
 
   //Constructor
-  ContactsPageApp(this._apiKey, this._domain);
+  ContactsPageApp(this._apiKey, this._domain, this._username);
 
   //wipes cache of user details, prevents future autologins
   void clearLoginDetails() {
@@ -48,7 +52,10 @@ class ContactsPageApp extends StatelessWidget {
                 onPressed: (){
                   deleteAPIKey();
                   clearLoginDetails();
-                  Navigator.push(
+                  ///This might solve our problems
+//                  Navigator.removeRoute(context, route);
+                  ///
+                  Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => LoginPage
                     (loginFields:LoginFields()))
