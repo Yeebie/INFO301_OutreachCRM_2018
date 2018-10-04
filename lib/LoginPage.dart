@@ -19,8 +19,6 @@ import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:outreachcrm_app/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 class LoginPage extends StatefulWidget {
   final LoginFields loginFields;
   LoginPage({@required this.loginFields});
@@ -52,8 +50,6 @@ class ContactListFields {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-
-
   // data fields
 //  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final LoginFields loginFields;
@@ -156,9 +152,9 @@ class _LoginPageState extends State<LoginPage>
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-          title: new Text(title),
-          content: new Text(content),
-        ));
+              title: new Text(title),
+              content: new Text(content),
+            ));
   }
 
   void _forgotPassword() async {
@@ -172,13 +168,12 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
-
   void logout() {
     _checkWifi();
-          setState(() {
-            _inAsyncCall = true;
-            deleteAPIKey();
-          });
+    setState(() {
+      _inAsyncCall = true;
+      deleteAPIKey();
+    });
   }
 
   void _login() {
@@ -196,7 +191,6 @@ class _LoginPageState extends State<LoginPage>
       if (_wifiEnabled) {
         if ((_loginFormKey.currentState.validate()) ||
             (_demoMode && !_loginFormKey.currentState.validate())) {
-
           _loginFormKey.currentState.save();
 
           // dismiss keyboard
@@ -266,8 +260,9 @@ class _LoginPageState extends State<LoginPage>
     String _cachedPassword = (prefs.getString('password') ?? null);
 
     // check if the login details are in cache
-    if (_cachedDomain != null && _cachedUsername != null
-        && _cachedPassword != null) {
+    if (_cachedDomain != null &&
+        _cachedUsername != null &&
+        _cachedPassword != null) {
       print("-------------------------");
       print("FOUND DETAILS IN CACHE");
       print("-------------------------");
@@ -282,7 +277,8 @@ class _LoginPageState extends State<LoginPage>
         _getAPIKeyRetrieval();
         _cachedLoginValid = true;
       }
-    } else { // else you found nothing, redirect to login
+    } else {
+      // else you found nothing, redirect to login
 
       print("-------------------------");
       print("FOUND NO DETAILS IN CACHE");
@@ -294,19 +290,16 @@ class _LoginPageState extends State<LoginPage>
           context,
           new MaterialPageRoute(
               builder: (context) => new DomainForm(
-                domainFormKey: _domainFormKey,
-                loginFormKey: _loginFormKey,
-                login: _login,
-                forgotPassword: _forgotPassword,
-                loginFields: loginFields,
-                validateUserName: _validateUserName,
-                validatePassword: _validatePassword,
-              )
-          )
-      );
+                    domainFormKey: _domainFormKey,
+                    loginFormKey: _loginFormKey,
+                    login: _login,
+                    forgotPassword: _forgotPassword,
+                    loginFields: loginFields,
+                    validateUserName: _validateUserName,
+                    validatePassword: _validatePassword,
+                  )));
     }
   }
-
 
   ///***************************************************************************
   ///                  A P I   K E Y   R E T R I E V A L
@@ -338,7 +331,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyRetrievalMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyRetrievalData data =
-      new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
+          new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyFields._apiKey = data.getAPIKey();
       _apiKeyFields._expiry = data.getExpiry();
@@ -369,21 +362,19 @@ class _LoginPageState extends State<LoginPage>
     });
   }
 
-
   void deleteAPIKey() {
-//Purge ourselves of that pesky APIKey
+    //Purge ourselves of that pesky APIKey
+    String apikey = "?apikey=" + _apiKeyFields._apiKey;
     String _requestAPIKeyRemoval = "https://" +
         loginFields._domain +
-        ".outreach.co.nz/api/0.2/auth/logout/?username=" +
-        loginFields._username +
-        "&password=" +
-        loginFields._password;
+        ".outreach.co.nz/api/0.2/auth/logout/" +
+        apikey;
+
     http.post(_requestAPIKeyRemoval).then((response) {
       //Print the API Key, just so we can compare it to the final result
-      print("Original Response body: ${response.body}");
-      }
-    );
-}
+      print("API Key Delete Check: ${response.body}");
+    });
+  }
 
   ///***************************************************************************
   ///                  A P I   K E Y   V A L I D A T I O N
@@ -406,7 +397,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyVerificationMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyValidationData data =
-      new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
+          new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyValidationFields._verify = data.getVerify();
       _apiKeyValidationFields._expiry = data.getExpiry();
@@ -433,7 +424,6 @@ class _LoginPageState extends State<LoginPage>
         print("\n\n");
 
         _getContactPage();
-
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
       }
@@ -457,10 +447,8 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     // this is the splash screen
     return new ModalProgressHUD(
       child: Container(
@@ -476,11 +464,9 @@ class _LoginPageState extends State<LoginPage>
   }
 }
 
-
 ///***************************************************************************
 ///                   D O M A I N  P A G E  B U I L D
 ///***************************************************************************
-
 
 class DomainForm extends StatefulWidget {
   // fields required for domain form
@@ -538,22 +524,19 @@ class DomainFormState extends State<DomainForm> {
   });
 
   //Shows dialogue for the back button on Androids
-  Future<bool>_onBackPressed(){
-    return showDialog(context: context,
-        builder: (context)=> AlertDialog(
-          title: Text("Do you want to exit?"),
-          actions: <Widget>[
-            FlatButton(
-              child: Text("No"),
-              onPressed: ()=> Navigator.pop(context, false),
-            ),
-            FlatButton(
-              child: Text("Yes"),
-              onPressed: ()=> exit(0)
-            ),
-          ],
-        )
-    );
+  Future<bool> _onBackPressed() {
+    return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Do you want to exit?"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("No"),
+                  onPressed: () => Navigator.pop(context, false),
+                ),
+                FlatButton(child: Text("Yes"), onPressed: () => exit(0)),
+              ],
+            ));
   }
 
   @override
@@ -585,9 +568,9 @@ class DomainFormState extends State<DomainForm> {
                         'assets/images/OutreachCRM_vert_logo.png',
                         width: 200.0,
                         height: 200.0,
-                      )
-                  ),
-                  new Theme( // this colors the underline
+                      )),
+                  new Theme(
+                    // this colors the underline
                     data: theme.copyWith(
                       primaryColor: Colors.white,
                       hintColor: Colors.white,
@@ -601,12 +584,11 @@ class DomainFormState extends State<DomainForm> {
                           decoration: InputDecoration(
                               labelText: 'Company Domain',
                               labelStyle: new TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0)),
+                                  color: Colors.white, fontSize: 16.0)),
                           style: TextStyle(
                               fontSize: 20.0, color: textTheme.button.color),
                           validator: (val) {
-                            if(val.isEmpty){
+                            if (val.isEmpty) {
                               return 'Please enter some text';
                             }
                           },
@@ -649,26 +631,23 @@ class DomainFormState extends State<DomainForm> {
                         minWidth: 320.0,
                         height: 42.00,
                         onPressed: () {
-                          if(domainFormKey.currentState.validate()) {
+                          if (domainFormKey.currentState.validate()) {
                             Navigator.push(
                                 context,
                                 new MaterialPageRoute(
-                                    builder: (context) =>
-                                    new LoginForm(
-                                      loginFormKey: loginFormKey,
-                                      login: login,
-                                      forgotPassword: forgotPassword,
-                                      loginFields: loginFields,
-                                      validateUserName: validateUserName,
-                                      validatePassword: validatePassword,
-                                    )
-                                )
-                            );
+                                    builder: (context) => new LoginForm(
+                                          loginFormKey: loginFormKey,
+                                          login: login,
+                                          forgotPassword: forgotPassword,
+                                          loginFields: loginFields,
+                                          validateUserName: validateUserName,
+                                          validatePassword: validatePassword,
+                                        )));
                           }
                         },
                         child: Text('NEXT',
-                            style: TextStyle(
-                                fontSize: 17.0, color: Colors.white)),
+                            style:
+                                TextStyle(fontSize: 17.0, color: Colors.white)),
                       ),
                     ),
                   ),
@@ -683,16 +662,13 @@ class DomainFormState extends State<DomainForm> {
               ),
             ),
           ),
-        )
-    );
+        ));
   }
 }
-
 
 ///***************************************************************************
 ///                   L O  G I N  P A G E  B U I L D
 ///***************************************************************************
-
 
 class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> loginFormKey;
@@ -724,9 +700,6 @@ class LoginForm extends StatefulWidget {
   }
 }
 
-
-
-
 class LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> loginFormKey;
   final LoginFields loginFields;
@@ -756,7 +729,7 @@ class LoginFormState extends State<LoginForm> {
     //Build the form and attach to the scaffold
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      body:  new ModalProgressHUD(
+      body: new ModalProgressHUD(
         child: new Container(
           decoration: new BoxDecoration(
             image: new DecorationImage(
@@ -774,9 +747,9 @@ class LoginFormState extends State<LoginForm> {
                       'assets/images/OutreachCRM_vert_logo.png',
                       width: 200.0,
                       height: 200.0,
-                    )
-                ),
-                new Theme( // this colors the underline
+                    )),
+                new Theme(
+                  // this colors the underline
                   data: theme.copyWith(
                     primaryColor: Colors.white,
                     hintColor: Colors.white,
@@ -790,9 +763,9 @@ class LoginFormState extends State<LoginForm> {
                         decoration: InputDecoration(
                             labelText: 'Username',
                             labelStyle: new TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0)),
-                        style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                                color: Colors.white, fontSize: 16.0)),
+                        style: TextStyle(
+                            fontSize: 20.0, color: textTheme.button.color),
                         validator: validateUserName,
                         onSaved: (val) => this.loginFields._username = val),
                   ),
@@ -815,9 +788,9 @@ class LoginFormState extends State<LoginForm> {
                       decoration: InputDecoration(
                           labelText: 'Password',
                           labelStyle: new TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0)),
-                      style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                              color: Colors.white, fontSize: 16.0)),
+                      style: TextStyle(
+                          fontSize: 20.0, color: textTheme.button.color),
                       validator: validatePassword,
                       onSaved: (val) => this.loginFields._password = val,
                     ),
@@ -835,10 +808,12 @@ class LoginFormState extends State<LoginForm> {
                       height: 42.00,
                       onPressed: () {
                         login();
+
                         /// change color here to show its been pressed
                       },
                       child: Text('LOGIN',
-                          style: TextStyle(fontSize: 17.0, color: Colors.white)),
+                          style:
+                              TextStyle(fontSize: 17.0, color: Colors.white)),
                     ),
                   ),
                 ),

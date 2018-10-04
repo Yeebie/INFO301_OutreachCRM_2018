@@ -50,6 +50,7 @@ class ContactsPageApp extends StatelessWidget {
               FlatButton(
                 child: Text("Yes"),
                 onPressed: (){
+                  deleteAPIKey();
                   clearLoginDetails();
                   Navigator.push(
                       context,
@@ -69,6 +70,20 @@ class ContactsPageApp extends StatelessWidget {
         title: "Contacts",
         home: _ContactsPage(_apiKey, _domain, contacts: contacts))
     );
+  }
+
+  void deleteAPIKey() {
+    //Purge ourselves of that pesky APIKey
+    String apikey = "?apikey=" + _apiKey;
+    String _requestAPIKeyRemoval = "https://" +
+        _domain +
+        ".outreach.co.nz/api/0.2/auth/logout/" +
+        apikey;
+
+    http.post(_requestAPIKeyRemoval).then((response) {
+      //Print the API Key, just so we can compare it to the final result
+      print("API Key Delete Check: ${response.body}");
+    });
   }
 }
 
@@ -454,5 +469,6 @@ class _ContactPage extends State<_ContactsPage> {
       setState(() {});
     });
   }
+
 }
 
