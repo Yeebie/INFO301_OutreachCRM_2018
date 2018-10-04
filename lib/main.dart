@@ -25,9 +25,9 @@ void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   UI_ViewContact");
-  print("Build:    Sprint 4 Early Development | ViewContact & Drawer Development");
-  print("Task:     Load Contact Details into ViewContact, Show Username in Drawer");
+  print("Branch:   UI_Development");
+  print("Build:    Sprint 4 Pre-Release | ViewContact & Drawer Development");
+  print("Task:     Fix the \"card\" problem");
   print("\n\n");
 }
 

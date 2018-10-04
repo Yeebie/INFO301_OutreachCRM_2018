@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
+import 'package:outreachcrm_app/ContactPage.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -19,19 +20,16 @@ class ViewContactApp extends StatelessWidget {
   String _apiKey;
   String _domain;
   String _oid;
+  String _username;
 
-  ViewContactApp(String apiKey, String domain, String oid) {
-    this._apiKey = apiKey;
-    this._domain = domain;
-    this._oid = oid;
-  }
+  ViewContactApp(this._apiKey, this._domain, this._oid, this._username);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Contact Details",
-        home: ViewContactState(_apiKey, _domain, _oid));
+        home: ViewContactState(_apiKey, _domain, _oid, _username));
   }
 }
 
@@ -40,17 +38,20 @@ class ViewContactState extends StatefulWidget {
   String _apiKey;
   String _domain;
   String _oid;
+  String _username;
 
-  ViewContactState(this._apiKey, this._domain, this._oid);
+  ViewContactState(this._apiKey, this._domain, this._oid, this._username);
 
   @override
-  ViewContact createState() => new ViewContact(_apiKey, _domain, _oid);
+  ViewContact createState() =>
+      new ViewContact(_apiKey, _domain, _oid, _username);
 }
 
 class ViewContact extends State<ViewContactState> {
   String _apiKey;
   String _domain;
   String _oid;
+  String _username;
 
   String nameProcessed = "";
   String homePh = "";
@@ -61,11 +62,7 @@ class ViewContact extends State<ViewContactState> {
 
   ViewContactFields viewContactFields = new ViewContactFields();
 
-  ViewContact(String apiKey, String domain, String oid) {
-    this._apiKey = apiKey;
-    this._domain = domain;
-    this._oid = oid;
-  }
+  ViewContact(this._apiKey, this._domain, this._oid, this._username);
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +76,17 @@ class ViewContact extends State<ViewContactState> {
       getContactDetails(_apiKey, _domain, _oid);
 
       ///The build needs to load some sort of UI, otherwise we'll get a big red screen error while loading contact data
-      return new Card();
+      ///Creates a real basic page so it looks like a half decent transition from ContactPage to ViewContact
+      return new MaterialApp(
+          home: new Scaffold(
+              appBar: new AppBar(
+                  title: new Text(nameProcessed),
+                  leading: IconButton(
+                    tooltip: "Previous page",
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  ))));
+
+      ///Loads when the contact's data has been loaded
     } else {
       print("ViewContact has data, displaying details");
       print("\n\n");
@@ -97,7 +104,7 @@ class ViewContact extends State<ViewContactState> {
               title: new Text(
                 o_company,
                 style:
-                new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                    new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
               subtitle: new Text("Organisation"),
             ),
@@ -125,7 +132,7 @@ class ViewContact extends State<ViewContactState> {
               title: new Text(
                 emailAd,
                 style:
-                new TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
+                    new TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
               ),
             ),
             new ListTile(
@@ -245,15 +252,18 @@ class ViewContact extends State<ViewContactState> {
               tooltip: "Previous page",
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ContactsPageApp(_apiKey, _domain, _username),
+                    ));
               },
             )),
         body: center,
       ));
     }
   }
-
 
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactDetails(

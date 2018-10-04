@@ -149,7 +149,7 @@ class _ContactPage extends State<_ContactsPage> {
               String _oid = (_contacts[index].getOid());
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (BuildContext context) =>
-                      new ViewContactApp(_apiKey, _domain, _oid)));
+                      new ViewContactApp(_apiKey, _domain, _oid, _username)));
             },
             child: buildRow(_contacts[index]),
           );
