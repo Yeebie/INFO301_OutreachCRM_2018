@@ -27,9 +27,11 @@ class ViewContactApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
         debugShowCheckedModeBanner: false,
         title: "Contact Details",
         home: ViewContactState(_apiKey, _domain, _oid, _username));
+
   }
 }
 
@@ -98,7 +100,7 @@ class ViewContact extends State<ViewContactState> {
             new ListTile(
               leading: new Icon(
                 Icons.account_box,
-                color: Colors.blue,
+                color: Color(0xFF0085CA),
                 size: 36.0,
               ),
               title: new Text(
@@ -113,10 +115,12 @@ class ViewContact extends State<ViewContactState> {
               indent: 16.0,
             ),
             new ListTile(
+
               leading: new IconButton(
                   icon: new Icon(
                     Icons.email,
-                    color: Colors.blue,
+                    color: Color(0xFF0085CA),
+
                     size: 36.0,
                   ),
                   tooltip: '',
@@ -181,27 +185,7 @@ class ViewContact extends State<ViewContactState> {
               ),
               subtitle: new Text("Mobie Phone"),
             ),
-            new ListTile(
-              leading: new IconButton(
-                icon: new Icon(
-                  Icons.note,
-                  color: Colors.blue,
-                  size: 36.0,
-                ),
-                tooltip: 'View client notes',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ClientNotes()),
-                  );
-                },
-              ),
-              title: Text(
-                'Client Notes',
-                style: new TextStyle(
-                    fontWeight: FontWeight.normal, fontSize: 18.0),
-              ),
-            ),
+
           ],
         ),
       );
@@ -224,30 +208,12 @@ class ViewContact extends State<ViewContactState> {
       );
 
       final color = const Color(0xFF0085CA);
-/*
-      return new MaterialApp(
-          title: "",
-          home: new Scaffold(
-            appBar: new AppBar(
-                title: new Text(nameProcessed),
-                backgroundColor: color,
-                leading: IconButton(
-                  tooltip: "Previous page",
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                )),
-            body: center,
-          ));
-    }
-  }
-    */
 
       return new MaterialApp(
           home: new Scaffold(
         appBar: new AppBar(
             title: new Text(nameProcessed),
+            backgroundColor: color,
             leading: IconButton(
               tooltip: "Previous page",
               icon: const Icon(Icons.arrow_back),
@@ -407,47 +373,5 @@ class ViewContact extends State<ViewContactState> {
       o_company = viewContactFields.company;
       setState(() {});
     });
-  }
-}
-
-class ClientNotes extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Thomas Green Industries"),
-          actions: <Widget>[
-            new IconButton(
-                icon: const Icon(Icons.keyboard_backspace),
-                onPressed: () {
-                  Navigator.pop(context);
-                })
-          ], // won't text input the name
-        ),
-        body: new Card(
-          child: new Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              const ListTile(
-                leading: const Icon(Icons.note),
-                title: const Text('Note title?'),
-                subtitle: const Text(
-                    'Preview note contents  contents  contents  contents  contents  contents '),
-              ),
-              new ButtonTheme.bar(
-                // make buttons use the appropriate styles for cards
-                child: new ButtonBar(
-                  children: <Widget>[
-                    new FlatButton(
-                      child: const Text('View note'),
-                      onPressed: () {/* ... */},
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ));
   }
 }

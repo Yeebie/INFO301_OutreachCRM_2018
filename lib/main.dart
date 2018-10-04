@@ -552,7 +552,7 @@ class DomainFormState extends State<DomainForm> {
       body: new Container(
           decoration: new BoxDecoration(
             image: new DecorationImage(
-              image: new AssetImage('assets/images/login-background.jpg'),
+              image: new AssetImage('assets/images/background-image.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -580,12 +580,27 @@ class DomainFormState extends State<DomainForm> {
                         keyboardType: TextInputType.text,
                         controller: domainController,
                         decoration: InputDecoration(
+                            fillColor: Colors.black.withOpacity(0.6),
+                            filled: true,
+
+                            border: new OutlineInputBorder(
+
+                              borderRadius: const BorderRadius.all(
+
+                                const Radius.circular(8.0),
+                              ),
+                              borderSide: new BorderSide(
+                                color: Colors.transparent,
+                                width: 1.0,
+                              ),
+                            ),
+
                             labelText: 'Company Domain',
                             labelStyle: new TextStyle(
                                 color: Colors.white,
                                 fontSize: 16.0)),
                         style: TextStyle(
-                            fontSize: 20.0, color: textTheme.button.color),
+                            fontSize: 20.0, color: Colors.white),
                         validator: (val) {
                           if(val.isEmpty){
                             return 'Please enter some text';
@@ -656,7 +671,7 @@ class DomainFormState extends State<DomainForm> {
                 FlatButton(
                   child: Text(
                     "What is a domain?",
-                    style: TextStyle(fontSize: 14.0, color: Colors.white),
+                    style: TextStyle(fontSize: 14.0, color: Colors.grey),
                   ),
                   onPressed: forgotPassword,
                 ),
@@ -740,7 +755,7 @@ class LoginFormState extends State<LoginForm> {
         child: new Container(
           decoration: new BoxDecoration(
             image: new DecorationImage(
-              image: new AssetImage('assets/images/login-background.jpg'),
+              image: new AssetImage('assets/images/background-image.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -759,7 +774,7 @@ class LoginFormState extends State<LoginForm> {
                 new Theme( // this colors the underline
                   data: theme.copyWith(
                     primaryColor: Colors.white,
-                    hintColor: Colors.white,
+                    hintColor: Colors.transparent,
                   ),
                   child: new Padding(
                     padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
@@ -768,11 +783,26 @@ class LoginFormState extends State<LoginForm> {
                         keyboardType: TextInputType.text,
                         controller: usernameController,
                         decoration: InputDecoration(
+                            fillColor: Colors.black.withOpacity(0.6),
+                            filled: true,
+
+                            border: new OutlineInputBorder(
+
+                              borderRadius: const BorderRadius.all(
+
+                                const Radius.circular(8.0),
+                              ),
+                              borderSide: new BorderSide(
+                                color: Colors.transparent,
+                                width: 1.0,
+                              ),
+                            ),
+
                             labelText: 'Username',
                             labelStyle: new TextStyle(
                                 color: Colors.white,
                                 fontSize: 16.0)),
-                        style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                        style: TextStyle(fontSize: 20.0, color: Colors.white),
                         validator: validateUserName,
                         onSaved: (val) => this.loginFields._username = val),
                   ),
@@ -780,7 +810,7 @@ class LoginFormState extends State<LoginForm> {
                 new Theme(
                   data: theme.copyWith(
                     primaryColor: Colors.white,
-                    hintColor: Colors.white,
+                    hintColor: Colors.transparent,
                   ),
                   child: new Padding(
                     padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
@@ -793,11 +823,27 @@ class LoginFormState extends State<LoginForm> {
 //                        loginFormKey.currentState.save();
 //                      },
                       decoration: InputDecoration(
+                          fillColor: Colors.black.withOpacity(0.6),
+                          filled: true,
+
+                          border: new OutlineInputBorder(
+
+                            borderRadius: const BorderRadius.all(
+
+                              const Radius.circular(8.0),
+                            ),
+                            borderSide: new BorderSide(
+                              color: Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+
                           labelText: 'Password',
+
                           labelStyle: new TextStyle(
                               color: Colors.white,
                               fontSize: 16.0)),
-                      style: TextStyle(fontSize: 20.0, color: textTheme.button.color),
+                      style: TextStyle(fontSize: 20.0, color: Colors.white),
                       validator: validatePassword,
                       onSaved: (val) => this.loginFields._password = val,
                     ),
@@ -832,7 +878,7 @@ class LoginFormState extends State<LoginForm> {
                 FlatButton(
                   child: Text(
                     "Forgot Password?",
-                    style: TextStyle(fontSize: 14.0, color: Colors.white),
+                    style: TextStyle(fontSize: 14.0, color: Colors.grey),
                   ),
                   onPressed: forgotPassword,
                 ),
