@@ -158,9 +158,9 @@ class _LoginPageState extends State<LoginPage>
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-          title: new Text(title),
-          content: new Text(content),
-        ));
+              title: new Text(title),
+              content: new Text(content),
+            ));
   }
 
   void _forgotPassword() async {
@@ -263,7 +263,8 @@ class _LoginPageState extends State<LoginPage>
         _getAPIKeyRetrieval();
         _cacheLoginSuccess = true;
       }
-    } else { // else you found nothing, redirect to login
+    } else {
+      // else you found nothing, redirect to login
 
       print("Login Cache Check");
       print("No Login Details Found");
@@ -287,6 +288,7 @@ class _LoginPageState extends State<LoginPage>
       );
     }
   }
+
 
   ///***************************************************************************
   ///                  A P I   K E Y   R E T R I E V A L
@@ -507,6 +509,22 @@ class DomainFormState extends State<DomainForm> {
     @required this.validatePassword,
   });
 
+  //Shows dialogue for the back button on Androids
+  Future<bool> _onBackPressed() {
+    return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Do you want to exit?"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("No"),
+                  onPressed: () => Navigator.pop(context, false),
+                ),
+                FlatButton(child: Text("Yes"), onPressed: () => exit(0)),
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
@@ -515,76 +533,78 @@ class DomainFormState extends State<DomainForm> {
     final theme = Theme.of(context);
 
     //Build the form and attach to the scaffold
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      body: new Container(
-        decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new AssetImage('assets/images/background-image.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Form(
-          key: this.domainFormKey,
-          child: new ListView(
-            children: [
-              new Container(
-                  margin: const EdgeInsets.only(top: 40.0),
-                  child: new Image.asset(
-                    'assets/images/OutreachCRM_vert_logo.png',
-                    width: 200.0,
-                    height: 200.0,
-                  )
+    return WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Scaffold(
+          resizeToAvoidBottomPadding: false,
+          body: new Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new AssetImage('assets/images/background-image.png'),
+                fit: BoxFit.cover,
               ),
-              new Theme( // this colors the underline
-                data: theme.copyWith(
-                  primaryColor: Colors.white,
-                  hintColor: Colors.white,
-                ),
-                child: new Padding(
-                  padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
-                  child: TextFormField(
-                      key: Key('domain'),
-                      keyboardType: TextInputType.text,
-                      controller: domainController,
-                      decoration: InputDecoration(
-                          fillColor: Colors.black.withOpacity(0.6),
-                          filled: true,
+            ),
+            child: Form(
+              key: this.domainFormKey,
+              child: new ListView(
+                children: [
+                  new Container(
+                      margin: const EdgeInsets.only(top: 40.0),
+                      child: new Image.asset(
+                        'assets/images/OutreachCRM_vert_logo.png',
+                        width: 200.0,
+                        height: 200.0,
+                      )
+                  ),
+                  new Theme( // this colors the underline
+                    data: theme.copyWith(
+                      primaryColor: Colors.white,
+                      hintColor: Colors.white,
+                    ),
+                    child: new Padding(
+                      padding: const EdgeInsets.fromLTRB(32.0, 40.0, 32.0, 4.0),
+                      child: TextFormField(
+                          key: Key('domain'),
+                          keyboardType: TextInputType.text,
+                          controller: domainController,
+                          decoration: InputDecoration(
+                              fillColor: Colors.black.withOpacity(0.6),
+                              filled: true,
 
-                          border: new OutlineInputBorder(
+                              border: new OutlineInputBorder(
 
-                            borderRadius: const BorderRadius.all(
+                                borderRadius: const BorderRadius.all(
 
-                              const Radius.circular(8.0),
-                            ),
-                            borderSide: new BorderSide(
-                              color: Colors.transparent,
-                              width: 1.0,
-                            ),
-                          ),
+                                  const Radius.circular(8.0),
+                                ),
+                                borderSide: new BorderSide(
+                                  color: Colors.transparent,
+                                  width: 1.0,
+                                ),
+                              ),
 
-                          labelText: 'Company Domain',
-                          labelStyle: new TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0)),
-                      style: TextStyle(
-                          fontSize: 20.0, color: Colors.white),
-                      validator: (val) {
-                        if(val.isEmpty){
-                          return 'Please enter some text';
-                        }
-                      },
-                      onSaved: (val) => this.loginFields._domain = val),
-                ),
-              ),
-              new Theme(
-                data: theme.copyWith(
-                  primaryColor: Colors.white,
-                  hintColor: Colors.white,
-                ),
-                child: new Padding(
-                  padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
-                  // INSERT A PADDED PLACEHOLDER IN HERE
+                              labelText: 'Company Domain',
+                              labelStyle: new TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0)),
+                          style: TextStyle(
+                              fontSize: 20.0, color: Colors.white),
+                          validator: (val) {
+                            if(val.isEmpty){
+                              return 'Please enter some text';
+                            }
+                          },
+                          onSaved: (val) => this.loginFields._domain = val),
+                    ),
+                  ),
+                  new Theme(
+                    data: theme.copyWith(
+                      primaryColor: Colors.white,
+                      hintColor: Colors.white,
+                    ),
+                    child: new Padding(
+                      padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
+                      // INSERT A PADDED PLACEHOLDER IN HERE
 //                    child: TextFormField(
 //                      key: Key('password'),
 //                      obscureText: true,
@@ -600,54 +620,54 @@ class DomainFormState extends State<DomainForm> {
 //                      validator: validatePassword,
 //                      onSaved: (val) => this.loginFields._password = val,
 //                    ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
-                child: Material(
-                  borderRadius: BorderRadius.circular(30.0),
-                  shadowColor: Colors.lightBlueAccent.shade100,
-                  elevation: 5.0,
-                  color: color,
-                  child: MaterialButton(
-                    minWidth: 320.0,
-                    height: 42.00,
-                    onPressed: () {
-                      if(domainFormKey.currentState.validate()) {
-                        Navigator.push(
-                            context,
-                            new MaterialPageRoute(
-                                builder: (context) =>
-                                new LoginForm(
-                                  loginFormKey: loginFormKey,
-                                  login: login,
-                                  forgotPassword: forgotPassword,
-                                  loginFields: loginFields,
-                                  validateUserName: validateUserName,
-                                  validatePassword: validatePassword,
-                                )
-                            )
-                        );
-                      }
-                    },
-                    child: Text('NEXT',
-                        style: TextStyle(
-                            fontSize: 17.0, color: Colors.white)),
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(30.0),
+                      shadowColor: Colors.lightBlueAccent.shade100,
+                      elevation: 5.0,
+                      color: color,
+                      child: MaterialButton(
+                        minWidth: 320.0,
+                        height: 42.00,
+                        onPressed: () {
+                          if(domainFormKey.currentState.validate()) {
+                            Navigator.push(
+                                context,
+                                new MaterialPageRoute(
+                                    builder: (context) =>
+                                    new LoginForm(
+                                      loginFormKey: loginFormKey,
+                                      login: login,
+                                      forgotPassword: forgotPassword,
+                                      loginFields: loginFields,
+                                      validateUserName: validateUserName,
+                                      validatePassword: validatePassword,
+                                    )
+                                )
+                            );
+                          }
+                        },
+                        child: Text('NEXT',
+                            style: TextStyle(
+                                fontSize: 17.0, color: Colors.white)),
+                      ),
+                    ),
+                  ),
+                  FlatButton(
+                    child: Text(
+                      "What is a domain?",
+                      style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                    ),
+                    onPressed: forgotPassword,
+                  ),
+                ],
               ),
-              FlatButton(
-                child: Text(
-                  "What is a domain?",
-                  style: TextStyle(fontSize: 14.0, color: Colors.grey),
-                ),
-                onPressed: forgotPassword,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 

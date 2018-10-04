@@ -3,6 +3,10 @@ import 'package:outreachcrm_app/LoginPage.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'dart:io';
 import 'package:outreachcrm_app/ViewContact.dart';
+import 'package:outreachcrm_app/util.dart';
+import 'package:outreachcrm_app/LoginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -91,6 +95,7 @@ class ContactsPageApp extends StatelessWidget {
         home: _ContactsPage(_apiKey, _domain, _username, contacts: contacts))
     );
   }
+
 }
 
 ///Stateful Widget Call
@@ -253,7 +258,7 @@ class _ContactPage extends State<_ContactsPage> {
         this._searchIcon = new Icon(Icons.search);
         this._appBarTitle = new Text('Contacts');
         _filter.clear();
-        // _contacts.clear();
+       // _contacts.clear();
         _finishedSearching = true;
         //getContactsList(0, _apiKey, _domain);
         //_buildContacts();
@@ -401,6 +406,7 @@ class _ContactPage extends State<_ContactsPage> {
   }
 
   ///Loading the Contacts List into a Collection
+  ///
   Future<Contact> getContactsList(
       int index, String _apiKey, String _domain) async {
     int _indexPagination;
@@ -466,8 +472,8 @@ class _ContactPage extends State<_ContactsPage> {
       //contacts and store them in the recentContacts list for later
       //use. No need to call the API again and fixes double list issue.
       if (_firstRun) {
-        _recentContacts = new List<Contact>.from(contactsList);
-        _firstRun = false;
+      _recentContacts = new List<Contact>.from(contactsList);
+      _firstRun = false;
       }
 
       count = contactsList.length;
@@ -580,9 +586,8 @@ class _ContactPage extends State<_ContactsPage> {
         usernameList.add(contact);
       }
       name_processed = contact.getFullName();
-
-      ///Add the new contacts to the current List, refresh list
-      _usernameList.addAll(usernameList);
-    });
+      });
   }
 }
+
+
