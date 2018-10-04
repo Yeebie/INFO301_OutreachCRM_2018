@@ -14,23 +14,13 @@ import 'dart:convert'; //Converts Json into Map
 //Define "root widget"
 //one-line function
 
-class viewContact extends StatelessWidget {
+///StatelessWidget call
+class ViewContactApp extends StatelessWidget {
   String _apiKey;
   String _domain;
   String _oid;
 
-
-  //Placeholder static values
-  final homePh = "07 645 8524";
-  final mobilePh = '027 452 4318';
-  final workPh = '07 868 9678';
-  final emailAd = 'namerson@gmail.com';
-  final client = 'Thomas Green Industries';
-  final color = const Color(0xFF0085CA);
-
-  ViewContactFields viewContactFields = new ViewContactFields();
-
-  viewContact(String apiKey, String domain, String oid) {
+  ViewContactApp(String apiKey, String domain, String oid) {
     this._apiKey = apiKey;
     this._domain = domain;
     this._oid = oid;
@@ -38,156 +28,232 @@ class viewContact extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    getContactDetails(_apiKey, _domain, _oid);
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: "Contact Details",
+        home: ViewContactState(_apiKey, _domain, _oid));
+  }
+}
 
-    //build function returns a "Widget"
-    var card = new Card(
-      child: new Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          new ListTile(
-            leading: new Icon(
-              Icons.account_box,
-              color: color,
-              size: 36.0,
-            ),
-            title: new Text(
-              client,
-              style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-            ),
-            subtitle: new Text("Organisation"),
+///Stateful Widget Call
+class ViewContactState extends StatefulWidget {
+  String _apiKey;
+  String _domain;
+  String _oid;
 
-          ),
-          new Divider(
-            color: color,
-            indent: 16.0,
-          ),
-          new ListTile(
-            leading: new IconButton(
+  ViewContactState(this._apiKey, this._domain, this._oid);
+
+  @override
+  ViewContact createState() => new ViewContact(_apiKey, _domain, _oid);
+}
+
+class ViewContact extends State<ViewContactState> {
+  String _apiKey;
+  String _domain;
+  String _oid;
+
+  String nameProcessed = "";
+  String homePh = "";
+  String mobilePh = "";
+  String workPh = "";
+  String emailAd = "";
+  String o_company = "";
+
+  ViewContactFields viewContactFields = new ViewContactFields();
+
+  ViewContact(String apiKey, String domain, String oid) {
+    this._apiKey = apiKey;
+    this._domain = domain;
+    this._oid = oid;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ///Its guaranteed that a contact'll have a name_processed, use it to do API call only once
+    print("ViewContact empty datafields check");
+    print("Checking if ViewContact has any data");
+    print("nameProcessed length: " + (nameProcessed.length).toString());
+    if (nameProcessed.length == 0) {
+      print("ViewContact's Data is empty, requesting resupply");
+      print("\n\n");
+      getContactDetails(_apiKey, _domain, _oid);
+
+      ///The build needs to load some sort of UI, otherwise we'll get a big red screen error while loading contact data
+      return new Card();
+    } else {
+      print("ViewContact has data, displaying details");
+      print("\n\n");
+      //build function returns a "Widget"
+      var card = new Card(
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            new ListTile(
+              leading: new Icon(
+                Icons.account_box,
+                color: Colors.blue,
+                size: 36.0,
+              ),
+              title: new Text(
+                o_company,
+                style:
+                new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+              ),
+              subtitle: new Text("Organisation"),
+            ),
+            new Divider(
+              color: Colors.blue,
+              indent: 16.0,
+            ),
+            new ListTile(
+              leading: new IconButton(
+                  icon: new Icon(
+                    Icons.email,
+                    color: Colors.blue,
+                    size: 36.0,
+                  ),
+                  tooltip: '',
+                  padding: new EdgeInsets.all(0.0),
+                  onPressed: () {
+                    if (Platform.isAndroid) {
+                      launch('mailto:' + emailAd);
+                    } else if (Platform.isIOS) {
+                      launch('mailto:' + emailAd);
+                    }
+                  }),
+              //leading: new Icon(Icons.email, color: Colors.blue, size: 26.0,),
+              title: new Text(
+                emailAd,
+                style:
+                new TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
+              ),
+            ),
+            new ListTile(
+              leading: new IconButton(
                 icon: new Icon(
-                  Icons.email,
-                  color: color,
+                  Icons.phone,
+                  color: Colors.green,
                   size: 36.0,
                 ),
-                tooltip: '',
-                padding: new EdgeInsets.all(0.0),
+                tooltip: 'Contact work phone%',
                 onPressed: () {
                   if (Platform.isAndroid) {
-                    launch('mailto:' + emailAd);
+                    launch('tel:' + workPh);
                   } else if (Platform.isIOS) {
-                    launch('mailto:' + emailAd);
+                    //add IOS compatible number here (need to format incoming strings probably)
+                    launch('tel:' + workPh);
                   }
-                }),
-            //leading: new Icon(Icons.email, color: Colors.blue, size: 26.0,),
-            title: new Text(
-              emailAd,
-              style: new TextStyle(fontWeight: FontWeight.w400, fontSize: 18.0),
-            ),
-          ),
-          new ListTile(
-            leading: new IconButton(
-              icon: new Icon(
-                Icons.phone,
-                color: Colors.green,
-                size: 36.0,
-              ),
-              tooltip: 'Contact work phone%',
-              onPressed: () {
-                if (Platform.isAndroid) {
-                  launch('tel:' + workPh);
-                } else if (Platform.isIOS) {
-                  //add IOS compatible number here (need to format incoming strings probably)
-                  launch('tel:' + workPh);
-                }
-              },
-            ),
-            title: Text(
-              workPh,
-              style: new TextStyle(color: Colors.black, fontSize: 18.0),
-            ),
-            subtitle: new Text("Work Phone"),
-          ),
-          new ListTile(
-            leading: new IconButton(
-              icon: new Icon(
-                Icons.phone,
-                color: Colors.green,
-                size: 36.0,
-              ),
-              tooltip: 'Contact mobile phone%',
-              onPressed: () {
-                if (Platform.isAndroid) {
-                  launch('tel:' + mobilePh);
-                } else if (Platform.isIOS) {
-                  //add IOS compatible number here (need to format incoming strings probably)
-                  launch('tel:' + mobilePh);
-                }
-              },
-            ),
-            title: Text(
-              mobilePh,
-              style: new TextStyle(color: Colors.black, fontSize: 18.0),
-            ),
-            subtitle: new Text("Mobie Phone"),
-          ),
-          new ListTile(
-            leading: new IconButton(
-              icon: new Icon(
-                Icons.note,
-                color: color,
-                size: 36.0,
-              ),
-              tooltip: 'View client notes',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ClientNotes()),
-                );
-              },
-            ),
-            title: Text(
-              'Client Notes',
-              style: new TextStyle(fontWeight: FontWeight.normal, fontSize: 18.0),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    final sizedBox = new Container(
-      decoration: new BoxDecoration(boxShadow: [
-        new BoxShadow(color: Colors.grey, blurRadius: 8.0, spreadRadius: 6.0),
-      ]
-      ),
-      margin: new EdgeInsets.only(left: 10.0, right: 10.0),
-      child: new SizedBox.expand(
-        //height: 520.0,
-
-        child: card,
-      ),
-      alignment: Alignment(-1.0, -1.0),
-    );
-
-    final center = new Center(
-      child: sizedBox,
-    );
-
-    return new MaterialApp(
-        title: "",
-        home: new Scaffold(
-          appBar: new AppBar(
-              title: new Text("Contact Details"),
-              backgroundColor: color,
-              leading: IconButton(
-                tooltip: "Previous page",
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
                 },
-              )),
-          body: center,
-        ));
+              ),
+              title: Text(
+                workPh,
+                style: new TextStyle(color: Colors.black, fontSize: 18.0),
+              ),
+              subtitle: new Text("Work Phone"),
+            ),
+            new ListTile(
+              leading: new IconButton(
+                icon: new Icon(
+                  Icons.phone,
+                  color: Colors.green,
+                  size: 36.0,
+                ),
+                tooltip: 'Contact mobile phone%',
+                onPressed: () {
+                  if (Platform.isAndroid) {
+                    launch('tel:' + mobilePh);
+                  } else if (Platform.isIOS) {
+                    //add IOS compatible number here (need to format incoming strings probably)
+                    launch('tel:' + mobilePh);
+                  }
+                },
+              ),
+              title: Text(
+                mobilePh,
+                style: new TextStyle(color: Colors.black, fontSize: 18.0),
+              ),
+              subtitle: new Text("Mobie Phone"),
+            ),
+            new ListTile(
+              leading: new IconButton(
+                icon: new Icon(
+                  Icons.note,
+                  color: Colors.blue,
+                  size: 36.0,
+                ),
+                tooltip: 'View client notes',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ClientNotes()),
+                  );
+                },
+              ),
+              title: Text(
+                'Client Notes',
+                style: new TextStyle(
+                    fontWeight: FontWeight.normal, fontSize: 18.0),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      final sizedBox = new Container(
+        decoration: new BoxDecoration(boxShadow: [
+          new BoxShadow(color: Colors.grey, blurRadius: 8.0, spreadRadius: 6.0),
+        ]),
+        margin: new EdgeInsets.only(left: 10.0, right: 10.0),
+        child: new SizedBox.expand(
+          //height: 520.0,
+
+          child: card,
+        ),
+        alignment: Alignment(-1.0, -1.0),
+      );
+
+      final center = new Center(
+        child: sizedBox,
+      );
+
+      final color = const Color(0xFF0085CA);
+/*
+      return new MaterialApp(
+          title: "",
+          home: new Scaffold(
+            appBar: new AppBar(
+                title: new Text(nameProcessed),
+                backgroundColor: color,
+                leading: IconButton(
+                  tooltip: "Previous page",
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )),
+            body: center,
+          ));
+    }
   }
+    */
+
+      return new MaterialApp(
+          home: new Scaffold(
+        appBar: new AppBar(
+            title: new Text(nameProcessed),
+            leading: IconButton(
+              tooltip: "Previous page",
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            )),
+        body: center,
+      ));
+    }
+  }
+
 
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactDetails(
@@ -321,8 +387,15 @@ class viewContact extends StatelessWidget {
       print("o_spouse:               " + viewContactFields.o_spouse);
       print("o_home_country:         " + viewContactFields.o_home_country);
       print("o_email_2_address:      " + viewContactFields.o_email_2_address);
-      print("\n");
       print('\n \n');
+
+      nameProcessed = viewContactFields.fullName;
+      homePh = viewContactFields.o_home_phone;
+      mobilePh = viewContactFields.o_mobile_phone;
+      workPh = viewContactFields.o_company_main_phone;
+      emailAd = viewContactFields.o_email_address;
+      o_company = viewContactFields.company;
+      setState(() {});
     });
   }
 }
@@ -330,31 +403,28 @@ class viewContact extends StatelessWidget {
 class ClientNotes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new Container(
-    child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Text("Thomas Green Industries"),
+          actions: <Widget>[
+            new IconButton(
+                icon: const Icon(Icons.keyboard_backspace),
+                onPressed: () {
+                  Navigator.pop(context);
+                })
+          ], // won't text input the name
         ),
-
         body: new Card(
-
           child: new Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
             children: <Widget>[
-
               const ListTile(
                 leading: const Icon(Icons.note),
-                title: const Text('Additional Information'),
+                title: const Text('Note title?'),
                 subtitle: const Text(
-                    'What the info is'),
+                    'Preview note contents  contents  contents  contents  contents  contents '),
               ),
-              new Divider(
-                color: Colors.blue,
-                indent: 16.0,
-              ),
-
               new ButtonTheme.bar(
                 // make buttons use the appropriate styles for cards
                 child: new ButtonBar(
@@ -365,23 +435,9 @@ class ClientNotes extends StatelessWidget {
                     ),
                   ],
                 ),
-
               ),
             ],
           ),
-
-        ),
-
-    ),
-
-      //this is messed up because the container is around the scaffold
-      decoration: new BoxDecoration(boxShadow: [
-    //new BoxShadow(color: Colors.grey, blurRadius: 8.0, spreadRadius: 6.0),
-    ]
-
-    ),
-
-    );
-
+        ));
   }
 }

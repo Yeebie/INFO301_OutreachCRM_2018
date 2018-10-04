@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
-import 'package:outreachcrm_app/viewContact.dart';
+import 'package:outreachcrm_app/ViewContact.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 ///Used to utilise REST operations
@@ -16,17 +16,18 @@ class ContactsPageApp extends StatelessWidget {
   //Datafields
   String _apiKey;
   String _domain;
+  String _username;
   List<Contact> contacts = [];
 
   //Constructor
-  ContactsPageApp(this._apiKey, this._domain);
+  ContactsPageApp(this._apiKey, this._domain, this._username);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Contacts",
-        home: _ContactsPage(_apiKey, _domain, contacts: contacts));
+        home: _ContactsPage(_apiKey, _domain, _username, contacts: contacts));
   }
 }
 
@@ -38,14 +39,19 @@ class _ContactsPage extends StatefulWidget {
   //Datafields
   String _apiKey;
   String _domain;
+  String _username;
   List<Contact> contacts;
+  List<Contact> recentContacts;
+  bool finishedSearching;
 
   //Constructor
-  _ContactsPage(this._apiKey, this._domain, {Key key, this.contacts})
+  _ContactsPage(this._apiKey, this._domain, this._username,
+      {Key key, this.contacts})
       : super(key: key);
 
   @override
-  _ContactPage createState() => new _ContactPage(_apiKey, _domain, contacts);
+  _ContactPage createState() =>
+      new _ContactPage(_apiKey, _domain, _username, contacts);
 }
 
 ///Defines the page's structure
@@ -53,9 +59,17 @@ class _ContactPage extends State<_ContactsPage> {
   //Datafields
   String _apiKey;
   String _domain;
+  String _username;
   List<Contact> _contacts;
+  List<Contact> _usernameList = [];
+  List<Contact> _recentContacts;
   ScrollController controller;
   int count;
+  bool _finishedSearching = false;
+  bool _firstRun = true;
+
+  Contact contact = new Contact();
+  String name_processed = " ";
 
   //Datafields for the app bar
   final formKey = new GlobalKey<FormState>();
@@ -71,10 +85,10 @@ class _ContactPage extends State<_ContactsPage> {
   Widget _appBarTitle = new Text('Contacts');
 
   //Constructor
-  _ContactPage(String apiKey, String domain, List<Contact> kContacts) {
-    this._apiKey = apiKey;
-    this._domain = domain;
+  _ContactPage(
+      this._apiKey, this._domain, this._username, List<Contact> kContacts) {
     this._contacts = kContacts;
+    this._recentContacts = kContacts;
   }
 
   ///The list that holds all the contacts onscreen
@@ -90,6 +104,15 @@ class _ContactPage extends State<_ContactsPage> {
     print("Checking if _contacts has any data");
     print("_contacts length: " + (_contacts.length).toString());
 
+    //Once we're finished searching I just set the contacts list
+    //to the 25 most recent contacts which were stored in a list
+    //in the first run of the application.
+    if (_finishedSearching) {
+      _contacts.clear();
+      _contacts = new List<Contact>.from(_recentContacts);
+      _finishedSearching = false;
+    }
+
     ///The list starts with no data in it, since the getContactsList() method is in this class, we have to load it here
     ///Added check to see if we are searching
     if (_contacts.length == 0 && !searching) {
@@ -102,7 +125,6 @@ class _ContactPage extends State<_ContactsPage> {
     else if (_contacts.length != 0) {
       print("_contacts has data, displaying list");
       print("Amount of Contacts from API Request: " + count.toString());
-      print("\n\n");
       return ListView.builder(
         padding: new EdgeInsets.symmetric(vertical: 8.0),
         itemBuilder: (context, index) {
@@ -111,8 +133,13 @@ class _ContactPage extends State<_ContactsPage> {
           //count tracks the size of the last API call, you get the point.
 
           //Added check to see if we are searching or not as we don't want to paginate if
-          //we are searching
-          if (index >= (_contacts.length - 1) && count != 0 && !searching) {
+          //we are searching and also if we've just exited searching we just want to use
+          //the first 25 contacts in recent contacts.
+          if (index >= (_contacts.length - 1) &&
+              count != 0 &&
+              !searching &&
+              !_finishedSearching) {
+            print("\n");
             print("Pagination get!");
             print("\n");
             getContactsList(index, _apiKey, _domain);
@@ -122,7 +149,7 @@ class _ContactPage extends State<_ContactsPage> {
               String _oid = (_contacts[index].getOid());
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (BuildContext context) =>
-                      new viewContact(_apiKey, _domain, _oid)));
+                      new ViewContactApp(_apiKey, _domain, _oid)));
             },
             child: buildRow(_contacts[index]),
           );
@@ -151,11 +178,11 @@ class _ContactPage extends State<_ContactsPage> {
           onChanged: (value) {
             if (value.length > 0) {
               searchContactsList(_apiKey, _domain, value);
-              _buildContacts();
+              //_buildContacts();
             } else {
-              _contacts.clear();
-              getContactsList(0, _apiKey, _domain);
-              _buildContacts();
+              //_contacts.clear();
+              //getContactsList(0, _apiKey, _domain);
+              //_buildContacts();
             }
           },
         );
@@ -163,9 +190,10 @@ class _ContactPage extends State<_ContactsPage> {
         this._searchIcon = new Icon(Icons.search);
         this._appBarTitle = new Text('Contacts');
         _filter.clear();
-        _contacts.clear();
-        getContactsList(0, _apiKey, _domain);
-        _buildContacts();
+        // _contacts.clear();
+        _finishedSearching = true;
+        //getContactsList(0, _apiKey, _domain);
+        //_buildContacts();
       }
     });
   }
@@ -174,14 +202,10 @@ class _ContactPage extends State<_ContactsPage> {
   Widget buildRow(Contact contact) {
     return ListTile(
       title: new Text("${contact.fullName}"),
-
       leading: new CircleAvatar(
         child: new Text(contact.fullName[0]),
-
       ),
-
     );
-
   }
 
   //Method for building a custom app bar
@@ -196,11 +220,12 @@ class _ContactPage extends State<_ContactsPage> {
         onPressed: _searchPressed,
         color: Colors.white,
       ),
+
       ///UI_Development settings cog
       actions: <Widget>[
         new IconButton(
-          ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
-          ///
+
+            ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
             icon: new Icon(Icons.settings),
             onPressed: () => _scaffoldKey.currentState.openDrawer()),
       ],
@@ -210,13 +235,11 @@ class _ContactPage extends State<_ContactsPage> {
   @override
   Widget build(BuildContext context) {
     final color = const Color(0xFF0085CA);
-
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       home: new Scaffold(
           key: _scaffoldKey,
           drawer: _drawer(),
-
           resizeToAvoidBottomPadding: false,
           appBar: _buildBar(context),
           body: _buildContacts()),
@@ -224,65 +247,49 @@ class _ContactPage extends State<_ContactsPage> {
   }
 
   ///Settings menu
-  /// Drawer but will persist appbar but will go over the entire page. Maybe need later.
- /* Widget _drawer(){
-    return Scaffold(
-      primary: true,
-      appBar: AppBar(
-        title: Text("Parent Scaffold"),
-        automaticallyImplyLeading: false,
-      ),
-      body: Scaffold(
-        drawer: Drawer(
-
-
-);
+  Widget _drawer() {
+    ///Fills name_processed if its empty, this statements just been slapped in here, position doesn't matter
+    if (name_processed == " ") {
+      getUsername(_username, _apiKey, _domain);
+    }
+    return Drawer(
+        child: new ListView(
+      children: <Widget>[
+        new UserAccountsDrawerHeader(
+          //////// API Request to display users name and email maybe?//////////
+          accountName: new Text(name_processed),
+          accountEmail: new Text(_username),
+          currentAccountPicture: new CircleAvatar(
+            backgroundColor: Colors.white,
+            child: new Text(name_processed.substring(0, 1)),
+          ),
+        ),
+        new ListTile(
+          title: new Text("Switch Account"), //// If it gets implemented later
+          trailing: new Icon(Icons.arrow_right),
+        ),
+        new ListTile(
+          title: new Text("Contact Us"),
+          trailing: new Icon(Icons.arrow_right),
+          onTap: _launchURL,
+        ),
+        new ListTile(
+          title: new Text("Logout"),
+          trailing: new Icon(Icons.close),
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        TextField(
+          textAlign: TextAlign.center,
+          decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Copyright Outreach CRM 2018 © '),
+        ),
+      ],
+    ));
   }
-*/
 
- Widget _drawer(){
-
-   return Drawer(
-     child: new ListView(
-       children: <Widget>[
-         new UserAccountsDrawerHeader( //////// API Request to display users name and email maybe?//////////
-           accountName: new Text("Callum Crawford"),
-           accountEmail: new Text("Otago@Email.com"),
-           currentAccountPicture: new CircleAvatar(
-             backgroundColor: Colors.white,
-             child: new Text ("C"),
-           ),
-
-         ),
-         new ListTile(
-           title:new Text("Switch Account"), //// If it gets implemented later
-           trailing: new Icon(Icons.arrow_right),
-         ),
-         new ListTile(
-           title:new Text("Contact Us"),
-           trailing: new Icon(Icons.arrow_right),
-           onTap: _launchURL,
-         ),
-         new ListTile(
-           title:new Text("Logout"),
-           trailing: new Icon(Icons.close),
-           onTap: () =>Navigator.of(context).pop(),
-         ),
-   TextField(
-   textAlign: TextAlign.center,
-   decoration: InputDecoration(
-   border: InputBorder.none,
-
-   hintText: 'Copyright Outreach CRM 2018 © '
-   ),
-   ),
-       ],
-     )
-   );
-
- }
-
-  _launchURL() async {   //Launches to Outreach contact page
+  _launchURL() async {
+    //Launches to Outreach contact page
     const url = 'https://www.outreachcrm.co.nz/#comp-jjp7272e';
     if (await canLaunch(url)) {
       await launch(url);
@@ -290,115 +297,6 @@ class _ContactPage extends State<_ContactsPage> {
       throw 'Could not launch $url';
     }
   }
-
-/*
-  Widget _drawer() {
-
-
-    return Drawer(
-
-      child: ListView(
-
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          Container(
-            height: 100.0,
-            child: DrawerHeader(
-              child: Text('Setting'),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 80.0, 20.0, 5.0),
-            child: Material(
-              borderRadius: BorderRadius.horizontal(),
-              //  shadowColor: Colors.lightBlueAccent.shade100,
-              elevation: 5.0,
-              //  color: color,
-              child: MaterialButton(
-                minWidth: 320.0,
-                height: 42.00,
-                onPressed: () {
-                  /// Will just show name. Not sure how to link
-                },
-                child: Text('Users Name',
-                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 40.0),
-            child: Material(
-              borderRadius: BorderRadius.circular(30.0),
-              //  shadowColor: Colors.lightBlueAccent.shade100,
-              elevation: 5.0,
-              //   color: color,
-              child: MaterialButton(
-                minWidth: 320.0,
-                height: 42.00,
-                onPressed: () {
-                  /// Navigate to Switch Account
-                },
-                child: Text('Switch Account',
-                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 40.0),
-            child: Material(
-              borderRadius: BorderRadius.circular(30.0),
-              // shadowColor: Colors.lightBlueAccent.shade100,
-              elevation: 5.0,
-              //  color: color,
-              child: MaterialButton(
-                minWidth: 320.0,
-                height: 42.00,
-                onPressed: () {
-                  /// Route to Outreach website to change password
-                },
-                child: Text('Contact Us',
-                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
-            child: Material(
-              borderRadius: BorderRadius.circular(30.0),
-              // shadowColor: Colors.lightBlueAccent.shade100,
-              elevation: 5.0,
-              // color: color,
-              child: MaterialButton(
-                minWidth: 320.0,
-                height: 42.00,
-                onPressed: () {
-                  /// Logout of app
-                },
-                child: Text('Logout',
-                    style: TextStyle(fontSize: 17.0, color: Colors.black)),
-              ),
-            ),
-          ),
-    TextField(
-      textAlign: TextAlign.center,
-    decoration: InputDecoration(
-    border: InputBorder.none,
-
-    hintText: 'Copyright Outreach CRM 2018 © '
-    ),
-    )
-
-        ],
-
-      ),
-
-
-
-    );
-  }*/
-
-
 
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactsList(
@@ -460,6 +358,14 @@ class _ContactPage extends State<_ContactsPage> {
         contact.setOid(data.getOid());
         contact.setCompany(data.getCompany());
         contactsList.add(contact);
+      }
+
+      //On the first run of the application only get the first 25
+      //contacts and store them in the recentContacts list for later
+      //use. No need to call the API again and fixes double list issue.
+      if (_firstRun) {
+        _recentContacts = new List<Contact>.from(contactsList);
+        _firstRun = false;
       }
 
       count = contactsList.length;
@@ -534,6 +440,47 @@ class _ContactPage extends State<_ContactsPage> {
       _contacts.clear();
       _contacts.addAll(contactsList);
       setState(() {});
+    });
+  }
+
+  ///Loading the Contacts List into a Collection
+  Future<Contact> getUsername(
+      String _username, String _apiKey, String _domain) async {
+    ///Specify the API Query here, type it according to the API Specification, the app'll convert it to encoded HTML
+    String apikey = "?apikey=" + _apiKey;
+    String properties = "&properties=" + "['name_processed']";
+    String conditions = "&conditions=" + "[['login','=','" + _username + "']]";
+
+    ///Specifying the URL we'll make to call the API
+    String _requestUsername = "https://" +
+        _domain +
+        ".outreach.co.nz/api/0.2/query/user" +
+        (apikey + properties + conditions);
+
+    ///Encoding the String so its HTML safe
+    _requestUsername = _requestUsername.replaceAll("[", "%5B");
+    _requestUsername = _requestUsername.replaceAll("]", "%5D");
+    _requestUsername = _requestUsername.replaceAll("'", "%27");
+    _requestUsername = _requestUsername.replaceAll(">", "%3E");
+
+    ///Send an API request, load all of the json into a map
+    http.post(_requestUsername).then((response) {
+      //Print the API Key, just so we can compare it to the subset String
+      List<Contact> usernameList = new List();
+      //Turning the json into a map
+      final usernameMap = json.decode(response.body);
+      ContactListJson usernameJson = new ContactListJson.fromJson(usernameMap);
+      print("\n\n");
+
+      ///Creates a new contact filled with data, adds it to List<Contact>
+      for (ContactListData data in usernameJson.data) {
+        contact.setFullName(data.getNameProcessed());
+        usernameList.add(contact);
+      }
+      name_processed = contact.getFullName();
+
+      ///Add the new contacts to the current List, refresh list
+      _usernameList.addAll(usernameList);
     });
   }
 }
