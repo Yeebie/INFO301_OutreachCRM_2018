@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:outreachcrm_app/LoginPage.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
+import 'dart:io';
 import 'package:outreachcrm_app/ViewContact.dart';
+import 'package:outreachcrm_app/util.dart';
+import 'package:outreachcrm_app/LoginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
@@ -10,11 +15,18 @@ import 'package:http/http.dart' as http;
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:outreachcrm_app/util.dart';
 import 'package:url_launcher/url_launcher.dart'; //Converts Json into Map
 
+void clearLoginDetails() {
+  print("-------------------------");
+  print("CLEARING DETAILS IN CACHE");
+  print("-------------------------");
+  Util.removeCacheItem('domain');
+  Util.removeCacheItem('username');
+  Util.removeCacheItem('password');
+}
 ///StatelessWidget call
 class ContactsPageApp extends StatelessWidget {
   //Datafields
@@ -27,13 +39,18 @@ class ContactsPageApp extends StatelessWidget {
   ContactsPageApp(this._apiKey, this._domain, this._username);
 
   //wipes cache of user details, prevents future autologins
-  void clearLoginDetails() {
-    print("-------------------------");
-    print("CLEARING DETAILS IN CACHE");
-    print("-------------------------");
-    Util.removeCacheItem('domain');
-    Util.removeCacheItem('username');
-    Util.removeCacheItem('password');
+  void deleteAPIKey() {
+    //Purge ourselves of that pesky APIKey
+    String apikey = "?apikey=" + _apiKey;
+    String _requestAPIKeyRemoval = "https://" +
+        _domain +
+        ".outreach.co.nz/api/0.2/auth/logout/" +
+        apikey;
+
+    http.post(_requestAPIKeyRemoval).then((response) {
+      //Print the API Key, just so we can compare it to the final result
+      print("API Key Delete Check: ${response.body}");
+    });
   }
 
   @override
@@ -55,13 +72,14 @@ class ContactsPageApp extends StatelessWidget {
                   clearLoginDetails();
                   exit(0);
                   ///This might solve our problems
-                  ///We can do something like a popUntil or a
 //                  Navigator.removeRoute(context, route);
-//                  Navigator.pop(
-//                  context,
-//                  MaterialPageRoute(builder: (context) => LoginPage
-//                  (loginFields:LoginFields()))
-//                  );
+                  ///
+                  Navigator.pushReplacement(
+
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage
+                    (loginFields:LoginFields()))
+                  );
                 }
               )
             ],
@@ -75,20 +93,6 @@ class ContactsPageApp extends StatelessWidget {
         title: "Contacts",
         home: _ContactsPage(_apiKey, _domain, _username, contacts: contacts))
     );
-  }
-
-  void deleteAPIKey() {
-    //Purge ourselves of that pesky APIKey
-    String apikey = "?apikey=" + _apiKey;
-    String _requestAPIKeyRemoval = "https://" +
-        _domain +
-        ".outreach.co.nz/api/0.2/auth/logout/" +
-        apikey;
-
-    http.post(_requestAPIKeyRemoval).then((response) {
-      //Print the API Key, just so we can compare it to the final result
-      print("API Key Delete Check: ${response.body}");
-    });
   }
 }
 
@@ -295,7 +299,6 @@ class _ContactPage extends State<_ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final color = const Color(0xFF0085CA);
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -310,6 +313,19 @@ class _ContactPage extends State<_ContactsPage> {
 
   ///Settings menu
   Widget _drawer() {
+    void deleteAPIKey() {
+      //Purge ourselves of that pesky APIKey
+      String apikey = "?apikey=" + _apiKey;
+      String _requestAPIKeyRemoval = "https://" +
+          _domain +
+          ".outreach.co.nz/api/0.2/auth/logout/" +
+          apikey;
+
+      http.post(_requestAPIKeyRemoval).then((response) {
+        //Print the API Key, just so we can compare it to the final result
+        print("API Key Delete Check: ${response.body}");
+      });
+    }
     ///Fills name_processed if its empty, this statements just been slapped in here, position doesn't matter
     if (name_processed == " ") {
       getUsername(_username, _apiKey, _domain);
@@ -338,13 +354,34 @@ class _ContactPage extends State<_ContactsPage> {
         new ListTile(
           title: new Text("Logout"),
           trailing: new Icon(Icons.close),
-          onTap: (
-    ),
-
-
-
-
+          onTap: () => showDialog(context: context,
+          builder: (context)=> AlertDialog(
+            title: Text("Do you want to log out?"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("No"),
+                onPressed: ()=> Navigator.pop(context, false)
+              ),
+              FlatButton(
+                child: Text("Yes"),
+                onPressed:(){
+                  deleteAPIKey();
+                  clearLoginDetails();
+                  exit(0);
+                  // F
+                  // Navigator.removeRoute(context, route);
+                  //
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage
+                        (loginFields:LoginFields()))
+                  );
+                },
+              )
+            ],
+          ))
         ),
+
         TextField(
           textAlign: TextAlign.center,
           decoration: InputDecoration(
