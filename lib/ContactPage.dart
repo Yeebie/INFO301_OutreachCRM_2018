@@ -21,6 +21,7 @@ void clearLoginDetails() {
   Util.removeCacheItem('username');
   Util.removeCacheItem('password');
 }
+
 ///StatelessWidget call
 class ContactsPageApp extends StatelessWidget {
   //Datafields
@@ -36,10 +37,8 @@ class ContactsPageApp extends StatelessWidget {
   void deleteAPIKey() {
     //Purge ourselves of that pesky APIKey
     String apikey = "?apikey=" + _apiKey;
-    String _requestAPIKeyRemoval = "https://" +
-        _domain +
-        ".outreach.co.nz/api/0.2/auth/logout/" +
-        apikey;
+    String _requestAPIKeyRemoval =
+        "https://" + _domain + ".outreach.co.nz/api/0.2/auth/logout/" + apikey;
 
     http.post(_requestAPIKeyRemoval).then((response) {
       //Print the API Key, just so we can compare it to the final result
@@ -50,35 +49,35 @@ class ContactsPageApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //Shows dialogue for the back button on Androids
-    Future<bool>_onBackPressed(){
-      return showDialog(context: context,
-          builder: (context)=> AlertDialog(
-            title: Text(
-                "Are you sure you want to log out of your account and close the application?"),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("No"),
-                onPressed: ()=> Navigator.pop(context, false),
-              ),
-              FlatButton(
-                child: Text("Yes"),
-                onPressed: (){
-                  deleteAPIKey();
-                  clearLoginDetails();
-                  exit(0);
-                }
-              )
-            ],
-          )
-      );
+    Future<bool> _onBackPressed() {
+      return showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: Text(
+                    "Are you sure you want to log out of your account and close the application?"),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text("No"),
+                    onPressed: () => Navigator.pop(context, false),
+                  ),
+                  FlatButton(
+                      child: Text("Yes"),
+                      onPressed: () {
+                        deleteAPIKey();
+                        clearLoginDetails();
+                        exit(0);
+                      })
+                ],
+              ));
     }
+
     return WillPopScope(
         onWillPop: _onBackPressed,
         child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: "Contacts",
-        home: _ContactsPage(_apiKey, _domain, _username, contacts: contacts))
-    );
+            debugShowCheckedModeBanner: false,
+            title: "Contacts",
+            home: _ContactsPage(_apiKey, _domain, _username,
+                contacts: contacts)));
   }
 }
 
@@ -118,6 +117,12 @@ class _ContactPage extends State<_ContactsPage> {
   int count;
   bool _finishedSearching = false;
   bool _firstRun = true;
+
+  RegExp searchPattern = new RegExp(
+    r"^[a-zA-Z0-9 ]*$",
+    caseSensitive: false,
+    multiLine: false,
+  );
 
   Contact contact = new Contact();
   String name_processed = " ";
@@ -227,14 +232,9 @@ class _ContactPage extends State<_ContactsPage> {
               hintStyle: new TextStyle(color: Colors.white),
               labelStyle: new TextStyle(color: Colors.white)),
           onChanged: (value) {
-            if (value.length > 0) {
+           if (value.length > 0 && searchPattern.hasMatch(value) && value.length < 30) {
               searchContactsList(_apiKey, _domain, value);
-              //_buildContacts();
-            } else {
-              //_contacts.clear();
-              //getContactsList(0, _apiKey, _domain);
-              //_buildContacts();
-            }
+            } 
           },
         );
       } else {
@@ -276,7 +276,7 @@ class _ContactPage extends State<_ContactsPage> {
       actions: <Widget>[
         new IconButton(
 
-          ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
+            ///UI_Development had "icon: new IconButton(icon: new Icon(Icons.settings),". What did this do?
             icon: new Icon(Icons.settings),
             onPressed: () => _scaffoldKey.currentState.openDrawer()),
       ],
@@ -312,6 +312,7 @@ class _ContactPage extends State<_ContactsPage> {
         print("API Key Delete Check: ${response.body}");
       });
     }
+
     ///Fills name_processed if its empty, this statements just been slapped in here, position doesn't matter
     if (name_processed == " ") {
       getUsername(_username, _apiKey, _domain);
@@ -338,29 +339,27 @@ class _ContactPage extends State<_ContactsPage> {
           onTap: _launchURL,
         ),
         new ListTile(
-          title: new Text("Logout"),
-          trailing: new Icon(Icons.close),
-          onTap: () => showDialog(context: context,
-          builder: (context)=> AlertDialog(
-            title: Text(
-                "Are you sure you want to log out of your account and close the application?"),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("No"),
-                onPressed: ()=> Navigator.pop(context, false)
-              ),
-              FlatButton(
-                child: Text("Yes"),
-                onPressed:(){
-                  deleteAPIKey();
-                  clearLoginDetails();
-                  exit(0);
-                },
-              )
-            ],
-          ))
-        ),
-
+            title: new Text("Logout"),
+            trailing: new Icon(Icons.close),
+            onTap: () => showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                      title: Text(
+                          "Are you sure you want to log out of your account and close the application?"),
+                      actions: <Widget>[
+                        FlatButton(
+                            child: Text("No"),
+                            onPressed: () => Navigator.pop(context, false)),
+                        FlatButton(
+                          child: Text("Yes"),
+                          onPressed: () {
+                            deleteAPIKey();
+                            clearLoginDetails();
+                            exit(0);
+                          },
+                        )
+                      ],
+                    ))),
         TextField(
           textAlign: TextAlign.center,
           decoration: InputDecoration(
@@ -379,6 +378,21 @@ class _ContactPage extends State<_ContactsPage> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  void showDialogParent(String title, String content) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(title),
+              content: new Text(content),
+              actions: [
+                new FlatButton(
+                  child: const Text("Ok"),
+                  onPressed: () => exit(0),
+                ),
+              ],
+            ));
   }
 
   ///Loading the Contacts List into a Collection
@@ -415,6 +429,8 @@ class _ContactPage extends State<_ContactsPage> {
         ".outreach.co.nz/api/0.2/query/user" +
         (apikey + properties + conditions + order + limit);
 
+    var wifiEnabled = await Util.getWifiStatus();
+
     ///Encoding the String so its HTML safe
     _requestContactList = _requestContactList.replaceAll("[", "%5B");
     _requestContactList = _requestContactList.replaceAll("]", "%5D");
@@ -422,50 +438,55 @@ class _ContactPage extends State<_ContactsPage> {
     _requestContactList = _requestContactList.replaceAll(">", "%3E");
     print('Get Contact List URL: ' + _requestContactList);
 
-    ///Send an API request, load all of the json into a map
-    http.post(_requestContactList).then((response) {
-      //Print the API Key, just so we can compare it to the subset String
-      print("Contact List Response:");
-      print(response.body);
-      List<Contact> contactsList = new List();
-      //Turning the json into a map
-      final contactListMap = json.decode(response.body);
-      ContactListJson contactListJson =
-          new ContactListJson.fromJson(contactListMap);
-      print("\n");
+    if (wifiEnabled) {
+      ///Send an API request, load all of the json into a map
+      http.post(_requestContactList).then((response) {
+        //Print the API Key, just so we can compare it to the subset String
+        print("Contact List Response:");
+        print(response.body);
+        List<Contact> contactsList = new List();
+        //Turning the json into a map
+        final contactListMap = json.decode(response.body);
+        ContactListJson contactListJson =
+            new ContactListJson.fromJson(contactListMap);
+        print("\n");
 
-      ///Creates a new contact filled with data, adds it to List<Contact>
-      for (ContactListData data in contactListJson.data) {
-        Contact contact = new Contact();
-        contact.setFullName(data.getNameProcessed());
-        contact.setOid(data.getOid());
-        contact.setCompany(data.getCompany());
-        contactsList.add(contact);
-      }
+        ///Creates a new contact filled with data, adds it to List<Contact>
+        for (ContactListData data in contactListJson.data) {
+          Contact contact = new Contact();
+          contact.setFullName(data.getNameProcessed());
+          contact.setOid(data.getOid());
+          contact.setCompany(data.getCompany());
+          contactsList.add(contact);
+        }
 
-      //On the first run of the application only get the first 25
-      //contacts and store them in the recentContacts list for later
-      //use. No need to call the API again and fixes double list issue.
-      if (_firstRun) {
-        _recentContacts = new List<Contact>.from(contactsList);
-        _firstRun = false;
-      }
+        //On the first run of the application only get the first 25
+        //contacts and store them in the recentContacts list for later
+        //use. No need to call the API again and fixes double list issue.
+        if (_firstRun) {
+          _recentContacts = new List<Contact>.from(contactsList);
+          _firstRun = false;
+        }
 
-      count = contactsList.length;
+        count = contactsList.length;
 
-      ///Printing the contactList, sanity check
-      print("Printing contactsList");
-      int i = 0;
-      while (i < contactsList.length) {
-        print(contactsList[i].getFullName());
-        i++;
-      }
-      print("\n");
+        ///Printing the contactList, sanity check
+        print("Printing contactsList");
+        int i = 0;
+        while (i < contactsList.length) {
+          print(contactsList[i].getFullName());
+          i++;
+        }
+        print("\n");
 
-      ///Add the new contacts to the current List, refresh list
-      _contacts.addAll(contactsList);
-      setState(() {});
-    });
+        ///Add the new contacts to the current List, refresh list
+        _contacts.addAll(contactsList);
+        setState(() {});
+      });
+    } else {
+      showDialogParent("No Internet Connection",
+          "Please connect to the internet to use this application.");
+    }
   }
 
   ///This function will search the users contacts list based
@@ -499,31 +520,38 @@ class _ContactPage extends State<_ContactsPage> {
     _requestContactList = _requestContactList.replaceAll(">", "%3E");
     print('Get Contact List URL: ' + _requestContactList);
 
-    ///Send an API request, load all of the json into a map
-    http.post(_requestContactList).then((response) {
-      //Print the API Key, just so we can compare it to the subset String
-      print("Contact List Response:");
-      print(response.body);
-      List<Contact> contactsList = new List();
-      //Turning the json into a map
-      final contactListMap = json.decode(response.body);
-      ContactListJson contactListJson =
-          new ContactListJson.fromJson(contactListMap);
-      print("\n");
+    var wifiEnabled = await Util.getWifiStatus();
 
-      ///Creates a new contact filled with data, adds it to List<Contact>
-      for (ContactListData data in contactListJson.data) {
-        Contact contact = new Contact();
-        contact.setFullName(data.getNameProcessed());
-        contact.setOid(data.getOid());
-        contact.setCompany(data.getCompany());
-        contactsList.add(contact);
-      }
+    if (wifiEnabled) {
+      ///Send an API request, load all of the json into a map
+      http.post(_requestContactList).then((response) {
+        //Print the API Key, just so we can compare it to the subset String
+        print("Contact List Response:");
+        print(response.body);
+        List<Contact> contactsList = new List();
+        //Turning the json into a map
+        final contactListMap = json.decode(response.body);
+        ContactListJson contactListJson =
+            new ContactListJson.fromJson(contactListMap);
+        print("\n");
 
-      _contacts.clear();
-      _contacts.addAll(contactsList);
-      setState(() {});
-    });
+        ///Creates a new contact filled with data, adds it to List<Contact>
+        for (ContactListData data in contactListJson.data) {
+          Contact contact = new Contact();
+          contact.setFullName(data.getNameProcessed());
+          contact.setOid(data.getOid());
+          contact.setCompany(data.getCompany());
+          contactsList.add(contact);
+        }
+
+        _contacts.clear();
+        _contacts.addAll(contactsList);
+        setState(() {});
+      });
+    } else {
+      showDialogParent("No Internet Connection",
+          "Please connect to the internet to use this application.");
+    }
   }
 
   ///Loading the Contacts List into a Collection

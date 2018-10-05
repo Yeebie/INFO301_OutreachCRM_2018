@@ -1,6 +1,6 @@
-# OutReach
+# Outreach
 
-A reactive mobile app that enables OutReach clients to view their contacts
+A reactive mobile app that enables Outreach clients to view their contacts
 on the go.
 
 ## Getting Started

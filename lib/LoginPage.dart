@@ -51,8 +51,6 @@ class ContactListFields {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-
-
   // data fields
 //  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final LoginFields loginFields;
@@ -95,7 +93,7 @@ class _LoginPageState extends State<LoginPage>
     });
 
     // call this to clear cache
-    _clearLoginDetails();
+   // _clearLoginDetails();
   }
 
   bool _wifiEnabled = true;
@@ -138,25 +136,18 @@ class _LoginPageState extends State<LoginPage>
     return null;
   }
 
-  void _checkWifi() async {
-    try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print('connected');
-        _wifiEnabled = true;
-      }
-    } on SocketException catch (_) {
-      print('not connected');
-      _wifiEnabled = false;
-    }
-  }
-
   void showDialogParent(String title, String content) {
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
               title: new Text(title),
               content: new Text(content),
+              actions: [
+                new FlatButton(
+                  child: const Text("Ok"),
+                  onPressed: () => exit(0),
+                ),
+              ],
             ));
   }
 
@@ -171,14 +162,13 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
-  void _login() {
-    _checkWifi();
+  void _login() async {
+    var wifiEnabled = await Util.getWifiStatus();
 
     try {
-      if (_wifiEnabled) {
+      if (wifiEnabled) {
         if ((_loginFormKey.currentState.validate()) ||
             (_demoMode && !_loginFormKey.currentState.validate())) {
-
           _loginFormKey.currentState.save();
 
           // dismiss keyboard
@@ -195,6 +185,9 @@ class _LoginPageState extends State<LoginPage>
             _inAsyncCall = false;
           });
         }
+      } else {
+        showDialogParent("No Internet Connection",
+            "Please connect to the internet to use this application.");
       }
     } catch (e) {
       showDialogParent("Error", "Couldn't login");
@@ -236,55 +229,59 @@ class _LoginPageState extends State<LoginPage>
   Future _checkLoggedIn() async {
     // instantiate shared preferences (cache)
     SharedPreferences prefs = await _sPrefs;
+    var wifiEnabled = await Util.getWifiStatus();
 
     // attempt to read in cache values, return null if not found
     String _cachedDomain = (prefs.getString('domain') ?? null);
     String _cachedUsername = (prefs.getString('username') ?? null);
     String _cachedPassword = (prefs.getString('password') ?? null);
 
-    // check if the login details are in cache
-    if (_cachedDomain != null &&
-        _cachedUsername != null &&
-        _cachedPassword != null) {
-      print("Login Cache Check");
-      print("Previous Login Details Found");
-      print("\n\n");
-      loginFields._domain = _cachedDomain;
-      loginFields._username = _cachedUsername;
-      loginFields._password = _cachedPassword;
+    if (wifiEnabled) {
+      // check if the login details are in cache
+      if (_cachedDomain != null &&
+          _cachedUsername != null &&
+          _cachedPassword != null) {
+        print("Login Cache Check");
+        print("Previous Login Details Found");
+        print("\n\n");
+        loginFields._domain = _cachedDomain;
+        loginFields._username = _cachedUsername;
+        loginFields._password = _cachedPassword;
 
-      // attempt the login
-      // if we are not currently trying to login
-      if (_cacheLoginSuccess == false) {
-        // attempt to get API key
-        _getAPIKeyRetrieval();
-        _cacheLoginSuccess = true;
+        // attempt the login
+        // if we are not currently trying to login
+        if (_cacheLoginSuccess == false) {
+          // attempt to get API key
+          _getAPIKeyRetrieval();
+          _cacheLoginSuccess = true;
+        }
+      } else {
+        // else you found nothing, redirect to login
+
+        print("Login Cache Check");
+        print("No Login Details Found");
+        print("\n\n");
+
+        // push to domain page
+        // pass all the details the login form needs too
+        Navigator.push(
+            context,
+            new MaterialPageRoute(
+                builder: (context) => new DomainForm(
+                      domainFormKey: _domainFormKey,
+                      loginFormKey: _loginFormKey,
+                      login: _login,
+                      forgotPassword: _forgotPassword,
+                      loginFields: loginFields,
+                      validateUserName: _validateUserName,
+                      validatePassword: _validatePassword,
+                    )));
       }
-    } else { // else you found nothing, redirect to login
-
-      print("Login Cache Check");
-      print("No Login Details Found");
-      print("\n\n");
-
-      // push to domain page
-      // pass all the details the login form needs too
-      Navigator.push(
-          context,
-          new MaterialPageRoute(
-              builder: (context) => new DomainForm(
-                domainFormKey: _domainFormKey,
-                loginFormKey: _loginFormKey,
-                login: _login,
-                forgotPassword: _forgotPassword,
-                loginFields: loginFields,
-                validateUserName: _validateUserName,
-                validatePassword: _validatePassword,
-              )
-          )
-      );
+    } else {
+      showDialogParent("No Internet Connection",
+          "Please connect to the internet to use this application.");
     }
   }
-
 
   ///***************************************************************************
   ///                  A P I   K E Y   R E T R I E V A L
@@ -316,7 +313,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyRetrievalMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyRetrievalData data =
-      new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
+          new APIKeyRetrievalData.fromJson(apiKeyRetrievalMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyFields._apiKey = data.getAPIKey();
       _apiKeyFields._expiry = data.getExpiry();
@@ -369,7 +366,7 @@ class _LoginPageState extends State<LoginPage>
       Map apiKeyVerificationMap = json.decode(response.body);
       //Getting the data from ['data'], which happens to be our array
       APIKeyValidationData data =
-      new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
+          new APIKeyValidationData.fromJson(apiKeyVerificationMap['data']);
       //Applying the data from the json to the instance of the Data class
       _apiKeyValidationFields._verify = data.getVerify();
       _apiKeyValidationFields._expiry = data.getExpiry();
@@ -395,8 +392,11 @@ class _LoginPageState extends State<LoginPage>
         print("API Key Matches Format");
         print("\n\n");
 
-        _getContactPage();
+         /// Set the login cache with the validated fields
+       _setLoginDetails(loginFields._domain, loginFields._username,
+            loginFields._password);
 
+        _getContactPage();
       } else {
         showDialogParent("Incorrect API Key.", "API Key isn't valid.");
         _loginSuccess = false;
@@ -421,10 +421,8 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     // this is the splash screen
     return new ModalProgressHUD(
       child: Container(
@@ -440,11 +438,9 @@ class _LoginPageState extends State<LoginPage>
   }
 }
 
-
 ///***************************************************************************
 ///                   D O M A I N  P A G E  B U I L D
 ///***************************************************************************
-
 
 class DomainForm extends StatefulWidget {
   // fields required for domain form
@@ -490,6 +486,12 @@ class DomainFormState extends State<DomainForm> {
   final Function login;
   final Function forgotPassword;
   final TextEditingController domainController = new TextEditingController();
+
+  RegExp domainPattern = new RegExp(
+    r"^[a-zA-Z0-9]*$",
+    caseSensitive: false,
+    multiLine: false,
+  );
 
   DomainFormState({
     @required this.domainFormKey,
@@ -546,9 +548,9 @@ class DomainFormState extends State<DomainForm> {
                         'assets/images/OutreachCRM_vert_logo.png',
                         width: 200.0,
                         height: 200.0,
-                      )
-                  ),
-                  new Theme( // this colors the underline
+                      )),
+                  new Theme(
+                    // this colors the underline
                     data: theme.copyWith(
                       primaryColor: Colors.white,
                       hintColor: Colors.white,
@@ -562,11 +564,8 @@ class DomainFormState extends State<DomainForm> {
                           decoration: InputDecoration(
                               fillColor: Colors.black.withOpacity(0.6),
                               filled: true,
-
                               border: new OutlineInputBorder(
-
                                 borderRadius: const BorderRadius.all(
-
                                   const Radius.circular(8.0),
                                 ),
                                 borderSide: new BorderSide(
@@ -574,16 +573,16 @@ class DomainFormState extends State<DomainForm> {
                                   width: 1.0,
                                 ),
                               ),
-
                               labelText: 'Company Domain',
                               labelStyle: new TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0)),
-                          style: TextStyle(
-                              fontSize: 20.0, color: Colors.white),
+                                  color: Colors.white, fontSize: 16.0)),
+                          style: TextStyle(fontSize: 20.0, color: Colors.white),
                           validator: (val) {
-                            if(val.isEmpty){
+                            if (val.isEmpty) {
                               return 'Please enter some text';
+                            }
+                            else if(!domainPattern.hasMatch(val)) {
+                              return 'Only enter alphanumeric characters';
                             }
                           },
                           onSaved: (val) => this.loginFields._domain = val),
@@ -625,26 +624,23 @@ class DomainFormState extends State<DomainForm> {
                         minWidth: 320.0,
                         height: 42.00,
                         onPressed: () {
-                          if(domainFormKey.currentState.validate()) {
+                          if (domainFormKey.currentState.validate()) {
                             Navigator.push(
                                 context,
                                 new MaterialPageRoute(
-                                    builder: (context) =>
-                                    new LoginForm(
-                                      loginFormKey: loginFormKey,
-                                      login: login,
-                                      forgotPassword: forgotPassword,
-                                      loginFields: loginFields,
-                                      validateUserName: validateUserName,
-                                      validatePassword: validatePassword,
-                                    )
-                                )
-                            );
+                                    builder: (context) => new LoginForm(
+                                          loginFormKey: loginFormKey,
+                                          login: login,
+                                          forgotPassword: forgotPassword,
+                                          loginFields: loginFields,
+                                          validateUserName: validateUserName,
+                                          validatePassword: validatePassword,
+                                        )));
                           }
                         },
                         child: Text('NEXT',
-                            style: TextStyle(
-                                fontSize: 17.0, color: Colors.white)),
+                            style:
+                                TextStyle(fontSize: 17.0, color: Colors.white)),
                       ),
                     ),
                   ),
@@ -663,11 +659,9 @@ class DomainFormState extends State<DomainForm> {
   }
 }
 
-
 ///***************************************************************************
 ///                   L O G I N   P A G E   B U I L D
 ///***************************************************************************
-
 
 class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> loginFormKey;
@@ -699,9 +693,6 @@ class LoginForm extends StatefulWidget {
   }
 }
 
-
-
-
 class LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> loginFormKey;
   final LoginFields loginFields;
@@ -731,7 +722,7 @@ class LoginFormState extends State<LoginForm> {
     //Build the form and attach to the scaffold
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      body:  new ModalProgressHUD(
+      body: new ModalProgressHUD(
         child: new Container(
           decoration: new BoxDecoration(
             image: new DecorationImage(
@@ -749,9 +740,9 @@ class LoginFormState extends State<LoginForm> {
                       'assets/images/OutreachCRM_vert_logo.png',
                       width: 200.0,
                       height: 200.0,
-                    )
-                ),
-                new Theme( // this colors the underline
+                    )),
+                new Theme(
+                  // this colors the underline
                   data: theme.copyWith(
                     primaryColor: Colors.white,
                     hintColor: Colors.transparent,
@@ -765,11 +756,8 @@ class LoginFormState extends State<LoginForm> {
                         decoration: InputDecoration(
                             fillColor: Colors.black.withOpacity(0.6),
                             filled: true,
-
                             border: new OutlineInputBorder(
-
                               borderRadius: const BorderRadius.all(
-
                                 const Radius.circular(8.0),
                               ),
                               borderSide: new BorderSide(
@@ -777,11 +765,9 @@ class LoginFormState extends State<LoginForm> {
                                 width: 1.0,
                               ),
                             ),
-
                             labelText: 'Username',
                             labelStyle: new TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0)),
+                                color: Colors.white, fontSize: 16.0)),
                         style: TextStyle(fontSize: 20.0, color: Colors.white),
                         validator: validateUserName,
                         onSaved: (val) => this.loginFields._username = val),
@@ -805,11 +791,8 @@ class LoginFormState extends State<LoginForm> {
                       decoration: InputDecoration(
                           fillColor: Colors.black.withOpacity(0.6),
                           filled: true,
-
                           border: new OutlineInputBorder(
-
                             borderRadius: const BorderRadius.all(
-
                               const Radius.circular(8.0),
                             ),
                             borderSide: new BorderSide(
@@ -817,11 +800,9 @@ class LoginFormState extends State<LoginForm> {
                               width: 1.0,
                             ),
                           ),
-
                           labelText: 'Password',
                           labelStyle: new TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0)),
+                              color: Colors.white, fontSize: 16.0)),
                       style: TextStyle(fontSize: 20.0, color: Colors.white),
                       validator: validatePassword,
                       onSaved: (val) => this.loginFields._password = val,
@@ -834,17 +815,13 @@ class LoginFormState extends State<LoginForm> {
                     borderRadius: BorderRadius.circular(30.0),
                     shadowColor: Colors.lightBlueAccent.shade100,
                     elevation: 5.0,
-                    color: _loginSuccess
-                        ? Colors.grey
-                        :color,
+                    color: _loginSuccess ? Colors.grey : color,
                     child: MaterialButton(
                       minWidth: 320.0,
                       height: 42.00,
                       onPressed: () {
                         setState(() {
-                          _loginSuccess
-                              ? print("login disabled")
-                              : login();
+                          _loginSuccess ? print("login disabled") : login();
                         });
 
                         Future.delayed(Duration(seconds: 4), () {
@@ -852,7 +829,8 @@ class LoginFormState extends State<LoginForm> {
                         });
                       },
                       child: Text('LOGIN',
-                          style: TextStyle(fontSize: 17.0, color: Colors.white)),
+                          style:
+                              TextStyle(fontSize: 17.0, color: Colors.white)),
                     ),
                   ),
                 ),

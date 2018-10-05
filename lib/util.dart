@@ -1,12 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Util {
   /// data fields
   static Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
-
-
 
   ///***************************************************************************
   ///                     C A C H E   M E T H O D S
@@ -25,12 +24,24 @@ class Util {
     return prefs.getString(key) ?? "";
   }
 
-
   /// method used to clear a single value from cache
   static Future<Null> removeCacheItem(String key) async {
     final SharedPreferences prefs = await _sPrefs;
     prefs.remove(key);
   }
 
-
+/*
+This method is used for determining 
+if a user has an internet connection or not.
+*/
+  static Future<bool> getWifiStatus() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
 }
