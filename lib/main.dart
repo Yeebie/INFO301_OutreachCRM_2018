@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:outreachcrm_app/LoginPage.dart';
-import 'package:outreachcrm_app/ContactPage.dart';
-import 'package:outreachcrm_app/ViewContact.dart';
 
 void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   Navigator_Routes");
-  print("Build:    Sprint 4 Pre-Release | Master & NavButton merge");
-  print("Task:     Solve Logout Navigator issue");
+  print("Branch:   Master");
+  print("Build:    Sprint 4 Pre-Release | Aaron & Ben's Logout Functions");
+  print(
+      "Task:     Merge Master & Navigator_Routes, Colour Consistency, ViewContact Navigator Fix");
   print("\n");
 }
 

@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:outreachcrm_app/LoginPage.dart';
 import 'package:outreachcrm_app/SupportClasses.dart';
 import 'dart:io';
 import 'package:outreachcrm_app/ViewContact.dart';
 import 'package:outreachcrm_app/util.dart';
-import 'package:outreachcrm_app/LoginPage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
 
 ///Used for API Key Retrieval
 import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 
-import 'package:outreachcrm_app/util.dart';
 import 'package:url_launcher/url_launcher.dart'; //Converts Json into Map
 
 void clearLoginDetails() {
@@ -59,7 +53,8 @@ class ContactsPageApp extends StatelessWidget {
     Future<bool>_onBackPressed(){
       return showDialog(context: context,
           builder: (context)=> AlertDialog(
-            title: Text("Do you want to log out of your account and exit the application?"),
+            title: Text(
+                "Are you sure you want to log out of your account and close the application?"),
             actions: <Widget>[
               FlatButton(
                 child: Text("No"),
@@ -71,15 +66,6 @@ class ContactsPageApp extends StatelessWidget {
                   deleteAPIKey();
                   clearLoginDetails();
                   exit(0);
-                  ///This might solve our problems
-//                  Navigator.removeRoute(context, route);
-                  ///
-                  Navigator.pushReplacement(
-
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage
-                    (loginFields:LoginFields()))
-                  );
                 }
               )
             ],
@@ -356,7 +342,8 @@ class _ContactPage extends State<_ContactsPage> {
           trailing: new Icon(Icons.close),
           onTap: () => showDialog(context: context,
           builder: (context)=> AlertDialog(
-            title: Text("Do you want to log out?"),
+            title: Text(
+                "Are you sure you want to log out of your account and close the application?"),
             actions: <Widget>[
               FlatButton(
                 child: Text("No"),
@@ -368,14 +355,6 @@ class _ContactPage extends State<_ContactsPage> {
                   deleteAPIKey();
                   clearLoginDetails();
                   exit(0);
-                  // F
-                  // Navigator.removeRoute(context, route);
-                  //
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage
-                        (loginFields:LoginFields()))
-                  );
                 },
               )
             ],

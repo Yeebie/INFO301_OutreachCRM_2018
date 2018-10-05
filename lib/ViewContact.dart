@@ -9,8 +9,7 @@ import 'package:http/http.dart' as http;
 
 ///Used for API Key Retrieval
 import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert'; //Converts Json into Map
+import 'dart:convert';
 
 //Define "root widget"
 //one-line function
@@ -82,6 +81,7 @@ class ViewContact extends State<ViewContactState> {
       return new MaterialApp(
           home: new Scaffold(
               appBar: new AppBar(
+                  backgroundColor: Color(0xFF0085CA),
                   title: new Text(nameProcessed),
                   leading: IconButton(
                     tooltip: "Previous page",
@@ -218,7 +218,7 @@ class ViewContact extends State<ViewContactState> {
               tooltip: "Previous page",
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.pop(
+                Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
