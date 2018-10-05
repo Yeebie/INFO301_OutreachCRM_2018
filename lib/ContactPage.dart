@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:outreachcrm_app/util.dart';
 import 'package:url_launcher/url_launcher.dart'; //Converts Json into Map
@@ -41,7 +42,7 @@ class ContactsPageApp extends StatelessWidget {
     Future<bool>_onBackPressed(){
       return showDialog(context: context,
           builder: (context)=> AlertDialog(
-            title: Text("Do you want to log out?"),
+            title: Text("Do you want to log out of your account and exit the application?"),
             actions: <Widget>[
               FlatButton(
                 child: Text("No"),
@@ -52,14 +53,15 @@ class ContactsPageApp extends StatelessWidget {
                 onPressed: (){
                   deleteAPIKey();
                   clearLoginDetails();
+                  exit(0);
                   ///This might solve our problems
+                  ///We can do something like a popUntil or a
 //                  Navigator.removeRoute(context, route);
-                  ///
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage
-                    (loginFields:LoginFields()))
-                  );
+//                  Navigator.pop(
+//                  context,
+//                  MaterialPageRoute(builder: (context) => LoginPage
+//                  (loginFields:LoginFields()))
+//                  );
                 }
               )
             ],
@@ -293,6 +295,7 @@ class _ContactPage extends State<_ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
+
     final color = const Color(0xFF0085CA);
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -335,7 +338,12 @@ class _ContactPage extends State<_ContactsPage> {
         new ListTile(
           title: new Text("Logout"),
           trailing: new Icon(Icons.close),
-          onTap: () => Navigator.of(context).pop(),
+          onTap: (
+    ),
+
+
+
+
         ),
         TextField(
           textAlign: TextAlign.center,

@@ -218,7 +218,7 @@ class ViewContact extends State<ViewContactState> {
               tooltip: "Previous page",
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.push(
+                Navigator.pop(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>

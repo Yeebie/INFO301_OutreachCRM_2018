@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:outreachcrm_app/LoginPage.dart';
+import 'package:outreachcrm_app/ContactPage.dart';
+import 'package:outreachcrm_app/ViewContact.dart';
 
 void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   Master");
-  print("Build:    Sprint 3 Pre-Release | Master, UI_Pagination,"
-      " UI_Development, domain_page merge");
-  print("Task:     Merge Master & UI_Development's ContactPage");
+  print("Branch:   Navigator_Routes");
+  print("Build:    Sprint 4 Pre-Release | Master & NavButton merge");
+  print("Task:     Solve Logout Navigator issue");
   print("\n");
 }
 

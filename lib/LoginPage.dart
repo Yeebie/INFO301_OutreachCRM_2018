@@ -89,8 +89,6 @@ class _LoginPageState extends State<LoginPage>
   void initState() {
     super.initState();
 
-
-
     // buy us some time so the splash screen is displayed
     new Timer(new Duration(seconds: 3), () {
       // check if the user has saved details
@@ -100,6 +98,17 @@ class _LoginPageState extends State<LoginPage>
     // call this to clear cache
     _clearLoginDetails();
   }
+
+//  Widget build(BuildContext context) {
+//  return MaterialApp (
+//  routes: <String, WidgetBuilder>{
+//  "/loginPage": (BuildContext context) => new LoginPage(),
+//  "/contactPage": (BuildContext context) => new ContactsPageApp(_apiKeyFields._apiKey,
+//  loginFields._domain, loginFields._username),
+//  "/ViewContact": (BuildContext context) => new ViewContactApp(_apiKey, _domain, _oid, _username),
+//  }
+//  );
+//  }
 
   bool _wifiEnabled = true;
 
@@ -823,7 +832,9 @@ class LoginFormState extends State<LoginForm> {
                     borderRadius: BorderRadius.circular(30.0),
                     shadowColor: Colors.lightBlueAccent.shade100,
                     elevation: 5.0,
-                    color: color,
+                    color: _loginSuccess
+                        ? Colors.grey
+                        :color,
                     child: MaterialButton(
                       minWidth: 320.0,
                       height: 42.00,

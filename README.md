@@ -120,4 +120,4 @@ flutter build ios
 
 * Sherlock Licorish
 * Stack Overflow
-* The OutReach team
+* The Outreach team
