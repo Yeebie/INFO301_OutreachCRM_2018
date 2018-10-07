@@ -735,11 +735,11 @@ class LoginFormState extends State<LoginForm> {
             child: new ListView(
               children: [
                 new Container(
-                    margin: const EdgeInsets.only(top: 40.0),
+                    margin: const EdgeInsets.only(top: 30.0),
                     child: new Image.asset(
                       'assets/images/OutreachCRM_vert_logo.png',
-                      width: 200.0,
-                      height: 200.0,
+                      width: 150.0,
+                      height: 150.0,
                     )),
                 new Theme(
                   // this colors the underline
