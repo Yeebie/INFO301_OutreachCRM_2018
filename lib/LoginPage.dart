@@ -30,7 +30,7 @@ class LoginPage extends StatefulWidget {
 class LoginFields {
   String _username = '';
   String _password = '';
-  String _domain = "info301";
+  String _domain = 'preset_domain';
 }
 
 class APIKeyFields {
@@ -579,6 +579,9 @@ class DomainFormState extends State<DomainForm> {
                                   color: Colors.white, fontSize: 16.0)),
                           style: TextStyle(fontSize: 20.0, color: Colors.white),
                           validator: (val) {
+                            print(
+                                "Printing val (The domain that was entered into the text box)");
+                            print(val);
                             if (val.isEmpty) {
                               return 'Please enter some text';
                             } else if (!domainPattern.hasMatch(val)) {
@@ -586,7 +589,6 @@ class DomainFormState extends State<DomainForm> {
                             }
                           },
                           onSaved: (val) => this.loginFields._domain = val),
-
                     ),
                   ),
                   new Theme(
@@ -596,22 +598,6 @@ class DomainFormState extends State<DomainForm> {
                     ),
                     child: new Padding(
                       padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
-                      // INSERT A PADDED PLACEHOLDER IN HERE
-//                    child: TextFormField(
-//                      key: Key('password'),
-//                      obscureText: true,
-//                      keyboardType: TextInputType.text,
-//                      controller: passwordController,
-//                      decoration: InputDecoration(
-//                          labelText: 'Password',
-//                          labelStyle: new TextStyle(
-//                              color: Colors.white,
-//                              fontSize: 16.0)),
-//                      style: TextStyle(
-//                          fontSize: 20.0, color: textTheme.button.color),
-//                      validator: validatePassword,
-//                      onSaved: (val) => this.loginFields._password = val,
-//                    ),
                     ),
                   ),
                   Padding(
@@ -625,19 +611,22 @@ class DomainFormState extends State<DomainForm> {
                         minWidth: 320.0,
                         height: 42.00,
                         onPressed: (){
+//                          print(val);
+                          print("Printing Domain for getDomainValidation()");
+                          print(loginFields._domain);
                           _getDomainValidation();
                           if (domainFormKey.currentState.validate()) {
                             Navigator.push(
                                 context,
                                 new MaterialPageRoute(
                                     builder: (context) => new LoginForm(
-                                          loginFormKey: loginFormKey,
-                                          login: login,
-                                          forgotPassword: forgotPassword,
-                                          loginFields: loginFields,
-                                          validateUserName: validateUserName,
-                                          validatePassword: validatePassword,
-                                        )));
+                                      loginFormKey: loginFormKey,
+                                      login: login,
+                                      forgotPassword: forgotPassword,
+                                      loginFields: loginFields,
+                                      validateUserName: validateUserName,
+                                      validatePassword: validatePassword,
+                                    )));
                           }
                         },
                         child: Text('NEXT',
@@ -676,7 +665,7 @@ class DomainFormState extends State<DomainForm> {
     print('Creating the URL to check if current Domain is valid: ' +
         _requestDomainValidation);
 
-    http.post(_requestDomainValidation).then((response) {
+    http.get(_requestDomainValidation).then((response) {
       //Print the API Key, just so we can compare it to the final result
       print("Original Response body: ${response.statusCode}");
     });
