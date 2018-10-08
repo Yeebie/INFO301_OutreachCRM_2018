@@ -30,7 +30,7 @@ class LoginPage extends StatefulWidget {
 class LoginFields {
   String _username = '';
   String _password = '';
-  String _domain = 'preset_domain';
+  String _domain = '';
 }
 
 class APIKeyFields {
@@ -436,7 +436,6 @@ class _LoginPageState extends State<LoginPage>
       inAsyncCall: true,
     );
   }
-
 }
 
 ///***************************************************************************
@@ -586,6 +585,8 @@ class DomainFormState extends State<DomainForm> {
                               return 'Please enter some text';
                             } else if (!domainPattern.hasMatch(val)) {
                               return 'Only enter alphanumeric characters';
+                            } else if (!_getDomainValidation(val)) {
+                              return 'Invalid domain';
                             }
                           },
                           onSaved: (val) => this.loginFields._domain = val),
@@ -610,30 +611,29 @@ class DomainFormState extends State<DomainForm> {
                       child: MaterialButton(
                         minWidth: 320.0,
                         height: 42.00,
-                        onPressed: (){
+                        onPressed: () {
 //                          print(val);
-                          print("Printing Domain for getDomainValidation()");
-                          print(loginFields._domain);
-                          _getDomainValidation();
+                          //print("Printing Domain for getDomainValidation()");
+                          //print(loginFields._domain);
+                          // _getDomainValidation();
                           if (domainFormKey.currentState.validate()) {
                             Navigator.push(
                                 context,
                                 new MaterialPageRoute(
                                     builder: (context) => new LoginForm(
-                                      loginFormKey: loginFormKey,
-                                      login: login,
-                                      forgotPassword: forgotPassword,
-                                      loginFields: loginFields,
-                                      validateUserName: validateUserName,
-                                      validatePassword: validatePassword,
-                                    )));
+                                          loginFormKey: loginFormKey,
+                                          login: login,
+                                          forgotPassword: forgotPassword,
+                                          loginFields: loginFields,
+                                          validateUserName: validateUserName,
+                                          validatePassword: validatePassword,
+                                        )));
                           }
                         },
-                        child: Text('NEXT',
-                            style:
-                                TextStyle(fontSize: 17.0, color: Colors.white),
+                        child: Text(
+                          'NEXT',
+                          style: TextStyle(fontSize: 17.0, color: Colors.white),
                         ),
-
                       ),
                     ),
                   ),
@@ -656,11 +656,10 @@ class DomainFormState extends State<DomainForm> {
   ///***************************************************************************
 
   ///Retrieving API Key
-  void _getDomainValidation() {
+  bool _getDomainValidation(String domain) {
+    bool _isDomain = false;
     //Creating the URL that'll query the database for our API Key
-    String _requestDomainValidation = "https://" +
-        loginFields._domain +
-        ".outreach.co.nz";
+    String _requestDomainValidation = "https://" + domain + ".outreach.co.nz";
     print("Domain Validation");
     print('Creating the URL to check if current Domain is valid: ' +
         _requestDomainValidation);
@@ -668,9 +667,16 @@ class DomainFormState extends State<DomainForm> {
     http.get(_requestDomainValidation).then((response) {
       //Print the API Key, just so we can compare it to the final result
       print("Original Response body: ${response.statusCode}");
-    });
-  }
 
+      if (response.statusCode == 404) {
+        _isDomain = false;
+      } else {
+        _isDomain = true;
+      }
+    });
+
+    return _isDomain;
+  }
 }
 
 ///***************************************************************************
