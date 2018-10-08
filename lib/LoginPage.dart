@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage>
     });
 
     // call this to clear cache
-   // _clearLoginDetails();
+    // _clearLoginDetails();
   }
 
   bool _wifiEnabled = true;
@@ -392,9 +392,9 @@ class _LoginPageState extends State<LoginPage>
         print("API Key Matches Format");
         print("\n\n");
 
-         /// Set the login cache with the validated fields
-       _setLoginDetails(loginFields._domain, loginFields._username,
-            loginFields._password);
+        /// Set the login cache with the validated fields
+        _setLoginDetails(
+            loginFields._domain, loginFields._username, loginFields._password);
 
         _getContactPage();
       } else {
@@ -436,6 +436,7 @@ class _LoginPageState extends State<LoginPage>
       inAsyncCall: true,
     );
   }
+
 }
 
 ///***************************************************************************
@@ -580,12 +581,12 @@ class DomainFormState extends State<DomainForm> {
                           validator: (val) {
                             if (val.isEmpty) {
                               return 'Please enter some text';
-                            }
-                            else if(!domainPattern.hasMatch(val)) {
+                            } else if (!domainPattern.hasMatch(val)) {
                               return 'Only enter alphanumeric characters';
                             }
                           },
                           onSaved: (val) => this.loginFields._domain = val),
+
                     ),
                   ),
                   new Theme(
@@ -623,7 +624,8 @@ class DomainFormState extends State<DomainForm> {
                       child: MaterialButton(
                         minWidth: 320.0,
                         height: 42.00,
-                        onPressed: () {
+                        onPressed: (){
+                          _getDomainValidation();
                           if (domainFormKey.currentState.validate()) {
                             Navigator.push(
                                 context,
@@ -640,7 +642,9 @@ class DomainFormState extends State<DomainForm> {
                         },
                         child: Text('NEXT',
                             style:
-                                TextStyle(fontSize: 17.0, color: Colors.white)),
+                                TextStyle(fontSize: 17.0, color: Colors.white),
+                        ),
+
                       ),
                     ),
                   ),
@@ -657,6 +661,27 @@ class DomainFormState extends State<DomainForm> {
           ),
         ));
   }
+
+  ///***************************************************************************
+  ///                  D O M A I N   V A L I D A T I O N
+  ///***************************************************************************
+
+  ///Retrieving API Key
+  void _getDomainValidation() {
+    //Creating the URL that'll query the database for our API Key
+    String _requestDomainValidation = "https://" +
+        loginFields._domain +
+        ".outreach.co.nz";
+    print("Domain Validation");
+    print('Creating the URL to check if current Domain is valid: ' +
+        _requestDomainValidation);
+
+    http.post(_requestDomainValidation).then((response) {
+      //Print the API Key, just so we can compare it to the final result
+      print("Original Response body: ${response.statusCode}");
+    });
+  }
+
 }
 
 ///***************************************************************************
