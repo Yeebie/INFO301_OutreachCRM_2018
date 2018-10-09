@@ -546,8 +546,8 @@ class DomainFormState extends State<DomainForm> {
                       margin: const EdgeInsets.only(top: 40.0),
                       child: new Image.asset(
                         'assets/images/OutreachCRM_vert_logo.png',
-                        width: 200.0,
-                        height: 200.0,
+                        height: MediaQuery.of(context).size.height/4,
+                        width: MediaQuery.of(context).size.width/4,
                       )),
                   new Theme(
                     // this colors the underline
@@ -719,6 +719,11 @@ class LoginFormState extends State<LoginForm> {
     final color = const Color(0xFF0085CA);
     final theme = Theme.of(context);
 
+    //These statements might be unncessary. Not sure.
+    MediaQueryData queryData;
+    queryData = MediaQuery.of(context);
+
+
     //Build the form and attach to the scaffold
     return Scaffold(
       resizeToAvoidBottomPadding: false,
@@ -735,11 +740,16 @@ class LoginFormState extends State<LoginForm> {
             child: new ListView(
               children: [
                 new Container(
+
                     margin: const EdgeInsets.only(top: 30.0),
                     child: new Image.asset(
                       'assets/images/OutreachCRM_vert_logo.png',
-                      width: 150.0,
-                      height: 150.0,
+                      height: MediaQuery.of(context).size.height/5,
+                      width: MediaQuery.of(context).size.width/5,
+//                      queryData.size.width
+  //                    queryData.size.height
+    //                  width: 150.0,
+      //                height: 150.0,
                     )),
                 new Theme(
                   // this colors the underline
