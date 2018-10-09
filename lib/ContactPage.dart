@@ -330,10 +330,6 @@ class _ContactPage extends State<_ContactsPage> {
           ),
         ),
         new ListTile(
-          title: new Text("Switch Account"), //// If it gets implemented later
-          trailing: new Icon(Icons.arrow_right),
-        ),
-        new ListTile(
           title: new Text("Contact Us"),
           trailing: new Icon(Icons.arrow_right),
           onTap: _launchURL,
