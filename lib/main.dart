@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
     return new MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'Signika',
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
       home: LoginPage(
         loginFields: LoginFields(),
       ),
+
     );
   }
 }
