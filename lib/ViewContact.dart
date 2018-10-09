@@ -79,6 +79,7 @@ class ViewContact extends State<ViewContactState> {
       ///The build needs to load some sort of UI, otherwise we'll get a big red screen error while loading contact data
       ///Creates a real basic page so it looks like a half decent transition from ContactPage to ViewContact
       return new MaterialApp(
+          debugShowCheckedModeBanner: false,
           home: new Scaffold(
               appBar: new AppBar(
                   backgroundColor: Color(0xFF0085CA),
@@ -210,6 +211,7 @@ class ViewContact extends State<ViewContactState> {
       final color = const Color(0xFF0085CA);
 
       return new MaterialApp(
+          debugShowCheckedModeBanner: false,
           home: new Scaffold(
         appBar: new AppBar(
             title: new Text(nameProcessed),
