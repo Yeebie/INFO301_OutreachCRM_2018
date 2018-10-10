@@ -578,16 +578,15 @@ class DomainFormState extends State<DomainForm> {
                                   color: Colors.white, fontSize: 16.0)),
                           style: TextStyle(fontSize: 20.0, color: Colors.white),
                           validator: (val) {
-                            print(
-                                "Printing val (The domain that was entered into the text box)");
-                            print(val);
+                            print("Entered Domain: " + val);
                             if (val.isEmpty) {
                               return 'Please enter some text';
                             } else if (!domainPattern.hasMatch(val)) {
                               return 'Only enter alphanumeric characters';
-                            } else if (!_getDomainValidation(val)) {
-                              return 'Invalid domain';
+                            } else {
+                              loginFields._domain = val;
                             }
+                            print("Done the Domain Check If Statements");
                           },
                           onSaved: (val) => this.loginFields._domain = val),
                     ),
@@ -612,22 +611,10 @@ class DomainFormState extends State<DomainForm> {
                         minWidth: 320.0,
                         height: 42.00,
                         onPressed: () {
-//                          print(val);
-                          //print("Printing Domain for getDomainValidation()");
-                          //print(loginFields._domain);
-                          // _getDomainValidation();
                           if (domainFormKey.currentState.validate()) {
-                            Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => new LoginForm(
-                                          loginFormKey: loginFormKey,
-                                          login: login,
-                                          forgotPassword: forgotPassword,
-                                          loginFields: loginFields,
-                                          validateUserName: validateUserName,
-                                          validatePassword: validatePassword,
-                                        )));
+                            print(
+                                "Internal Validator check complete, code isn't malicious");
+                            _getDomainValidation(loginFields._domain);
                           }
                         },
                         child: Text(
@@ -656,26 +643,62 @@ class DomainFormState extends State<DomainForm> {
   ///***************************************************************************
 
   ///Retrieving API Key
-  bool _getDomainValidation(String domain) {
+  void _getDomainValidation(String domain) async {
     bool _isDomain = false;
     //Creating the URL that'll query the database for our API Key
     String _requestDomainValidation = "https://" + domain + ".outreach.co.nz";
-    print("Domain Validation");
     print('Creating the URL to check if current Domain is valid: ' +
         _requestDomainValidation);
 
-    http.get(_requestDomainValidation).then((response) {
+    await http.get(_requestDomainValidation).then((response) {
       //Print the API Key, just so we can compare it to the final result
       print("Original Response body: ${response.statusCode}");
 
-      if (response.statusCode == 404) {
+      print("Checking if domain is valid");
+      if (response.statusCode.toString() == "404") {
         _isDomain = false;
+        print(domain + " is not a valid domain");
       } else {
+        print(domain + " is a valid domain");
         _isDomain = true;
       }
-    });
+      print("Printing _isDomain");
+      print(_isDomain);
+      print("Domain is valid, sending to LoginPage");
+      print("\n\n");
 
-    return _isDomain;
+      if (_isDomain == false) {
+        showDialog(
+            context: context,
+            builder: (context) =>
+                AlertDialog(
+                  title: Text("Domain does not exist"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Okay"),
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
+                  ],
+                ));
+      } else {
+        Navigator.push(
+            context,
+            new MaterialPageRoute(
+                builder: (context) =>
+                new LoginForm(
+                  loginFormKey: loginFormKey,
+                  login: login,
+                  forgotPassword: forgotPassword,
+                  loginFields: loginFields,
+                  validateUserName: validateUserName,
+                  validatePassword: validatePassword,
+                )
+            )
+        );
+      }
+
+      ///Old Validator code was here
+    });
   }
 }
 
