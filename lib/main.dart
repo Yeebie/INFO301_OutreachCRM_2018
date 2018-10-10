@@ -6,10 +6,10 @@ void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   Master");
-  print("Build:    Sprint 4 Pre-Release | Aaron & Ben's Logout Functions");
+  print("Branch:   API_Domain Check");
+  print("Build:    Sprint 5 Bug Fixes | Domain Validation");
   print(
-      "Task:     Merge Master & Navigator_Routes, Colour Consistency, ViewContact Navigator Fix");
+      "Task:     Checking Domain Page Validation");
   print("\n");
 }
 

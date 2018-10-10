@@ -30,7 +30,7 @@ class LoginPage extends StatefulWidget {
 class LoginFields {
   String _username = '';
   String _password = '';
-  String _domain = "info301";
+  String _domain = '';
 }
 
 class APIKeyFields {
@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage>
     });
 
     // call this to clear cache
-   // _clearLoginDetails();
+    // _clearLoginDetails();
   }
 
   bool _wifiEnabled = true;
@@ -392,9 +392,9 @@ class _LoginPageState extends State<LoginPage>
         print("API Key Matches Format");
         print("\n\n");
 
-         /// Set the login cache with the validated fields
-       _setLoginDetails(loginFields._domain, loginFields._username,
-            loginFields._password);
+        /// Set the login cache with the validated fields
+        _setLoginDetails(
+            loginFields._domain, loginFields._username, loginFields._password);
 
         _getContactPage();
       } else {
@@ -578,12 +578,15 @@ class DomainFormState extends State<DomainForm> {
                                   color: Colors.white, fontSize: 16.0)),
                           style: TextStyle(fontSize: 20.0, color: Colors.white),
                           validator: (val) {
+                            print("Entered Domain: " + val);
                             if (val.isEmpty) {
                               return 'Please enter some text';
-                            }
-                            else if(!domainPattern.hasMatch(val)) {
+                            } else if (!domainPattern.hasMatch(val)) {
                               return 'Only enter alphanumeric characters';
+                            } else {
+                              loginFields._domain = val;
                             }
+                            print("Done the Domain Check If Statements");
                           },
                           onSaved: (val) => this.loginFields._domain = val),
                     ),
@@ -595,22 +598,6 @@ class DomainFormState extends State<DomainForm> {
                     ),
                     child: new Padding(
                       padding: const EdgeInsets.fromLTRB(32.0, 4.0, 32.0, 32.0),
-                      // INSERT A PADDED PLACEHOLDER IN HERE
-//                    child: TextFormField(
-//                      key: Key('password'),
-//                      obscureText: true,
-//                      keyboardType: TextInputType.text,
-//                      controller: passwordController,
-//                      decoration: InputDecoration(
-//                          labelText: 'Password',
-//                          labelStyle: new TextStyle(
-//                              color: Colors.white,
-//                              fontSize: 16.0)),
-//                      style: TextStyle(
-//                          fontSize: 20.0, color: textTheme.button.color),
-//                      validator: validatePassword,
-//                      onSaved: (val) => this.loginFields._password = val,
-//                    ),
                     ),
                   ),
                   Padding(
@@ -625,22 +612,15 @@ class DomainFormState extends State<DomainForm> {
                         height: 42.00,
                         onPressed: () {
                           if (domainFormKey.currentState.validate()) {
-                            Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => new LoginForm(
-                                          loginFormKey: loginFormKey,
-                                          login: login,
-                                          forgotPassword: forgotPassword,
-                                          loginFields: loginFields,
-                                          validateUserName: validateUserName,
-                                          validatePassword: validatePassword,
-                                        )));
+                            print(
+                                "Internal Validator check complete, code isn't malicious");
+                            _getDomainValidation(loginFields._domain);
                           }
                         },
-                        child: Text('NEXT',
-                            style:
-                                TextStyle(fontSize: 17.0, color: Colors.white)),
+                        child: Text(
+                          'NEXT',
+                          style: TextStyle(fontSize: 17.0, color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
@@ -656,6 +636,69 @@ class DomainFormState extends State<DomainForm> {
             ),
           ),
         ));
+  }
+
+  ///***************************************************************************
+  ///                  D O M A I N   V A L I D A T I O N
+  ///***************************************************************************
+
+  ///Retrieving API Key
+  void _getDomainValidation(String domain) async {
+    bool _isDomain = false;
+    //Creating the URL that'll query the database for our API Key
+    String _requestDomainValidation = "https://" + domain + ".outreach.co.nz";
+    print('Creating the URL to check if current Domain is valid: ' +
+        _requestDomainValidation);
+
+    await http.get(_requestDomainValidation).then((response) {
+      //Print the API Key, just so we can compare it to the final result
+      print("Original Response body: ${response.statusCode}");
+
+      print("Checking if domain is valid");
+      if (response.statusCode.toString() == "404") {
+        _isDomain = false;
+        print(domain + " is not a valid domain");
+      } else {
+        print(domain + " is a valid domain");
+        _isDomain = true;
+      }
+      print("Printing _isDomain");
+      print(_isDomain);
+      print("Domain is valid, sending to LoginPage");
+      print("\n\n");
+
+      if (_isDomain == false) {
+        showDialog(
+            context: context,
+            builder: (context) =>
+                AlertDialog(
+                  title: Text("Domain does not exist"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Okay"),
+                      onPressed: () => Navigator.pop(context, false),
+                    ),
+                  ],
+                ));
+      } else {
+        Navigator.push(
+            context,
+            new MaterialPageRoute(
+                builder: (context) =>
+                new LoginForm(
+                  loginFormKey: loginFormKey,
+                  login: login,
+                  forgotPassword: forgotPassword,
+                  loginFields: loginFields,
+                  validateUserName: validateUserName,
+                  validatePassword: validatePassword,
+                )
+            )
+        );
+      }
+
+      ///Old Validator code was here
+    });
   }
 }
 
