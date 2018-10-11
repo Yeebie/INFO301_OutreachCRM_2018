@@ -13,13 +13,17 @@ import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart'; //Converts Json into Map
 
-void clearLoginDetails() {
+void clearLoginDetails() async{
   print("-------------------------");
   print("CLEARING DETAILS IN CACHE");
   print("-------------------------");
-  Util.removeCacheItem('domain');
-  Util.removeCacheItem('username');
-  Util.removeCacheItem('password');
+  await Util.removeCacheItem('domain');
+  await Util.removeCacheItem('username');
+  await Util.removeCacheItem('password');
+  print("-------------------------");
+  print("EXITING THE APP");
+  print("-------------------------");
+  exit(0);
 }
 
 ///StatelessWidget call
@@ -43,7 +47,14 @@ class ContactsPageApp extends StatelessWidget {
     http.post(_requestAPIKeyRemoval).then((response) {
       //Print the API Key, just so we can compare it to the final result
       print("API Key Delete Check: ${response.body}");
+     
+      print("-------------------------");
+      print("CALLING CLEAR LOGIN DETAILS");
+      print("-------------------------");
+      clearLoginDetails();
     });
+      
+    
   }
 
   @override
@@ -64,8 +75,8 @@ class ContactsPageApp extends StatelessWidget {
                       child: Text("Yes"),
                       onPressed: () {
                         deleteAPIKey();
-                        clearLoginDetails();
-                        exit(0);
+                        
+                       
                       })
                 ],
               ));
@@ -350,8 +361,6 @@ class _ContactPage extends State<_ContactsPage> {
                           child: Text("Yes"),
                           onPressed: () {
                             deleteAPIKey();
-                            clearLoginDetails();
-                            exit(0);
                           },
                         )
                       ],
@@ -377,6 +386,7 @@ class _ContactPage extends State<_ContactsPage> {
   }
 
   void showDialogParent(String title, String content) {
+    
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -389,6 +399,7 @@ class _ContactPage extends State<_ContactsPage> {
                 ),
               ],
             ));
+            
   }
 
   ///Loading the Contacts List into a Collection

@@ -49,8 +49,7 @@ class ContactListFields {
   String nameProcessed = '';
 }
 
-class _LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
+class _LoginPageState extends State<LoginPage> {
   // data fields
 //  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final LoginFields loginFields;
@@ -93,7 +92,7 @@ class _LoginPageState extends State<LoginPage>
     });
 
     // call this to clear cache
-    // _clearLoginDetails();
+     _clearLoginDetails();
   }
 
   bool _wifiEnabled = true;
@@ -137,6 +136,7 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void showDialogParent(String title, String content) {
+    
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -149,6 +149,7 @@ class _LoginPageState extends State<LoginPage>
                 ),
               ],
             ));
+            
   }
 
   void _forgotPassword() async {
