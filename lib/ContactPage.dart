@@ -321,6 +321,11 @@ class _ContactPage extends State<_ContactsPage> {
       http.post(_requestAPIKeyRemoval).then((response) {
         //Print the API Key, just so we can compare it to the final result
         print("API Key Delete Check: ${response.body}");
+
+      print("-------------------------");
+      print("CALLING CLEAR LOGIN DETAILS");
+      print("-------------------------");
+      clearLoginDetails();
       });
     }
 
