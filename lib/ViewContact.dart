@@ -4,6 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'package:outreachcrm_app/ContactPage.dart';
 
+//Used for Wifi check
+import 'package:outreachcrm_app/util.dart';
+
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
 
@@ -26,11 +29,9 @@ class ViewContactApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
         debugShowCheckedModeBanner: false,
         title: "Contact Details",
         home: ViewContactState(_apiKey, _domain, _oid, _username));
-
   }
 }
 
@@ -116,12 +117,10 @@ class ViewContact extends State<ViewContactState> {
               indent: 16.0,
             ),
             new ListTile(
-
               leading: new IconButton(
                   icon: new Icon(
                     Icons.email,
                     color: Color(0xFF0085CA),
-
                     size: 36.0,
                   ),
                   tooltip: '',
@@ -186,7 +185,6 @@ class ViewContact extends State<ViewContactState> {
               ),
               subtitle: new Text("Mobie Phone"),
             ),
-
           ],
         ),
       );
@@ -213,23 +211,23 @@ class ViewContact extends State<ViewContactState> {
       return new MaterialApp(
           debugShowCheckedModeBanner: false,
           home: new Scaffold(
-        appBar: new AppBar(
-            title: new Text(nameProcessed),
-            backgroundColor: color,
-            leading: IconButton(
-              tooltip: "Previous page",
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ContactsPageApp(_apiKey, _domain, _username),
-                    ));
-              },
-            )),
-        body: center,
-      ));
+            appBar: new AppBar(
+                title: new Text(nameProcessed),
+                backgroundColor: color,
+                leading: IconButton(
+                  tooltip: "Previous page",
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ContactsPageApp(_apiKey, _domain, _username),
+                        ));
+                  },
+                )),
+            body: center,
+          ));
     }
   }
 
@@ -258,122 +256,149 @@ class ViewContact extends State<ViewContactState> {
     _requestContactDetails = _requestContactDetails.replaceAll(">", "%3E");
     print('Get Contact Details URL: ' + _requestContactDetails);
 
-    http.post(_requestContactDetails).then((response) {
-      //Print the API Key, just so we can compare it to the subset String
-      print("Contact List Response:");
-      print(response.body);
-      List<ViewContactFields> contactsList = new List();
-      //Turning the json into a map
-      final viewContactMap = json.decode(response.body);
-      ViewContactJson viewContactJson =
-          new ViewContactJson.fromJson(viewContactMap);
-      print("\n");
+    var wifiEnabled = await Util.getWifiStatus();
 
-      ///Creates a new contact filled with data, adds it to List<Contact>
-      for (ViewContactData data in viewContactJson.data) {
-        viewContactFields.setOid(data.getOid());
-        viewContactFields.setTitle(data.getTitle());
-        viewContactFields.setFirstName(data.getFirstName());
-        viewContactFields.setMiddleName(data.getMiddleName());
-        viewContactFields.setLastName(data.getLastName());
-        viewContactFields.setSuffix(data.getSuffix());
-        viewContactFields.setNameMailing(data.getNameMailing());
+    if (wifiEnabled) {
+      http.post(_requestContactDetails).then((response) {
+        //Print the API Key, just so we can compare it to the subset String
+        print("Contact List Response:");
+        print(response.body);
+        List<ViewContactFields> contactsList = new List();
+        //Turning the json into a map
+        final viewContactMap = json.decode(response.body);
+        ViewContactJson viewContactJson =
+            new ViewContactJson.fromJson(viewContactMap);
+        print("\n");
 
-        viewContactFields.setFullName(data.getFullName());
-        viewContactFields.setCompany(data.getCompany());
+        ///Creates a new contact filled with data, adds it to List<Contact>
+        for (ViewContactData data in viewContactJson.data) {
+          viewContactFields.setOid(data.getOid());
+          viewContactFields.setTitle(data.getTitle());
+          viewContactFields.setFirstName(data.getFirstName());
+          viewContactFields.setMiddleName(data.getMiddleName());
+          viewContactFields.setLastName(data.getLastName());
+          viewContactFields.setSuffix(data.getSuffix());
+          viewContactFields.setNameMailing(data.getNameMailing());
 
-        viewContactFields.setMobilePhone(data.getMobilePhone());
-        viewContactFields.setCompanyMainPhone(data.getCompanyMainPhone());
-        viewContactFields.setBusinessPhone(data.getBusinessPhone()); //DDI Field
-        viewContactFields.setHomePhone(data.getHomePhone());
-        viewContactFields.setEmailAddress(data.getEmailAddress());
-        viewContactFields.setWebPage(data.getWebPage());
-        viewContactFields.setBusinessFax(data.getBusinessFax());
-        viewContactFields.setHomeFax(data.getHomeFax());
+          viewContactFields.setFullName(data.getFullName());
+          viewContactFields.setCompany(data.getCompany());
 
-        viewContactFields.setJobTitle(data.getJobTitle());
-        viewContactFields.setDepartment(data.getDepartment());
-        viewContactFields.setBusinessStreet(data.getBusinessStreet());
-        viewContactFields.setBusinessStreet2(data.getBusinessStreet2());
-        viewContactFields.setBusinessStreet3(data.getBusinessStreet3());
-        viewContactFields.setBusinessCity(data.getBusinessCity());
-        viewContactFields.setBusinessState(data.getBusinessState());
-        viewContactFields.setBusinessPostalCode(data.getBusinessPostalCode());
-        viewContactFields.setPOBox(data.getPOBox());
-        viewContactFields.setBusinessCountry(data.getBusinessCountry());
+          viewContactFields.setMobilePhone(data.getMobilePhone());
+          viewContactFields.setCompanyMainPhone(data.getCompanyMainPhone());
+          viewContactFields
+              .setBusinessPhone(data.getBusinessPhone()); //DDI Field
+          viewContactFields.setHomePhone(data.getHomePhone());
+          viewContactFields.setEmailAddress(data.getEmailAddress());
+          viewContactFields.setWebPage(data.getWebPage());
+          viewContactFields.setBusinessFax(data.getBusinessFax());
+          viewContactFields.setHomeFax(data.getHomeFax());
 
-        viewContactFields.setHomeStreet(data.getHomeStreet());
-        viewContactFields.setHomeStreet2(data.getHomeStreet2());
-        viewContactFields.setHomeStreet3(data.getHomeStreet3());
-        viewContactFields.setHomeCity(data.getHomeCity());
-        viewContactFields.setHomeState(data.getHomeState());
-        viewContactFields.setHomePostalCode(data.getHomePostalCode());
-        viewContactFields.setSpouse(data.getSpouse());
-        viewContactFields.setHomeCountry(data.getHomeCountry());
-        viewContactFields.setEmail2Address(data.getEmail2Address());
-      }
-      //Retrieving the API Key from the array
-      print("Hidden Information");
-      print("oid                     " + viewContactFields.oid);
-      print("o_title:                " + viewContactFields.o_title);
-      print("o_first_name:           " + viewContactFields.o_first_name);
-      print("o_middle_name:          " + viewContactFields.o_middle_name);
-      print("o_last_name:            " + viewContactFields.o_last_name);
-      print("o_suffix:               " + viewContactFields.o_suffix);
-      print("name_mailing:           " + viewContactFields.name_mailing);
-      print("\n");
+          viewContactFields.setJobTitle(data.getJobTitle());
+          viewContactFields.setDepartment(data.getDepartment());
+          viewContactFields.setBusinessStreet(data.getBusinessStreet());
+          viewContactFields.setBusinessStreet2(data.getBusinessStreet2());
+          viewContactFields.setBusinessStreet3(data.getBusinessStreet3());
+          viewContactFields.setBusinessCity(data.getBusinessCity());
+          viewContactFields.setBusinessState(data.getBusinessState());
+          viewContactFields.setBusinessPostalCode(data.getBusinessPostalCode());
+          viewContactFields.setPOBox(data.getPOBox());
+          viewContactFields.setBusinessCountry(data.getBusinessCountry());
 
-      print("Name & Organisation");
-      print("fullName:               " + viewContactFields.fullName);
-      print("company:                " + viewContactFields.company);
-      print("\n");
+          viewContactFields.setHomeStreet(data.getHomeStreet());
+          viewContactFields.setHomeStreet2(data.getHomeStreet2());
+          viewContactFields.setHomeStreet3(data.getHomeStreet3());
+          viewContactFields.setHomeCity(data.getHomeCity());
+          viewContactFields.setHomeState(data.getHomeState());
+          viewContactFields.setHomePostalCode(data.getHomePostalCode());
+          viewContactFields.setSpouse(data.getSpouse());
+          viewContactFields.setHomeCountry(data.getHomeCountry());
+          viewContactFields.setEmail2Address(data.getEmail2Address());
+        }
+        //Retrieving the API Key from the array
+        print("Hidden Information");
+        print("oid                     " + viewContactFields.oid);
+        print("o_title:                " + viewContactFields.o_title);
+        print("o_first_name:           " + viewContactFields.o_first_name);
+        print("o_middle_name:          " + viewContactFields.o_middle_name);
+        print("o_last_name:            " + viewContactFields.o_last_name);
+        print("o_suffix:               " + viewContactFields.o_suffix);
+        print("name_mailing:           " + viewContactFields.name_mailing);
+        print("\n");
 
-      print("General");
-      print("o_mobile_phone:         " + viewContactFields.o_mobile_phone);
-      print(
-          "o_company_main_phone:   " + viewContactFields.o_company_main_phone);
-      print("o_business_phone:       " +
-          viewContactFields.o_business_phone); //DDI Field
-      print("o_home_phone:           " + viewContactFields.o_home_phone);
-      print("o_email_address:        " + viewContactFields.o_email_address);
-      print("o_web_page:             " + viewContactFields.o_web_page);
-      print("o_business_fax:         " + viewContactFields.o_business_fax);
-      print("o_home_fax:             " + viewContactFields.o_home_fax);
-      print("\n");
+        print("Name & Organisation");
+        print("fullName:               " + viewContactFields.fullName);
+        print("company:                " + viewContactFields.company);
+        print("\n");
 
-      print("Work");
-      print("o_job_title:            " + viewContactFields.o_job_title);
-      print("o_department:           " + viewContactFields.o_department);
-      print("o_business_street:      " + viewContactFields.o_business_street);
-      print("o_business_street_2:    " + viewContactFields.o_business_street_2);
-      print("o_business_street_3:    " + viewContactFields.o_business_street_3);
-      print("o_business_city:        " + viewContactFields.o_business_city);
-      print("o_business_state:       " + viewContactFields.o_business_state);
-      print("o_business_postal_code: " +
-          viewContactFields.o_business_postal_code);
-      print("o_po_box:               " + viewContactFields.o_po_box);
-      print("o_business_country:     " + viewContactFields.o_business_country);
-      print("\n");
+        print("General");
+        print("o_mobile_phone:         " + viewContactFields.o_mobile_phone);
+        print("o_company_main_phone:   " +
+            viewContactFields.o_company_main_phone);
+        print("o_business_phone:       " +
+            viewContactFields.o_business_phone); //DDI Field
+        print("o_home_phone:           " + viewContactFields.o_home_phone);
+        print("o_email_address:        " + viewContactFields.o_email_address);
+        print("o_web_page:             " + viewContactFields.o_web_page);
+        print("o_business_fax:         " + viewContactFields.o_business_fax);
+        print("o_home_fax:             " + viewContactFields.o_home_fax);
+        print("\n");
 
-      print("Home");
-      print("o_home_street:          " + viewContactFields.o_home_street);
-      print("o_home_street_2:        " + viewContactFields.o_home_street_2);
-      print("o_home_street_3:        " + viewContactFields.o_home_street_3);
-      print("o_home_city:            " + viewContactFields.o_home_city);
-      print("o_home_state:           " + viewContactFields.o_home_state);
-      print("o_home_postal_code:     " + viewContactFields.o_home_postal_code);
-      print("o_spouse:               " + viewContactFields.o_spouse);
-      print("o_home_country:         " + viewContactFields.o_home_country);
-      print("o_email_2_address:      " + viewContactFields.o_email_2_address);
-      print('\n \n');
+        print("Work");
+        print("o_job_title:            " + viewContactFields.o_job_title);
+        print("o_department:           " + viewContactFields.o_department);
+        print("o_business_street:      " + viewContactFields.o_business_street);
+        print(
+            "o_business_street_2:    " + viewContactFields.o_business_street_2);
+        print(
+            "o_business_street_3:    " + viewContactFields.o_business_street_3);
+        print("o_business_city:        " + viewContactFields.o_business_city);
+        print("o_business_state:       " + viewContactFields.o_business_state);
+        print("o_business_postal_code: " +
+            viewContactFields.o_business_postal_code);
+        print("o_po_box:               " + viewContactFields.o_po_box);
+        print(
+            "o_business_country:     " + viewContactFields.o_business_country);
+        print("\n");
 
-      nameProcessed = viewContactFields.fullName;
-      homePh = viewContactFields.o_home_phone;
-      mobilePh = viewContactFields.o_mobile_phone;
-      workPh = viewContactFields.o_company_main_phone;
-      emailAd = viewContactFields.o_email_address;
-      o_company = viewContactFields.company;
-      setState(() {});
-    });
+        print("Home");
+        print("o_home_street:          " + viewContactFields.o_home_street);
+        print("o_home_street_2:        " + viewContactFields.o_home_street_2);
+        print("o_home_street_3:        " + viewContactFields.o_home_street_3);
+        print("o_home_city:            " + viewContactFields.o_home_city);
+        print("o_home_state:           " + viewContactFields.o_home_state);
+        print(
+            "o_home_postal_code:     " + viewContactFields.o_home_postal_code);
+        print("o_spouse:               " + viewContactFields.o_spouse);
+        print("o_home_country:         " + viewContactFields.o_home_country);
+        print("o_email_2_address:      " + viewContactFields.o_email_2_address);
+        print('\n \n');
+
+        nameProcessed = viewContactFields.fullName;
+        homePh = viewContactFields.o_home_phone;
+        mobilePh = viewContactFields.o_mobile_phone;
+        workPh = viewContactFields.o_company_main_phone;
+        emailAd = viewContactFields.o_email_address;
+        o_company = viewContactFields.company;
+        setState(() {});
+      });
+    }
+    else {
+       showDialogParent("No Internet Connection",
+            "Please connect to the internet to use this application.");
+    }
+  }
+  void showDialogParent(String title, String content) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(title),
+              content: new Text(content),
+              actions: [
+                new FlatButton(
+                  child: const Text("Ok"),
+                  onPressed: () => exit(0),
+                ),
+              ],
+            ));
   }
 }

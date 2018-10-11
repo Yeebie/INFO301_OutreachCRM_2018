@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     // call this to clear cache
-     _clearLoginDetails();
+    _clearLoginDetails();
   }
 
   bool _wifiEnabled = true;
@@ -136,7 +136,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showDialogParent(String title, String content) {
-    
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -149,7 +148,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ));
-            
   }
 
   void _forgotPassword() async {
@@ -547,8 +545,8 @@ class DomainFormState extends State<DomainForm> {
                       margin: const EdgeInsets.only(top: 40.0),
                       child: new Image.asset(
                         'assets/images/OutreachCRM_vert_logo.png',
-                        height: MediaQuery.of(context).size.height/4,
-                        width: MediaQuery.of(context).size.width/4,
+                        height: MediaQuery.of(context).size.height / 4,
+                        width: MediaQuery.of(context).size.width / 4,
                       )),
                   new Theme(
                     // this colors the underline
@@ -639,6 +637,21 @@ class DomainFormState extends State<DomainForm> {
         ));
   }
 
+  void showDialogParent(String title, String content) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text(title),
+              content: new Text(content),
+              actions: [
+                new FlatButton(
+                  child: const Text("Ok"),
+                  onPressed: () => exit(0),
+                ),
+              ],
+            ));
+  }
+
   ///***************************************************************************
   ///                  D O M A I N   V A L I D A T I O N
   ///***************************************************************************
@@ -651,55 +664,55 @@ class DomainFormState extends State<DomainForm> {
     print('Creating the URL to check if current Domain is valid: ' +
         _requestDomainValidation);
 
-    await http.get(_requestDomainValidation).then((response) {
-      //Print the API Key, just so we can compare it to the final result
-      print("Original Response body: ${response.statusCode}");
+    var wifiEnabled = await Util.getWifiStatus();
+    if (wifiEnabled) {
+      await http.get(_requestDomainValidation).then((response) {
+        //Print the API Key, just so we can compare it to the final result
+        print("Original Response body: ${response.statusCode}");
 
-      print("Checking if domain is valid");
-      if (response.statusCode.toString() == "404") {
-        _isDomain = false;
-        print(domain + " is not a valid domain");
-      } else {
-        print(domain + " is a valid domain");
-        _isDomain = true;
-      }
-      print("Printing _isDomain");
-      print(_isDomain);
-      print("Domain is valid, sending to LoginPage");
-      print("\n\n");
+        print("Checking if domain is valid");
+        if (response.statusCode.toString() == "404") {
+          _isDomain = false;
+          print(domain + " is not a valid domain");
+        } else {
+          print(domain + " is a valid domain");
+          _isDomain = true;
+        }
+        print("Printing _isDomain");
+        print(_isDomain);
+        print("Domain is valid, sending to LoginPage");
+        print("\n\n");
 
-      if (_isDomain == false) {
-        showDialog(
-            context: context,
-            builder: (context) =>
-                AlertDialog(
-                  title: Text("Domain does not exist"),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text("Okay"),
-                      onPressed: () => Navigator.pop(context, false),
-                    ),
-                  ],
-                ));
-      } else {
-        Navigator.push(
-            context,
-            new MaterialPageRoute(
-                builder: (context) =>
-                new LoginForm(
-                  loginFormKey: loginFormKey,
-                  login: login,
-                  forgotPassword: forgotPassword,
-                  loginFields: loginFields,
-                  validateUserName: validateUserName,
-                  validatePassword: validatePassword,
-                )
-            )
-        );
-      }
-
-      ///Old Validator code was here
-    });
+        if (_isDomain == false) {
+          showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                    title: Text("Domain does not exist"),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text("Okay"),
+                        onPressed: () => Navigator.pop(context, false),
+                      ),
+                    ],
+                  ));
+        } else {
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => new LoginForm(
+                        loginFormKey: loginFormKey,
+                        login: login,
+                        forgotPassword: forgotPassword,
+                        loginFields: loginFields,
+                        validateUserName: validateUserName,
+                        validatePassword: validatePassword,
+                      )));
+        }
+      });
+    } else {
+      showDialogParent("No Internet Connection",
+          "Please connect to the internet to use this application.");
+    }
   }
 }
 
@@ -767,7 +780,6 @@ class LoginFormState extends State<LoginForm> {
     MediaQueryData queryData;
     queryData = MediaQuery.of(context);
 
-
     //Build the form and attach to the scaffold
     return Scaffold(
       resizeToAvoidBottomPadding: false,
@@ -784,16 +796,15 @@ class LoginFormState extends State<LoginForm> {
             child: new ListView(
               children: [
                 new Container(
-
                     margin: const EdgeInsets.only(top: 30.0),
                     child: new Image.asset(
                       'assets/images/OutreachCRM_vert_logo.png',
-                      height: MediaQuery.of(context).size.height/5,
-                      width: MediaQuery.of(context).size.width/5,
+                      height: MediaQuery.of(context).size.height / 5,
+                      width: MediaQuery.of(context).size.width / 5,
 //                      queryData.size.width
-  //                    queryData.size.height
-    //                  width: 150.0,
-      //                height: 150.0,
+                      //                    queryData.size.height
+                      //                  width: 150.0,
+                      //                height: 150.0,
                     )),
                 new Theme(
                   // this colors the underline
