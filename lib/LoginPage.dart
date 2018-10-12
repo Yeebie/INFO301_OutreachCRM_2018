@@ -95,8 +95,12 @@ class _LoginPageState extends State<LoginPage> {
     _clearLoginDetails();
   }
 
-  bool _wifiEnabled = true;
-
+    /// Checks to make sure a username is valid
+    /// in the user interface for logging in
+    ///
+    /// @param value - The username entered in the text field
+    /// @returns Error message if the username is invalid
+    /// if true we return null
   String _validateUserName(String value) {
     RegExp userNamePattern = new RegExp(
       r"^[a-zA-Z0-9@.]*$",
@@ -115,6 +119,12 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
+    /// Checks to make sure password is valid
+    /// in the user interface for logging in
+    ///
+    /// @param value - The password entered in the text field
+    /// @returns Error message if the password is invalid
+    /// if true we return null
   String _validatePassword(String value) {
     RegExp passwordPattern = new RegExp(
       r"^[a-zA-Z0-9]*$",
@@ -135,6 +145,12 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
+    /// Wrapper method for UI
+    /// Used for error messages.
+    /// On ok button press the app exits.
+    ///
+    /// @param title - The title of the error message
+    /// @param content - The content of the dialog box
   void showDialogParent(String title, String content) {
     showDialog(
         context: context,
@@ -150,6 +166,10 @@ class _LoginPageState extends State<LoginPage> {
             ));
   }
 
+  /// Forgot password method for users 
+  /// who forget their password.
+  /// Will open up a browser linking to an Outreach
+  /// form that will let them reset their password.
   void _forgotPassword() async {
     String url = 'https://' +
         loginFields._domain +
@@ -161,6 +181,11 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  /// Method used for logging users in
+  /// who have provided valid credentials. 
+  /// This function calls other functions 
+  /// that will get an API key validate it,
+  /// check for Wifi and so on.
   void _login() async {
     var wifiEnabled = await Util.getWifiStatus();
 
@@ -194,11 +219,16 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+   
+
   ///***************************************************************************
   ///                     A U T O   L O G I N
   ///***************************************************************************
 
-  /// method used to clear cache on logout
+  /// Method used for clearing the 
+  /// cache once a user has logged out. 
+  /// This includes the domain, username,
+  /// and password.
   void _clearLoginDetails() {
     print("Login Cache Check");
     print("Clearing Login Details from Cache");
@@ -209,7 +239,11 @@ class _LoginPageState extends State<LoginPage> {
     Util.removeCacheItem('password');
   }
 
-  /// method to set the cache values for login details.
+  /// Sets the login details of a user
+  /// for caching
+  /// @param domain - The domain of the user
+  /// @param username - The users username
+  /// @param password - The users password
   void _setLoginDetails(String domain, String username, String password) {
     // check if the field is being passed null
     if (domain != "" && username != "" && password != "") {
