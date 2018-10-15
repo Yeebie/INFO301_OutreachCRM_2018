@@ -56,9 +56,9 @@ class _LoginPageState extends State<LoginPage> {
 
   _LoginPageState({this.loginFields});
 
+  ///  the controllers and keys used on the form fields
   final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
-
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _domainFormKey = GlobalKey<FormState>();
 
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Map<String, dynamic> apiKey;
 
-  //triggers modal loading overlay
+  // triggers modal loading overlay
   static bool _inAsyncCall = false;
 
   /// cache login variables
@@ -76,9 +76,7 @@ class _LoginPageState extends State<LoginPage> {
   // boolean to lock cache check when logging in
   bool _cacheLoginSuccess = false;
 
-  //Puts app in demo mode (If you want to switch out the mode then you have
-  //change the boolean and rerun the app. If someone finds a fix that would be
-  //great)
+  //Puts app in demo mode so login details don't need to be typed
   static bool _demoMode = false;
 
   @override
@@ -90,17 +88,14 @@ class _LoginPageState extends State<LoginPage> {
       // check if the user has saved details
       _checkLoggedIn();
     });
-
-    // call this to clear cache
-    _clearLoginDetails();
   }
 
-    /// Checks to make sure a username is valid
-    /// in the user interface for logging in
-    ///
-    /// @param value - The username entered in the text field
-    /// @returns Error message if the username is invalid
-    /// if true we return null
+  /// Checks to make sure a username is valid
+  /// in the user interface for logging in
+  ///
+  /// @param value - The username entered in the text field
+  /// @returns Error message if the username is invalid
+  /// if true we return null
   String _validateUserName(String value) {
     RegExp userNamePattern = new RegExp(
       r"^[a-zA-Z0-9@.]*$",
@@ -119,12 +114,12 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-    /// Checks to make sure password is valid
-    /// in the user interface for logging in
-    ///
-    /// @param value - The password entered in the text field
-    /// @returns Error message if the password is invalid
-    /// if true we return null
+  /// Checks to make sure password is valid
+  /// in the user interface for logging in
+  ///
+  /// @param value - The password entered in the text field
+  /// @returns Error message if the password is invalid
+  /// if true we return null
   String _validatePassword(String value) {
     RegExp passwordPattern = new RegExp(
       r"^[a-zA-Z0-9]*$",
@@ -145,12 +140,12 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-    /// Wrapper method for UI
-    /// Used for error messages.
-    /// On ok button press the app exits.
-    ///
-    /// @param title - The title of the error message
-    /// @param content - The content of the dialog box
+  /// Wrapper method for UI
+  /// Used for error messages.
+  /// On ok button press the app exits.
+  ///
+  /// @param title - The title of the error message
+  /// @param content - The content of the dialog box
   void showDialogParent(String title, String content) {
     showDialog(
         context: context,
@@ -166,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
             ));
   }
 
-  /// Forgot password method for users 
+  /// Forgot password method for users
   /// who forget their password.
   /// Will open up a browser linking to an Outreach
   /// form that will let them reset their password.
@@ -182,8 +177,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   /// Method used for logging users in
-  /// who have provided valid credentials. 
-  /// This function calls other functions 
+  /// who have provided valid credentials.
+  /// This function calls other functions
   /// that will get an API key validate it,
   /// check for Wifi and so on.
   void _login() async {
@@ -219,14 +214,12 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-   
-
   ///***************************************************************************
   ///                     A U T O   L O G I N
   ///***************************************************************************
 
-  /// Method used for clearing the 
-  /// cache once a user has logged out. 
+  /// Method used for clearing the
+  /// cache once a user has logged out.
   /// This includes the domain, username,
   /// and password.
   void _clearLoginDetails() {
@@ -257,7 +250,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  /// this method checks if there are login values in the cache, if yes
+  /// checks if there are login values in the cache, if yes
   /// then verify and push to contacts; else we push to domain entry
   Future _checkLoggedIn() async {
     // instantiate shared preferences (cache)
@@ -441,7 +434,7 @@ class _LoginPageState extends State<LoginPage> {
   ///                   C O N T A C T S   P A G E   C A L L
   ///***************************************************************************
 
-  /// pushing to contact page
+  /// pushing to and creating the contact page
   void _getContactPage() {
     ///Send the contactsList to be displayed on the ContactsPage
     usernameController.clear();
@@ -454,9 +447,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  /// build the splash screen
   @override
   Widget build(BuildContext context) {
-    // this is the splash screen
+    // this is the loading modal
     return new ModalProgressHUD(
       child: Container(
         decoration: new BoxDecoration(
@@ -475,6 +469,8 @@ class _LoginPageState extends State<LoginPage> {
 ///                   D O M A I N  P A G E  B U I L D
 ///***************************************************************************
 
+/// this is the domain widget, this will be separated into own file
+/// when we refactor
 class DomainForm extends StatefulWidget {
   // fields required for domain form
   final LoginFields loginFields;
@@ -510,6 +506,8 @@ class DomainForm extends StatefulWidget {
   }
 }
 
+/// this is the domain entry form, this will be separated into own file
+/// when we refactor
 class DomainFormState extends State<DomainForm> {
   final GlobalKey<FormState> domainFormKey;
   final GlobalKey<FormState> loginFormKey;
@@ -690,7 +688,10 @@ class DomainFormState extends State<DomainForm> {
   ///                  D O M A I N   V A L I D A T I O N
   ///***************************************************************************
 
-  ///Retrieving API Key
+  /// Method used for validating that the domain exists.
+  /// Uses a simple 404 error check
+  ///
+  /// @param domain - the user entered domain to validate
   void _getDomainValidation(String domain) async {
     bool _isDomain = false;
     //Creating the URL that'll query the database for our API Key
@@ -754,6 +755,8 @@ class DomainFormState extends State<DomainForm> {
 ///                   L O G I N   P A G E   B U I L D
 ///***************************************************************************
 
+/// this is the login widget, this will be separated into own file
+/// when we refactor
 class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> loginFormKey;
   final LoginFields loginFields;
@@ -784,6 +787,8 @@ class LoginForm extends StatefulWidget {
   }
 }
 
+/// this is the login entry form, this will be separated into own file
+/// when we refactor
 class LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> loginFormKey;
   final LoginFields loginFields;

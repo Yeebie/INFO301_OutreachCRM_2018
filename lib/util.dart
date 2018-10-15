@@ -35,7 +35,7 @@ class Util {
     return prefs.getString(key) ?? "";
   }
 
-  /// This method isused to clear a single value from cache
+  /// This method issued to clear a single value from cache
   /// @param key - The cache item to remove
   /// @return a future object once the item has been removed 
   static Future<Null> removeCacheItem(String key) async {
@@ -60,5 +60,6 @@ class Util {
     } on SocketException catch (_) {
       return false;
     }
+    return false;
   }
 }

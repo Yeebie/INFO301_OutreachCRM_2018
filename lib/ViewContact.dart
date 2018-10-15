@@ -17,6 +17,13 @@ import 'dart:convert';
 //Define "root widget"
 //one-line function
 
+
+///***************************************************************************
+///                  C O N T A C T   P A G E   B U I L D
+///***************************************************************************
+
+
+
 ///StatelessWidget call
 class ViewContactApp extends StatelessWidget {
   String _apiKey;
@@ -230,6 +237,12 @@ class ViewContact extends State<ViewContactState> {
           ));
     }
   }
+
+
+  ///***************************************************************************
+  ///                   D E T A I L S  A P I  C A L L
+  ///***************************************************************************
+
 
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactDetails(

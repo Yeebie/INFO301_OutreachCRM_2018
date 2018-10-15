@@ -210,7 +210,7 @@ class ViewContactJson {
   //Constructor
   ViewContactJson({this.data});
 
-  //Soft of like a method that'll be executed somewhere
+  //Sort of like a method that'll be executed somewhere
   factory ViewContactJson.fromJson(Map<String, dynamic> json) {
     var list = json["data"] as List;
     List<ViewContactData> dataList =

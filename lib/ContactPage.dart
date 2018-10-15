@@ -13,6 +13,8 @@ import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart'; //Converts Json into Map
 
+
+/// method used for clearing the cache variables and exiting the app
 void clearLoginDetails() async{
   print("-------------------------");
   print("CLEARING DETAILS IN CACHE");
@@ -28,7 +30,7 @@ void clearLoginDetails() async{
 
 ///StatelessWidget call
 class ContactsPageApp extends StatelessWidget {
-  //Datafields
+  //Data fields
   String _apiKey;
   String _domain;
   String _username;
@@ -37,7 +39,7 @@ class ContactsPageApp extends StatelessWidget {
   //Constructor
   ContactsPageApp(this._apiKey, this._domain, this._username);
 
-  //wipes cache of user details, prevents future autologins
+  ///wipes cache of user details, prevents future auto logins
   void deleteAPIKey() {
     //Purge ourselves of that pesky APIKey
     String apikey = "?apikey=" + _apiKey;
@@ -51,6 +53,7 @@ class ContactsPageApp extends StatelessWidget {
       print("-------------------------");
       print("CALLING CLEAR LOGIN DETAILS");
       print("-------------------------");
+      // clear cache and exit app
       clearLoginDetails();
     });
       
@@ -75,8 +78,6 @@ class ContactsPageApp extends StatelessWidget {
                       child: Text("Yes"),
                       onPressed: () {
                         deleteAPIKey();
-                        
-                       
                       })
                 ],
               ));
@@ -92,12 +93,18 @@ class ContactsPageApp extends StatelessWidget {
   }
 }
 
+
+///***************************************************************************
+///                 C O N T A C T  P A G E  D E F I N I T I O N
+///***************************************************************************
+
+
 ///Stateful Widget Call
 class _ContactsPage extends StatefulWidget {
   Widget appBarTitle = new Text("Contacts");
   Icon actionIcon = new Icon(Icons.search);
 
-  //Datafields
+  //Data fields
   String _apiKey;
   String _domain;
   String _username;
@@ -117,7 +124,7 @@ class _ContactsPage extends StatefulWidget {
 
 ///Defines the page's structure
 class _ContactPage extends State<_ContactsPage> {
-  //Datafields
+  //Data fields
   String _apiKey;
   String _domain;
   String _username;
@@ -138,7 +145,7 @@ class _ContactPage extends State<_ContactsPage> {
   Contact contact = new Contact();
   String name_processed = " ";
 
-  //Datafields for the app bar
+  //Data fields for the app bar
   final formKey = new GlobalKey<FormState>();
   final key = new GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -226,6 +233,12 @@ class _ContactPage extends State<_ContactsPage> {
     }
   }
 
+
+  ///***************************************************************************
+  ///                   S E A R C H  H A N D L I N G
+  ///***************************************************************************
+
+
   //This method gets called when the search icon is pressed
   //It reveals a text field and allows a user to search their contacts
   void _searchPressed() {
@@ -259,6 +272,12 @@ class _ContactPage extends State<_ContactsPage> {
       }
     });
   }
+
+
+  ///***************************************************************************
+  ///                   U I   C O N S T R U C T I O N
+  ///***************************************************************************
+
 
   ///Stylised contact item
   Widget buildRow(Contact contact) {
@@ -307,6 +326,13 @@ class _ContactPage extends State<_ContactsPage> {
           body: _buildContacts()),
     );
   }
+
+
+  ///***************************************************************************
+  ///                   D R A W E R  S E T T I N G S
+  ///***************************************************************************
+
+
 
   ///Settings menu
   Widget _drawer() {
@@ -406,6 +432,12 @@ class _ContactPage extends State<_ContactsPage> {
             ));
             
   }
+
+
+  ///***************************************************************************
+  ///                 C O N T A C T   A P I   R E Q U E S T S
+  ///***************************************************************************
+
 
   ///Loading the Contacts List into a Collection
   Future<Contact> getContactsList(
