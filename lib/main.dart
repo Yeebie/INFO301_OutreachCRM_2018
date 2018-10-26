@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:outreachcrm_app/LoginPage.dart';
+import 'package:outreachcrm_app/view-models/LoginPageState.dart';
 
 void main() {
   runApp(new MyApp());
   print("\n");
   print("Outreach: Flutter Application");
-  print("Branch:   API_Domain Check");
-  print("Build:    Sprint 5 Bug Fixes | Domain Validation");
-  print(
-      "Task:     Checking Domain Page Validation");
+  print("Branch:   refactor");
+  print("Build:    REFACTOR");
   print("\n");
 }
 
@@ -29,9 +28,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Signika',
       ),
-      home: LoginPage(
-        loginFields: LoginFields(),
-      ),
+      home: MyLoginPage()
 
     );
   }
