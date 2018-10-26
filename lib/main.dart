@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:outreachcrm_app/LoginPage.dart';
-import 'package:outreachcrm_app/view-models/LoginPageState.dart';
+import 'package:outreach/LoginPage.dart';
+import 'package:outreach/view-models/LoginPageState.dart';
 
 void main() {
   runApp(new MyApp());

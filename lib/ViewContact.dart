@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:outreachcrm_app/SupportClasses.dart';
+import 'package:outreach/SupportClasses.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
-import 'package:outreachcrm_app/ContactPage.dart';
+import 'package:outreach/ContactPage.dart';
 
 //Used for Wifi check
-import 'package:outreachcrm_app/util.dart';
+import 'package:outreach/util.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;

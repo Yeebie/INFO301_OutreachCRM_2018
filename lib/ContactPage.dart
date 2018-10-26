@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:outreachcrm_app/SupportClasses.dart';
+import 'package:outreach/SupportClasses.dart';
 import 'dart:io';
-import 'package:outreachcrm_app/ViewContact.dart';
-import 'package:outreachcrm_app/util.dart';
+import 'package:outreach/ViewContact.dart';
+import 'package:outreach/util.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
