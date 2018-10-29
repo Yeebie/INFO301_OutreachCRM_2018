@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:outreach/view-models/LoginPageState.dart';
-import 'package:outreach/views/widgets/LoginTextField.dart';
+import '../view-models/DomainPageState.dart';
+import '../views/widgets/LoginTextField.dart';
 
-class LoginPageView extends MyLoginPageState {
-
+class DomainPageView extends MyDomainPageState {
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +39,8 @@ class LoginPageView extends MyLoginPageState {
                   children: <Widget>[
                     new Column(children: <Widget>[
 
-                      new LoginTextField(labelText: 'Username', type: 'username', index: 0,
-                      ypos: verticalPadding, size: phoneSize, validator: validateUserName,
-                      formFields: formFields),
-
-                      new LoginTextField(labelText: 'Password', type: 'password', index: 1,
-                      ypos: verticalPadding, size: phoneSize, validator: validatePassword,
+                      new LoginTextField(labelText: 'Domain', type: 'domain', index: 0,
+                      ypos: verticalPadding, size: phoneSize, validator: validateDomain,
                       formFields: formFields),
 
                       new Container(
@@ -55,18 +50,18 @@ class LoginPageView extends MyLoginPageState {
                           borderRadius: BorderRadius.circular(30.0),
                           shadowColor: Colors.lightBlueAccent.shade100,
                           elevation: 5.0,
-                          color: loginSuccess 
+                          color: domainSuccess 
                             ? Colors.grey
                             : Color(0xFF0085CA),
                           child: MaterialButton(
                             height: phoneSize.height * 0.08,
                             onPressed: (){
-                              loginSuccess
+                              domainSuccess
                                 ? print("button disabled")
                                 : submit(context);
                             },
                             child: new Text(
-                              "LOGIN",
+                              "NEXT",
                               style: TextStyle(fontSize: 17.0, color: Colors.white),
                             ),
                           ),

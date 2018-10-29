@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:outreach/LoginPage.dart';
 import 'package:outreach/view-models/LoginPageState.dart';
+import 'package:outreach/view-models/DomainPageState.dart';
 
 void main() {
   runApp(new MyApp());
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Signika',
       ),
-      home: MyLoginPage()
+      home: new MyDomainPage()
 
     );
   }
