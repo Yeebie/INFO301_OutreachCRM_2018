@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:outreach/views/LoginPageView.dart';
-import 'package:outreach/api/auth.dart';
+// import 'package:outreach/api/auth.dart';
+import 'package:outreach/api/login.dart';
+import 'package:outreach/models/user.dart';
 
 class LoginPage extends StatefulWidget {
   final String domain;
@@ -11,18 +13,21 @@ class LoginPage extends StatefulWidget {
   LoginPageView createState() => new LoginPageView();
 }
 
-abstract class LoginPageState extends State<LoginPage> {
+abstract class LoginPageState extends State<LoginPage> with Login{
   @protected
-  final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
+  final formKey = new GlobalKey<FormState>();
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
   final List<String> formFields = new List(2);
-  // true to show the login page, false to show the domain
-  bool loginOrDomain = false;
-  bool domainSuccess = false;
   bool loginSuccess = false;
 
+  @protected
+  void _showSnackBar(String text) {
+    scaffoldKey.currentState
+      .showSnackBar(new SnackBar(content: new Text(text)));
+  }
 
   @protected
-  submit(BuildContext context) async {
+  submit() async {
     final form = formKey.currentState;
     if(form.validate()){
       form.save();
@@ -31,18 +36,37 @@ abstract class LoginPageState extends State<LoginPage> {
       String _username = formFields[0];
       String _password = formFields[1];
 
+      print(_domain + " " + _username + " " + _password);
+
       setState((){
-        domainSuccess = true;
+        loginSuccess = true;
       });
 
-      var domainStatus = 
-        await ApiAuth.getDomainValidation(_domain, context);
-
-      if(!domainStatus){
-        setState((){
-          domainSuccess = false;
-        });
+      try {
+        var user = await login(_domain, _username, _password);
+        if(user != null){
+          print("USER: ${user.username}");
+          _showSnackBar("Logged in as ${user.username}");
+          // cache user as JSON
+        }
+      } on LoginException catch(e){
+        print(e.errorMessage());
+        _showSnackBar(e.errorMessage());
+        await new Future.delayed(const Duration(seconds: 2));
+        setState(() => loginSuccess = false);
       }
+      // await login(_domain, _username, _password).then((User user) {
+      //   if(user == null) {
+      //     print("ERROR");
+      //     setState(() => loginSuccess = false);
+      //   } else{
+      //     print("USER: ${user.username}");
+      //     setState(() => loginSuccess = false);
+      //   }
+      // }).catchError((LoginException error) {
+      //   print(error.errorMessage());
+      //   setState(() => loginSuccess = false);
+      // });
     }
   }
 
