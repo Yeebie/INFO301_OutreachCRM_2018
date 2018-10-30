@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:outreach/views/LoginPageView.dart';
 import 'package:outreach/api/auth.dart';
 
-class MyLoginPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   final String domain;
-  MyLoginPage(this.domain);
+  LoginPage(this.domain);
 
   @override
   LoginPageView createState() => new LoginPageView();
 }
 
-abstract class MyLoginPageState extends State<MyLoginPage> {
+abstract class LoginPageState extends State<LoginPage> {
   @protected
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   final List<String> formFields = new List(2);

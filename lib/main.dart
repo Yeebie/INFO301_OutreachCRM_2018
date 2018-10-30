@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:outreach/LoginPage.dart';
-import 'package:outreach/view-models/LoginPageState.dart';
-import 'package:outreach/view-models/DomainPageState.dart';
+import 'package:outreach/view-models/SplashState.dart';
+// import 'package:outreach/view-models/DomainPageState.dart';
+import 'util/routes.dart';
 
 void main() {
   runApp(new MyApp());
@@ -29,8 +29,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Signika',
       ),
-      home: new MyDomainPage()
-
+      home: new Splash(),
+      routes: routes,
     );
   }
 }
+

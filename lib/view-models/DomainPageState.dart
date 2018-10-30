@@ -4,12 +4,12 @@ import 'package:outreach/views/DomainPageView.dart';
 import 'package:outreach/api/auth.dart';
 import '../view-models/LoginPageState.dart';
 
-class MyDomainPage extends StatefulWidget {
+class DomainPage extends StatefulWidget {
   @override
   DomainPageView createState() => new DomainPageView();
 }
 
-abstract class MyDomainPageState extends State<MyDomainPage> {
+abstract class DomainPageState extends State<DomainPage> {
   @protected
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   final List<String> formFields = new List(1);
@@ -39,7 +39,7 @@ abstract class MyDomainPageState extends State<MyDomainPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => new MyLoginPage(_domain))
+            builder: (context) => new LoginPage(_domain))
         );
       }
     }
@@ -59,9 +59,6 @@ abstract class MyDomainPageState extends State<MyDomainPage> {
     } else if (!domainPattern.hasMatch(val)) {
       return 'Only enter alphanumeric characters';
     } 
-    // else {
-    //   loginFields._domain = val;
-    // }
     return null;
   }
 }

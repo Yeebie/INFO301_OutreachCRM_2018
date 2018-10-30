@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../view-models/DomainPageState.dart';
 import '../views/widgets/LoginTextField.dart';
 
-class DomainPageView extends MyDomainPageState {
+class DomainPageView extends DomainPageState {
 
   @override
   Widget build(BuildContext context) {
@@ -77,3 +77,4 @@ class DomainPageView extends MyDomainPageState {
     );
   }
 }
+

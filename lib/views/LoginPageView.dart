@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:outreach/view-models/LoginPageState.dart';
 import 'package:outreach/views/widgets/LoginTextField.dart';
 
-class LoginPageView extends MyLoginPageState {
+class LoginPageView extends LoginPageState {
 
 
   @override
