@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:outreach/view-models/SplashState.dart';
-// import 'package:outreach/view-models/DomainPageState.dart';
+import 'package:outreach/view-models/splash_state.dart';
 import 'util/routes.dart';
 
 void main() {
@@ -14,15 +13,13 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

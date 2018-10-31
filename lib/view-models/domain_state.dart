@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:outreach/views/DomainPageView.dart';
 import 'package:outreach/api/auth.dart';
-import '../view-models/LoginPageState.dart';
+import 'package:outreach/view-models/login_state.dart';
 
 class DomainPage extends StatefulWidget {
   @override
@@ -41,6 +41,7 @@ abstract class DomainPageState extends State<DomainPage> {
           MaterialPageRoute(
             builder: (context) => new LoginPage(_domain))
         );
+        domainSuccess = false;
       }
     }
   }

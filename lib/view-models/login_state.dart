@@ -19,12 +19,19 @@ abstract class LoginPageState extends State<LoginPage> with Login{
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final List<String> formFields = new List(2);
   bool loginSuccess = false;
+  User user;
 
   @protected
   void _showSnackBar(String text) {
     scaffoldKey.currentState
-      .showSnackBar(new SnackBar(content: new Text(text)));
+      .showSnackBar(
+        new SnackBar(
+          content: new Text(text),
+          duration: new Duration(seconds: 2),
+        )
+      );
   }
+
 
   @protected
   submit() async {
@@ -43,7 +50,7 @@ abstract class LoginPageState extends State<LoginPage> with Login{
       });
 
       try {
-        var user = await login(_domain, _username, _password);
+        user = await login(_domain, _username, _password);
         if(user != null){
           print("USER: ${user.username}");
           _showSnackBar("Logged in as ${user.username}");
@@ -55,25 +62,11 @@ abstract class LoginPageState extends State<LoginPage> with Login{
         await new Future.delayed(const Duration(seconds: 2));
         setState(() => loginSuccess = false);
       }
-      // await login(_domain, _username, _password).then((User user) {
-      //   if(user == null) {
-      //     print("ERROR");
-      //     setState(() => loginSuccess = false);
-      //   } else{
-      //     print("USER: ${user.username}");
-      //     setState(() => loginSuccess = false);
-      //   }
-      // }).catchError((LoginException error) {
-      //   print(error.errorMessage());
-      //   setState(() => loginSuccess = false);
-      // });
     }
+    
+    // user.apiExpiry.isAfter(DateTime.now()) ? print("ITS AFTER") : print("BEFORE BITCH");
+
   }
-
-
-
-
-
 
 
   @protected

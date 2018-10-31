@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:outreach/view-models/LoginPageState.dart';
+import 'package:outreach/view-models/login_state.dart';
 import 'package:outreach/views/widgets/LoginTextField.dart';
 
 class LoginPageView extends LoginPageState {

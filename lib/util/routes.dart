@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:outreach/view-models/DomainPageState.dart';
-import 'package:outreach/view-models/SplashState.dart';
+import 'package:outreach/view-models/domain_state.dart';
+// import 'package:outreach/view-models/splash_state.dart';
 
 final routes = {
   // '/': (BuildContext context) => new Splash(),

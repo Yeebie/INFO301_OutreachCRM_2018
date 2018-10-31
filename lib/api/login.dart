@@ -13,7 +13,8 @@ class Login {
 
     return _netUtil.post(loginURL, body: {
       "username": username,
-      "password": password
+      "password": password,
+      "expiry": "12 months"
     }).then((dynamic result) {
       print(result.toString());
       if(result["error"] != null) {

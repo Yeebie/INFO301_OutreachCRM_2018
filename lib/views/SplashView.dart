@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:outreach/view-models/SplashState.dart';
+import 'package:outreach/view-models/splash_state.dart';
 
 class SplashView extends SplashState {
   @override
