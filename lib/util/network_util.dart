@@ -10,15 +10,17 @@ class NetworkUtil {
 
   final JsonDecoder _decoder = new JsonDecoder();
 
-  Future<dynamic> get(String url) {
+  Future<dynamic> get(String url, bool auth) {
     return http.get(url).then((http.Response response) {
       final String result = response.body;
       final int statusCode = response.statusCode;
 
       if(statusCode < 200 || statusCode > 400 || json == null) {
-        throw new Exception("Error while fetching data");
+        throw new Exception("$statusCode error while fetching data");
       }
-      return _decoder.convert(result);
+
+      if(!auth) return _decoder.convert(result);
+      return result;
     });
   }
 
@@ -26,8 +28,8 @@ class NetworkUtil {
     return http
       .post(url, body: body, headers: headers, encoding: encoding)
       .then((http.Response response) {
-        final result = response.body;
-        final statusCode = response.statusCode;
+        final String result = response.body;
+        final int statusCode = response.statusCode;
 
         if(statusCode < 200 || statusCode > 400 || json == null) {
           throw new Exception("Error while fetching data");

@@ -12,6 +12,7 @@ class DomainPageView extends DomainPageState {
     double verticalPadding = phoneSize.height * 0.05;
 
     return Scaffold(
+        key: scaffoldKey,
         resizeToAvoidBottomPadding: false,
         body: new GestureDetector(
         onTap: () {

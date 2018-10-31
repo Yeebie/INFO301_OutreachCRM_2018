@@ -5,81 +5,67 @@ import 'package:outreach/util.dart';
 
 ///Used to utilise REST operations
 import 'package:http/http.dart' as http;
+import 'package:outreach/util/network_util.dart';
+
+class ConnectionException implements Exception {
+  String error = "Please connect to the internet to continue";
+}
 
 class ApiAuth {
+// next three lines makes this class a Singleton
+  static ApiAuth _instance = new ApiAuth.internal();
+  ApiAuth.internal();
+  factory ApiAuth() => _instance;
+
+  NetworkUtil _netUtil = new NetworkUtil();
 
 
-  /// Method used for validating that the domain exists.
-  /// Uses a simple 404 error check
-  ///
-  /// @param domain - the user entered domain to validate
-  static Future<bool> getDomainValidation(String domain, BuildContext context) async {
-    bool _isDomain = false;
-    //Creating the URL that'll query the database for our API Key
-    String _requestDomainValidation = "https://" + domain + ".outreach.co.nz";
-    print('Creating the URL to check if current Domain is valid: ' +
-        _requestDomainValidation);
+
+  /// Checks if the user entered domain is valid
+  /// 
+  /// @param domain - the domain to be checked
+  /// 
+  /// @return - whether domain is valid
+  Future<bool> validateDomain(String domain) async {
+    String url = "https://${domain}.outreach.co.nz";
+    print(url);
 
     var wifiEnabled = await Util.getWifiStatus();
-    if (wifiEnabled) {
-      await http.get(_requestDomainValidation).then((response) {
-        //Print the API Key, just so we can compare it to the final result
-        print("Original Response body: ${response.statusCode}");
+    if (!wifiEnabled) throw new ConnectionException();
 
-        print("Checking if domain is valid");
-        if (response.statusCode.toString() == "404") {
-          print(domain + " is not a valid domain");
-          _isDomain = false;
-        } else {
-          print(domain + " is a valid domain");
-          _isDomain = true;
-        }
-        print("Printing _isDomain");
-        print(_isDomain);
-        print("Domain is valid, sending to LoginPage");
-        print("\n\n");
-
-        if (_isDomain == false) {
-          showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                    title: Text("Domain does not exist"),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: Text("Okay"),
-                        onPressed: () => Navigator.pop(context, false),
-                      ),
-                    ],
-                  ));
-        } else {
-          // push to login page my guy
-        }
-      });
-    } else {
-      _showDialogParent("No Internet Connection",
-          "Please connect to the internet to use this application.", context);
+    try{
+      await _netUtil.get(url, true);
+      return true;
+    } on Exception catch(e) {
+        print(e.toString());
+        return false;
     }
-    return _isDomain;
   }
 
-  /// Wrapper method for UI
-  /// Used for error messages.
-  /// On ok button press the app exits.
-  ///
-  /// @param title - The title of the error message
-  /// @param content - The content of the dialog box
-  static void _showDialogParent(String title, String content, BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text(title),
-              content: new Text(content),
-              actions: [
-                new FlatButton(
-                  child: const Text("Ok"),
-                  onPressed: () => exit(0),
-                ),
-              ],
-            ));
+
+  Future<bool> validateAPIKey(String domain,
+                    String key, DateTime expiry) async {
+    String baseURL = "https://$domain.outreach.co.nz/api/0.2";
+    String verifyURL = "$baseURL/auth/verify/";
+    
+    // check we are not past key expiry
+    if(DateTime.now().isAfter(expiry)) {
+      throw new Exception("Key expired");
+    }
+
+    try{
+      return _netUtil.post(verifyURL, body: {
+        "apikey": key,
+      }).then((dynamic result) {
+        print("API KEY VALIDATION RESPONSE: " + result.toString());
+        if(result["error"] != "") {
+          throw new Exception(result["error"].toString());
+        }
+        return true;
+      });
+    } on Exception catch(e) {
+        print(e.toString());
+        return false;
+    }
   }
 }

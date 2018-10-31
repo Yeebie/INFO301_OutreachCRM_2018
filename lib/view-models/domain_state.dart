@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:outreach/util/helpers.dart';
 import 'package:outreach/views/domain_view.dart';
 import 'package:outreach/api/auth.dart';
 import 'package:outreach/view-models/login_state.dart';
@@ -11,38 +12,55 @@ class DomainPage extends StatefulWidget {
 
 abstract class DomainPageState extends State<DomainPage> {
   @protected
-  final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
+  final formKey = new GlobalKey<FormState>();
   final List<String> formFields = new List(1);
   bool domainSuccess = false;
+
+  ApiAuth auth = new ApiAuth();
 
 
   @protected
   submit(BuildContext context) async {
+    var domainAccepted;
+
     final form = formKey.currentState;
     if(form.validate()){
       form.save();
 
       String _domain = formFields[0];
 
-      setState((){
-        domainSuccess = true;
-      });
+      setState(() => domainSuccess = true);
 
-      var domainStatus = 
-        await ApiAuth.getDomainValidation(_domain, context);
+      try {
+        domainAccepted = 
+            await auth.validateDomain(_domain);
+      } on ConnectionException catch(e) {
+        Util.showSnackBar(
+            e.error,
+            scaffoldKey,
+            true
+        );
+        setState(() => domainSuccess = false);
+      }
 
-      if(!domainStatus){
-        setState((){
-          domainSuccess = false;
-        });
+      if(!domainAccepted) {
+        Util.showSnackBar(
+            "Please enter a valid domain",
+            scaffoldKey,
+            true
+        );
+        setState(() => domainSuccess = false);
       } else {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => new LoginPage(_domain))
         );
-        domainSuccess = false;
       }
+
+      // hide modal if we pop back to page
+      domainSuccess = false;
     }
   }
 

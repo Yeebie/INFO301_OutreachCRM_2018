@@ -13,7 +13,7 @@ class CacheUtil {
   factory CacheUtil() => _instance;
 
   /// cache instance
-  static Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
+  Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
 
   ///***************************************************************************
   ///                     C A C H E   M E T H O D S

@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:outreach/api/auth.dart';
+import 'package:outreach/util/helpers.dart';
 import 'package:outreach/views/login_view.dart';
-// import 'package:outreach/api/auth.dart';
 import 'package:outreach/api/login.dart';
 import 'package:outreach/models/user.dart';
 
@@ -20,17 +21,7 @@ abstract class LoginPageState extends State<LoginPage> with Login{
   final List<String> formFields = new List(2);
   bool loginSuccess = false;
   User user;
-
-  @protected
-  void _showSnackBar(String text) {
-    scaffoldKey.currentState
-      .showSnackBar(
-        new SnackBar(
-          content: new Text(text),
-          duration: new Duration(seconds: 2),
-        )
-      );
-  }
+  ApiAuth auth = new ApiAuth();
 
 
   @protected
@@ -43,29 +34,49 @@ abstract class LoginPageState extends State<LoginPage> with Login{
       String _username = formFields[0];
       String _password = formFields[1];
 
-      print(_domain + " " + _username + " " + _password);
-
-      setState((){
-        loginSuccess = true;
-      });
+      setState(() => loginSuccess = true);
 
       try {
         user = await login(_domain, _username, _password);
-        if(user != null){
-          print("USER: ${user.username}");
-          _showSnackBar("Logged in as ${user.username}");
-          // cache user as JSON
+        print("USER: ${user.username}");
+        // cache user as JSON
+
+        Util.showSnackBar(
+          "Logged in as ${user.username}",
+          scaffoldKey,
+          false
+        );
+
+        try{
+          var validKey = await 
+          auth.validateAPIKey(
+            user.domain,
+            user.apiKey,
+            user.apiExpiry
+          );
+
+          
+        } on Exception catch(e) {
+            print(e.toString());
+            Util.showDialogParent(
+              "Logged out",
+              "We logged you out because API key was old soz lol",
+              context
+            ).then((Null ignore) { // do this after we close it
+              Util.logout(context);
+            });
         }
       } on LoginException catch(e){
-        print(e.errorMessage());
-        _showSnackBar(e.errorMessage());
+        Util.showSnackBar(
+          e.errorMessage(),
+          scaffoldKey,
+          true
+        );
+
         await new Future.delayed(const Duration(seconds: 2));
         setState(() => loginSuccess = false);
       }
     }
-
-    // user.apiExpiry.isAfter(DateTime.now()) ? print("ITS AFTER") : print("BEFORE BITCH");
-
   }
 
 
