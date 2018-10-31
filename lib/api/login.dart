@@ -23,6 +23,24 @@ class Login {
       return new User.map(result["data"], username, domain);
     });
   }
+
+  Future getFullName(User user) {
+    var url = "$baseURL/query/user";
+    var properties = "['name_processed']";
+    var conditions = "[['login','=','${user.username}']]";
+
+    return _netUtil.post(url, body: {
+      "apikey": user.apiKey,
+      "properties": properties,
+      "conditions": conditions
+    }).then((dynamic result) {
+      var list = result['data'] as List;
+      print(list[0].toString());
+      print(result.toString());
+      
+      return null;
+    });
+  }
 }
 
 class LoginException implements Exception {

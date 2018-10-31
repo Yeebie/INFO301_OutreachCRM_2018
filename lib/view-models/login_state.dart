@@ -21,7 +21,7 @@ abstract class LoginPageState extends State<LoginPage> with Login{
   final List<String> formFields = new List(2);
   bool loginSuccess = false;
   User user;
-  ApiAuth auth = new ApiAuth();
+  final ApiAuth auth = new ApiAuth();
 
 
   @protected
@@ -66,6 +66,9 @@ abstract class LoginPageState extends State<LoginPage> with Login{
               Util.logout(context);
             });
         }
+
+        await getFullName(user);
+
       } on LoginException catch(e){
         Util.showSnackBar(
           e.errorMessage(),

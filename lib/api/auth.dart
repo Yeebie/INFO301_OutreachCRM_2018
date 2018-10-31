@@ -17,7 +17,7 @@ class ApiAuth {
   ApiAuth.internal();
   factory ApiAuth() => _instance;
 
-  NetworkUtil _netUtil = new NetworkUtil();
+  final NetworkUtil _netUtil = new NetworkUtil();
 
 
 
