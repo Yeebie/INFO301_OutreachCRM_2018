@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:outreach/views/DomainPageView.dart';
+import 'package:outreach/views/domain_view.dart';
 import 'package:outreach/api/auth.dart';
 import 'package:outreach/view-models/login_state.dart';
 

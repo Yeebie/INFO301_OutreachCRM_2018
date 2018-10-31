@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:outreach/util/helpers.dart';
 import 'package:outreach/view-models/domain_state.dart';
-import 'package:outreach/views/widgets/LoginTextField.dart';
+import 'package:outreach/views/widgets/login_text_field.dart';
 
 class DomainPageView extends DomainPageState {
   @override
@@ -14,8 +15,7 @@ class DomainPageView extends DomainPageState {
         resizeToAvoidBottomPadding: false,
         body: new GestureDetector(
         onTap: () {
-          // call this method here to hide soft keyboard
-          FocusScope.of(context).requestFocus(new FocusNode());
+          Util.hideSoftKeyboard(context);
         },
         child: new Container(
           decoration: new BoxDecoration(
@@ -66,8 +66,7 @@ class DomainPageView extends DomainPageState {
                                 domainSuccess //if submit was called, lock button
                                     ? print("button disabled")
                                     : submit(context);
-                                      // call this method here to hide soft keyboard
-                                      FocusScope.of(context).requestFocus(new FocusNode());
+                                      Util.hideSoftKeyboard(context);
                               },
                               child: new Text(
                                 "NEXT",

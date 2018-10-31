@@ -6,8 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// This class is used to store functions that are called
 /// multiple times in our application. This a utility class. 
 /// Most of the methods are related to caching and error handling.
-class Cache {
-  /// data fields
+class CacheUtil {
+  // next three lines makes this class a Singleton
+  static CacheUtil _instance = new CacheUtil.internal();
+  CacheUtil.internal();
+  factory CacheUtil() => _instance;
+
+  /// cache instance
   static Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
 
   ///***************************************************************************
@@ -20,7 +25,7 @@ class Cache {
   /// @param s - The string value
   /// @return A future object once the string and key
   /// have been set in the cache
-  static Future<Null> setString(String key, String s) async {
+  Future<Null> setString(String key, String s) async {
     final SharedPreferences prefs = await _sPrefs;
     prefs.setString(key, s);
   }
@@ -28,7 +33,7 @@ class Cache {
   /// This method gets the string of an object to remove
   /// @param key - The cache item to remove
   /// @return a future object to see if the value exists or not
-  static Future<Null> getString(String key) async {
+  Future<Null> getString(String key) async {
     final SharedPreferences prefs = await _sPrefs;
 
     return prefs.getString(key) ?? "";
@@ -37,8 +42,9 @@ class Cache {
   /// This method issued to clear a single value from cache
   /// @param key - The cache item to remove
   /// @return a future object once the item has been removed 
-  static Future<Null> removeCacheItem(String key) async {
+  Future<Null> removeCacheItem(String key) async {
     final SharedPreferences prefs = await _sPrefs;
     prefs.remove(key);
   }
 }
+
