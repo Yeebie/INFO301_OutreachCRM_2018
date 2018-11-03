@@ -9,7 +9,7 @@ class Splash extends StatefulWidget {
 }
 
 abstract class SplashState extends State<Splash> {
-  int _showSplashLengh = 1;
+  int _splashScreenLengh = 1; // seconds
 
   Future checkLoginCache() async {
     Navigator.of(context).pushReplacementNamed('/domain');
@@ -19,7 +19,7 @@ abstract class SplashState extends State<Splash> {
   void initState() {
     super.initState();
 
-    new Timer(new Duration(seconds: _showSplashLengh), () {
+    new Timer(new Duration(seconds: _splashScreenLengh), () {
       checkLoginCache();
     });
     

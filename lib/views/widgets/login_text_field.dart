@@ -9,6 +9,7 @@ class LoginTextField extends StatelessWidget {
   final Function validator;
   final Size size;
   final int index;
+  final FocusNode focusNode;
 
 
   LoginTextField ({
@@ -18,7 +19,8 @@ class LoginTextField extends StatelessWidget {
     @required this.formFields,
     @required this.validator,
     @required this.size,
-    @required this.index
+    @required this.index,
+    this.focusNode
   });
 
   @override
@@ -45,6 +47,8 @@ class LoginTextField extends StatelessWidget {
             ),
             child: 
             new TextFormField(
+              focusNode: focusNode,
+              
                 keyboardType: TextInputType.text,
                 obscureText: type == "password",
 

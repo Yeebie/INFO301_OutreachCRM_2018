@@ -11,15 +11,15 @@ class LoginPage extends StatefulWidget {
   LoginPage(this.domain);
 
   @override
-  LoginPageView createState() => new LoginPageView();
+  LoginView createState() => new LoginView();
 }
 
-abstract class LoginPageState extends State<LoginPage> with Login{
+abstract class LoginState extends State<LoginPage> with Login{
   @protected
   final formKey = new GlobalKey<FormState>();
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final List<String> formFields = new List(2);
-  bool loginSuccess = false;
+  bool attemptingLogin = false;
   User user;
   final ApiAuth auth = new ApiAuth();
 
@@ -34,53 +34,47 @@ abstract class LoginPageState extends State<LoginPage> with Login{
       String _username = formFields[0];
       String _password = formFields[1];
 
-      setState(() => loginSuccess = true);
+      setState(() => attemptingLogin = true);
 
       try {
-        user = await login(_domain, _username, _password);
-        print("USER: ${user.username}");
+        // do the login, assign result to new user
+        user = await doLogin(_domain, _username, _password);
+
+        // validate the key
+        await doKeyValidation(context, user);
+
+        // attempt to grab full name of user
+        await getFullName(user);
+
         // cache user as JSON
 
+        // show who we are logged in as
         Util.showSnackBar(
-          "Logged in as ${user.username}",
+          "Welcome ${user.name}!",
           scaffoldKey,
           false
         );
 
-        try{
-          var validKey = await 
-          auth.validateAPIKey(
-            user.domain,
-            user.apiKey,
-            user.apiExpiry
-          );
+        // wait for snack bar to disappear then push to contacts page
+        await new Future.delayed(const Duration(seconds: 2));
+        Navigator.of(context).pushReplacementNamed('/contacts');
 
-          
-        } on Exception catch(e) {
-            print(e.toString());
-            Util.showDialogParent(
-              "Logged out",
-              "We logged you out because API key was old soz lol",
-              context
-            ).then((Null ignore) { // do this after we close it
-              Util.logout(context);
-            });
-        }
-
-        await getFullName(user);
-
-      } on LoginException catch(e){
+      } on LoginException catch(e){ // error our API request throws
+        // show a snackbar with error message
+        // e.g. "invalid username or password"
         Util.showSnackBar(
           e.errorMessage(),
           scaffoldKey,
           true
         );
 
+        // wait for snack bar to disappear then hide loading modal
         await new Future.delayed(const Duration(seconds: 2));
-        setState(() => loginSuccess = false);
+        setState(() => attemptingLogin = false);
       }
     }
   }
+
 
 
   @protected

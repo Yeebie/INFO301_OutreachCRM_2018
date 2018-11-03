@@ -28,16 +28,20 @@ class ApiAuth {
   /// @return - whether domain is valid
   Future<bool> validateDomain(String domain) async {
     String url = "https://${domain}.outreach.co.nz";
-    print(url);
-
+    
+    print("VALIDATING DOMAIN {"
+    "\n\tdomain: $domain");
+    
     var wifiEnabled = await Util.getWifiStatus();
     if (!wifiEnabled) throw new ConnectionException();
 
     try{
       await _netUtil.get(url, true);
+      print("\tvalidated: true" "\n}");
       return true;
     } on Exception catch(e) {
         print(e.toString());
+        print("\tvalidated: false" "\n}");
         return false;
     }
   }
@@ -48,8 +52,12 @@ class ApiAuth {
     String baseURL = "https://$domain.outreach.co.nz/api/0.2";
     String verifyURL = "$baseURL/auth/verify/";
     
+    print("VALIDATING API KEY {"
+    "\n\tkey: $key");
+
     // check we are not past key expiry
     if(DateTime.now().isAfter(expiry)) {
+      print("\tvalidated: false" "\n}");
       throw new Exception("Key expired");
     }
 
@@ -57,14 +65,15 @@ class ApiAuth {
       return _netUtil.post(verifyURL, body: {
         "apikey": key,
       }).then((dynamic result) {
-        print("API KEY VALIDATION RESPONSE: " + result.toString());
         if(result["error"] != "") {
           throw new Exception(result["error"].toString());
         }
+        print("\tvalidated: true" "\n}");
         return true;
       });
     } on Exception catch(e) {
         print(e.toString());
+        print("\tvalidated: false" "\n}");
         return false;
     }
   }

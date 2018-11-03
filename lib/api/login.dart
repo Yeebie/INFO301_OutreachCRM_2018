@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:outreach/util/network_util.dart';
 import 'package:outreach/models/user.dart';
+import 'package:outreach/api/auth.dart';
+import 'package:outreach/util/helpers.dart';
 
 class Login {
   NetworkUtil _netUtil = new NetworkUtil();
-  static String baseURL;
+  final ApiAuth _auth = new ApiAuth();
+  String baseURL;
 
-  Future<User> login(String domain, String username, String password) {
-    baseURL = "https://" + domain +
-        ".outreach.co.nz/api/0.2";
+  Future<User> doLogin(String domain, String username, String password) {
+    baseURL = "https://" + domain + ".outreach.co.nz/api/0.2";
     String loginURL = baseURL + "/auth/login/";
 
     return _netUtil.post(loginURL, body: {
@@ -16,8 +18,7 @@ class Login {
       "password": password,
       "expiry": "12 months"
     }).then((dynamic result) {
-      print(result.toString());
-      if(result["error"] != null) {
+      if (result["error"] != null) {
         throw new LoginException(error: result["error"].toString());
       }
       return new User.map(result["data"], username, domain);
@@ -34,23 +35,41 @@ class Login {
       "properties": properties,
       "conditions": conditions
     }).then((dynamic result) {
-      var list = result['data'] as List;
-      print(list[0].toString());
-      print(result.toString());
-      
+      user.updateNameFromJSON(result);
       return null;
     });
+  }
+
+  Future doKeyValidation(BuildContext context, User user) async {
+    // try validate api key
+    try {
+      await _auth.validateAPIKey(
+        user.domain,
+        user.apiKey,
+        user.apiExpiry
+      );
+    } on Exception catch (e) {
+      // force logout on invalid key
+      print(e.toString());
+      Util.showDialogParent(
+              "Logged out",
+              "We logged you out because your API key was old, soz lol",
+              context)
+          .then((Null ignore) {
+        // do this after we close it
+        Util.logout(context);
+      });
+    }
+    return null;
   }
 }
 
 class LoginException implements Exception {
   String error;
 
-  LoginException({
-    @required this.error
-  });
+  LoginException({@required this.error});
 
-  String errorMessage(){
+  String errorMessage() {
     return error;
   }
 }
