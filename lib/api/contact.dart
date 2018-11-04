@@ -6,13 +6,15 @@ class ContactAPI {
   NetworkUtil _netUtil = new NetworkUtil();
 
 
-  Future getContacts(User user, int page, List<Contact> list){
+  Future<List<Contact>> getContacts(User user, int page){
     String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
     String _contactsURL = "$_baseURL/query/user";
     String _properties = "['name_processed','oid']";
     // ,'o_company' when we are ready for it
     String _conditions = "[['status','=','O'],['oid','>=','100']]";
     String _order = "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]";
+
+    List<Contact> list = new List();
 
     // how many we want to read at a time
     int _contactLimit = 24;
@@ -39,6 +41,7 @@ class ContactAPI {
         // print("\t${c.name}");
         // print("\t${c.uid}\n}");
       }
+      return list;
     });
   }
 }

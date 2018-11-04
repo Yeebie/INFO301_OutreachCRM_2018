@@ -33,13 +33,19 @@ abstract class ContactsState extends State<Contacts>
   void getContactList(int page) async {
     try{
       print("REQUESTING CONTACTS");
-      await getContacts(widget.user, page, contactList);
+      var newData = await getContacts(widget.user, page);
+      currentLetter = "";
       setState(() {
+        contactList.addAll(newData);
         // tell the list we have new items
       });
     } on Exception catch(e) {
       print(e.toString().toUpperCase());
-      hasMoreContacts = false;
+      setState(() {
+        hasMoreContacts = false;
+      });
     }
+
+    print(widget.user.toMap().toString());
   }
 }

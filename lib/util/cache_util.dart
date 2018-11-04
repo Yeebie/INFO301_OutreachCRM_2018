@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:outreach/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -45,6 +46,36 @@ class CacheUtil {
   Future<Null> removeCacheItem(String key) async {
     final SharedPreferences prefs = await _sPrefs;
     prefs.remove(key);
+  }
+
+  Future<Null> saveUser(User user) async {
+    final SharedPreferences prefs = await _sPrefs;
+    // the current users stored in cache
+    List<String> users = await getUsers();
+    String userAsJSON = user.toMap().toString();
+    users.add(userAsJSON);
+    prefs.setStringList("users", users);
+  }
+
+  Future<List<String>> getUsers() async {
+    final SharedPreferences prefs = await _sPrefs;
+    List<String> users = prefs.getStringList('users');
+
+    return users;
+  }
+
+  Future<User> getCurrentUser() async {
+    final SharedPreferences prefs = await _sPrefs;
+
+    int currentUser = prefs.getInt('current_user');
+    List<String> users = await getUsers();
+    
+    return new User.fromJSON(users[currentUser]);
+  }
+
+  Future<Null> setCurrentUser(int i) async {
+    final SharedPreferences prefs = await _sPrefs;
+    await prefs.setInt('current_user', i);
   }
 }
 

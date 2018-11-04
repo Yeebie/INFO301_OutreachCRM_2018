@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:outreach/view-models/contacts_state.dart';
 
 class ContactsView extends ContactsState {
@@ -9,6 +10,7 @@ class ContactsView extends ContactsState {
     Size phoneSize = MediaQuery.of(context).size;
 
     return Scaffold(
+      // this will be a widget when I'm ready for it
       appBar: new PreferredSize(
         preferredSize: Size.fromHeight(phoneSize.height * 0.11),
         child: new AppBar(
@@ -48,8 +50,11 @@ class ContactsView extends ContactsState {
               if(index >= contactList.length-1) {
                 // increase the page number
                 page+=1;
-                // if we can keep requesting
-                if (hasMoreContacts) getContactList(page);
+                // if we can keep requesting: request
+                if (hasMoreContacts) {
+                  getContactList(page);
+                  return _progressIndicator(phoneSize);
+                }
               }
               return headerOrContact(index);
             },
@@ -67,8 +72,6 @@ class ContactsView extends ContactsState {
   // if the new contact name does not begin with current letter
   // then return a letter header AND a contact item
     if(_newLetter != currentLetter){
-      
-      
       currentLetter = _newLetter;
       return new Container(
         child: new Column(
@@ -137,6 +140,15 @@ class ContactsView extends ContactsState {
             ),
           )
         )
+    );
+  }
+
+  Widget _progressIndicator(Size size){
+    return new Container(
+      padding: new EdgeInsets.all(5),
+      child: new Center(
+        child: new CircularProgressIndicator()
+      ),
     );
   }
 }

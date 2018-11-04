@@ -26,6 +26,22 @@ class User {
     "\n}");
   }
 
+  User.fromJSON(dynamic data) {
+    this._apiExpiry = data['key'];
+    this._apiExpiry = DateTime.parse(data["expiry"]);
+    this._domain = data['domain'];
+    this._name = data['name'];
+    this._username = data['username'];
+
+    print("CREATING USER OBJECT { "
+    "\n\tapi_key: $_apiKey"
+    "\n\tapi_expiry: $_apiExpiry"
+    "\n\tusername: $_username"
+    "\n\tdomain: $_domain"
+    "\n\tname: $_name"
+    "\n}");
+  }
+
   String get username => _username;
   String get domain => _domain;
   String get apiKey => _apiKey;
