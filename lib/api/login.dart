@@ -10,7 +10,7 @@ class Login {
   String baseURL;
 
   Future<User> doLogin(String domain, String username, String password) {
-    baseURL = "https://" + domain + ".outreach.co.nz/api/0.2";
+    baseURL = "https://$domain.outreach.co.nz/api/0.2";
     String loginURL = baseURL + "/auth/login/";
 
     return _netUtil.post(loginURL, body: {
@@ -55,7 +55,7 @@ class Login {
               "Logged out",
               "We logged you out because your API key was old, soz lol",
               context)
-          .then((Null ignore) {
+      .then((Null ignore) {
         // do this after we close it
         Util.logout(context);
       });

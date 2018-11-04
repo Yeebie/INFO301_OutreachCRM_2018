@@ -9,10 +9,33 @@ class ContactsView extends ContactsState {
     Size phoneSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: new AppBar(
-        title: new Text("Contacts"),
-        elevation: 4.0,
-        backgroundColor: Colors.blue[200],
+      appBar: new PreferredSize(
+        preferredSize: Size.fromHeight(phoneSize.height * 0.11),
+        child: new AppBar(
+          centerTitle: true,
+          title: new Text(
+            "CONTACTS",
+            style: new TextStyle(
+              fontSize: 23,
+            ),),
+          elevation: 4.0,
+          backgroundColor: const Color(0xFF4A8AC9),
+          actions: <Widget>[
+            IconButton(
+              icon: new Icon(Icons.search),
+              color: Colors.white,
+              iconSize: 30,
+              onPressed: (() => print("search")),
+            ),
+
+            IconButton(
+              icon: new Icon(Icons.settings),
+              onPressed: (() => print("settings")),
+              iconSize: 30,
+              color: Colors.white,
+            ),
+          ],
+        ),
       ),
       body: new Center(
         child: new Container(
@@ -30,11 +53,12 @@ class ContactsView extends ContactsState {
   }
 
   Widget headerOrContact(int index) {
-    // if the new contact does not begin with current letter
     
+    // grab the first letter of current contact
     String newLetter = contacts[index].substring(0, 1);
-    // if(currentLetter == "" || )
 
+  // if the new contact name does not begin with current letter
+  // then return a letter header AND a contact item
     if(newLetter != currentLetter){
       currentLetter = newLetter;
       return new Container(
@@ -42,7 +66,7 @@ class ContactsView extends ContactsState {
           children: <Widget>[
             new Padding(
               padding: new EdgeInsets.fromLTRB(0, 10, 0, 10),
-              child: contactHeader(contacts[index].substring(0, 1))
+              child: contactHeader(currentLetter)
             ),
             contactItem(index)
           ],

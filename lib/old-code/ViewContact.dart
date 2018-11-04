@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:outreach/SupportClasses.dart';
+import 'package:outreach/old-code/SupportClasses.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
-import 'package:outreach/ContactPage.dart';
+import 'package:outreach/old-code/ContactPage.dart';
 
 //Used for Wifi check
 import 'package:outreach/util.dart';

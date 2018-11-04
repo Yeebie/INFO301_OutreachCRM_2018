@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:outreach/api/auth.dart';
 import 'package:outreach/util/helpers.dart';
+import 'package:outreach/view-models/contacts_state.dart';
 import 'package:outreach/views/login_view.dart';
 import 'package:outreach/api/login.dart';
 import 'package:outreach/models/user.dart';
@@ -57,7 +58,10 @@ abstract class LoginState extends State<LoginPage> with Login{
 
         // wait for snack bar to disappear then push to contacts page
         await new Future.delayed(const Duration(seconds: 2));
-        Navigator.of(context).pushReplacementNamed('/contacts');
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => new Contacts(user))
+        );
 
       } on LoginException catch(e){ // error our API request throws
         // show a snackbar with error message

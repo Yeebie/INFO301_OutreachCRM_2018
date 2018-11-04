@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:outreach/SupportClasses.dart';
+import 'package:outreach/old-code/SupportClasses.dart';
 import 'dart:io';
-import 'package:outreach/ViewContact.dart';
+import 'package:outreach/old-code/ViewContact.dart';
 import 'package:outreach/util.dart';
 
 ///Used to utilise REST operations

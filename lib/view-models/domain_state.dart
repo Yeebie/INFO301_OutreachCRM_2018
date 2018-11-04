@@ -52,7 +52,7 @@ abstract class DomainPageState extends State<DomainPage> {
         );
         setState(() => domainSuccess = false);
       } else {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => new LoginPage(_domain))

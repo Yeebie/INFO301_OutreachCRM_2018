@@ -1,10 +1,6 @@
-
-import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:outreach/util.dart';
 
 ///Used to utilise REST operations
-import 'package:http/http.dart' as http;
 import 'package:outreach/util/network_util.dart';
 
 class ConnectionException implements Exception {
@@ -65,6 +61,7 @@ class ApiAuth {
       return _netUtil.post(verifyURL, body: {
         "apikey": key,
       }).then((dynamic result) {
+        print("\t${result.toString()}");
         if(result["error"] != "") {
           throw new Exception(result["error"].toString());
         }
