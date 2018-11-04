@@ -8,5 +8,38 @@ class Contacts extends StatefulWidget {
 }
 
 abstract class ContactsState extends State<Contacts> {
+  @protected
+  String currentLetter = "";
+  List<String> contacts = 
+    [
+    "Aaron",
+    "David",
+    "Steve",
+    "David",
+    "Tim",
+    "Dave",
+    "Greg",
+    "Sarah",
+    "Boris",
+    "Nancy",
+    "Emily",
+    "Charlie",
+    "Ryan",
+    "Andrew",
+    "Rachel",
+    "Dennis",
+    "Bruce",
+    "Tony",
+    "Trey",
+    "Dianne",
+    "Deano",
+    "Rodger",
+    "Albion",
+    ];
 
+  @override
+  void initState(){
+    super.initState();
+    contacts.sort();
+  }
 }
