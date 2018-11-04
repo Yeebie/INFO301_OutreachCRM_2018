@@ -42,8 +42,15 @@ class ContactsView extends ContactsState {
           padding: new EdgeInsets.only(top: 15),
           width: phoneSize.width * 0.9,
           child: ListView.builder(
-            itemCount: contacts == null ? 0 : contacts.length,
+            itemCount: contactList == null ? 0 : contactList.length,
+
             itemBuilder: (BuildContext context, int index) {
+              if(index >= contactList.length-1) {
+                // increase the page number
+                page+=1;
+                // if we can keep requesting
+                if (hasMoreContacts) getContactList(page);
+              }
               return headerOrContact(index);
             },
           ),
@@ -55,12 +62,14 @@ class ContactsView extends ContactsState {
   Widget headerOrContact(int index) {
     
     // grab the first letter of current contact
-    String newLetter = contacts[index].substring(0, 1);
+    String _newLetter = contactList[index].name.substring(0, 1);
 
   // if the new contact name does not begin with current letter
   // then return a letter header AND a contact item
-    if(newLetter != currentLetter){
-      currentLetter = newLetter;
+    if(_newLetter != currentLetter){
+      
+      
+      currentLetter = _newLetter;
       return new Container(
         child: new Column(
           children: <Widget>[
@@ -79,6 +88,7 @@ class ContactsView extends ContactsState {
 
   // a method to build a contact
   Widget contactItem(int index){ 
+    String _contactName = contactList[index].name;
     return new Container(
       child: new Column(
         children: <Widget>[
@@ -87,7 +97,7 @@ class ContactsView extends ContactsState {
             child: Padding(
               padding: new EdgeInsets.only(left: 10),
               child: new Text(
-                contacts[index],
+                _contactName,
                 style: new TextStyle(
                   fontSize: 18
                 ),

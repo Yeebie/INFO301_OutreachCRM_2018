@@ -1,4 +1,5 @@
 import 'package:outreach/api/contact.dart';
+import 'package:outreach/models/contact.dart';
 import 'package:outreach/models/user.dart';
 import 'package:outreach/views/contacts_view.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,44 +18,28 @@ abstract class ContactsState extends State<Contacts>
 
   @protected
   String currentLetter = "";
-  List<String> contacts = 
-    [
-    "Aaron",
-    "David",
-    "Steve",
-    "David",
-    "Tim",
-    "Dave",
-    "Greg",
-    "Sarah",
-    "Boris",
-    "Nancy",
-    "Emily",
-    "Charlie",
-    "Ryan",
-    "Andrew",
-    "Rachel",
-    "Dennis",
-    "Bruce",
-    "Tony",
-    "Trey",
-    "Dianne",
-    "Deano",
-    "Rodger",
-    "Albion",
-    ];
+  List<Contact> contactList = new List();
+  bool hasMoreContacts = true;
+  int page = 0;
 
   @override
   void initState(){
     super.initState();
-    contacts.sort();
 
-    getContactList();
+    getContactList(page);
   }
 
   @protected
-  void getContactList() async {
-    await getContacts(widget.user, 0);
-    await getContacts(widget.user, 1);
+  void getContactList(int page) async {
+    try{
+      print("REQUESTING CONTACTS");
+      await getContacts(widget.user, page, contactList);
+      setState(() {
+        // tell the list we have new items
+      });
+    } on Exception catch(e) {
+      print(e.toString().toUpperCase());
+      hasMoreContacts = false;
+    }
   }
 }

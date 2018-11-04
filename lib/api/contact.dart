@@ -1,3 +1,4 @@
+import 'package:outreach/models/contact.dart';
 import 'package:outreach/models/user.dart';
 import 'package:outreach/util/network_util.dart';
 
@@ -5,7 +6,7 @@ class ContactAPI {
   NetworkUtil _netUtil = new NetworkUtil();
 
 
-  Future getContacts(User user, int page){
+  Future getContacts(User user, int page, List<Contact> list){
     String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
     String _contactsURL = "$_baseURL/query/user";
     String _properties = "['name_processed','oid']";
@@ -14,7 +15,7 @@ class ContactAPI {
     String _order = "[['o_first_name','=','DESC'],['o_last_name','=','DESC']]";
 
     // how many we want to read at a time
-    int _contactLimit = 12;
+    int _contactLimit = 24;
     // multiply the page number by the requested amount to get new start index
     int _startIndex = (_contactLimit * page);
     // add one to it so we move over the last grabbed item
@@ -30,7 +31,14 @@ class ContactAPI {
       "order": _order,
       "limit": _limit
     }).then((dynamic res) {
-      print(res.toString());
+      if(res['data'].toString() == '[]') throw new Exception("no more contacts");
+      for(final contact in res["data"]) {
+        Contact c = Contact.map(contact);
+        list.add(c);
+        // print("RETREIVING CONTACT {");
+        // print("\t${c.name}");
+        // print("\t${c.uid}\n}");
+      }
     });
   }
 }
