@@ -1,14 +1,12 @@
 import 'package:outreach/api/contact.dart';
 import 'package:outreach/models/contact.dart';
 import 'package:outreach/models/user.dart';
+import 'package:outreach/util/cache_util.dart';
 import 'package:outreach/views/contacts_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Contacts extends StatefulWidget {
-  final User user;
-  Contacts(this.user);
-
   @override
   ContactsView createState() => new ContactsView();
 }
@@ -21,23 +19,32 @@ abstract class ContactsState extends State<Contacts>
   List<Contact> contactList = new List();
   bool hasMoreContacts = true;
   int page = 0;
+  final CacheUtil _cache = new CacheUtil();
+  User user;
 
   @override
   void initState(){
     super.initState();
 
-    getContactList(page);
+    updateContactList(page);
   }
 
   @protected
-  void getContactList(int page) async {
+  void updateContactList(int page) async {
+
+    // await _cache.clearAllUsers();
+    user == null
+      ? user = await _cache.getCurrentUser()
+      : user = user;
+
     try{
       print("REQUESTING CONTACTS");
-      var newData = await getContacts(widget.user, page);
+      var newData = await getContacts(user, page);
       currentLetter = "";
+      await Future.delayed(Duration(seconds: 1));
       setState(() {
         contactList.addAll(newData);
-        // tell the list we have new items
+        // tell the state we have new items
       });
     } on Exception catch(e) {
       print(e.toString().toUpperCase());
@@ -45,7 +52,5 @@ abstract class ContactsState extends State<Contacts>
         hasMoreContacts = false;
       });
     }
-
-    print(widget.user.toMap().toString());
   }
 }

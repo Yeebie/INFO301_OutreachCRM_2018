@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:outreach/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,7 @@ class CacheUtil {
   static CacheUtil _instance = new CacheUtil.internal();
   CacheUtil.internal();
   factory CacheUtil() => _instance;
+  final JsonDecoder _decoder = new JsonDecoder();
 
   /// cache instance
   Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
@@ -50,32 +52,86 @@ class CacheUtil {
 
   Future<Null> saveUser(User user) async {
     final SharedPreferences prefs = await _sPrefs;
-    // the current users stored in cache
+    print("\nSAVING CURRENT USER {"
+      "\n\tname: ${user.name}"
+      "\n\tusername: ${user.username}"
+      "\n\tdomain: ${user.domain}"
+      "\n\texpiry: ${user.apiExpiry}"
+      "\n\tkey: ${user.apiKey}"
+      "\n}"
+    );
+
+    // get the current users stored in cache
     List<String> users = await getUsers();
-    String userAsJSON = user.toMap().toString();
-    users.add(userAsJSON);
+    if(users == null) users = new List();
+
+    // map our user object to a JSON string and add it to users
+    String userAsJSON = json.encode(user.toMap());
+
+    // if our list doesn't already contain us
+    if(!users.contains(userAsJSON)){
+      users.add(userAsJSON);
+    }
+
+    print("USER LIST: $users");
+
+    // set the current logged in user to the index of it in cache
+    setCurrentUser(users.indexOf(userAsJSON));
+
+    // overwrite the list of users with the new user appended
     prefs.setStringList("users", users);
   }
 
   Future<List<String>> getUsers() async {
     final SharedPreferences prefs = await _sPrefs;
-    List<String> users = prefs.getStringList('users');
 
+    // get and return the list of user JSON objects
+    List<String> users = prefs.getStringList('users');
     return users;
   }
 
   Future<User> getCurrentUser() async {
     final SharedPreferences prefs = await _sPrefs;
+    print("RETREIVING CURRENT USER {");
 
+    // get the index of the current user
     int currentUser = prefs.getInt('current_user');
+    // get the list of users from cache
     List<String> users = await getUsers();
-    
-    return new User.fromJSON(users[currentUser]);
+    if(users != null) {
+      var data = json.decode(users[currentUser]);
+      User user = new User.fromJSON(data);
+      print(
+        "\tname: ${user.name}"
+        "\n\tusername: ${user.username}"
+        "\n\tdomain: ${user.domain}"
+        "\n\texpiry: ${user.apiExpiry}"
+        "\n\tkey: ${user.apiKey}"
+        "\n}"
+      );
+      return user;
+    } else {
+      print("\tdata: no user found:\n}");
+      return null;
+    }
   }
 
+
+  /// lets say for example we have a list view of
+  /// all the different accounts you can log into.
+  /// we simply grab the index of the list item 
+  /// the user clicked on, and set the current user 
+  /// to that index.
+  /// then -> when we go to get the current user object,
+  /// it will be the one stored under that index! 
   Future<Null> setCurrentUser(int i) async {
     final SharedPreferences prefs = await _sPrefs;
     await prefs.setInt('current_user', i);
+  }
+
+  Future<Null> clearAllUsers() async {
+    final SharedPreferences prefs = await _sPrefs;
+    await prefs.setStringList('users', null);
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:outreach/api/auth.dart';
+import 'package:outreach/util/cache_util.dart';
 import 'package:outreach/util/helpers.dart';
 import 'package:outreach/view-models/contacts_state.dart';
 import 'package:outreach/views/login_view.dart';
@@ -23,6 +24,7 @@ abstract class LoginState extends State<LoginPage> with Login{
   bool attemptingLogin = false;
   User user;
   final ApiAuth auth = new ApiAuth();
+  final CacheUtil _cache = new CacheUtil();
 
 
   @protected
@@ -48,6 +50,9 @@ abstract class LoginState extends State<LoginPage> with Login{
         await getFullName(user);
 
         // cache user as JSON
+        
+        await _cache.clearAllUsers();
+        await _cache.saveUser(user);
 
         // show who we are logged in as
         Util.showSnackBar(
@@ -58,10 +63,7 @@ abstract class LoginState extends State<LoginPage> with Login{
 
         // wait for snack bar to disappear then push to contacts page
         await new Future.delayed(const Duration(seconds: 2));
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => new Contacts(user))
-        );
+        Navigator.of(context).pushReplacementNamed('/contacts');
 
       } on LoginException catch(e){ // error our API request throws
         // show a snackbar with error message

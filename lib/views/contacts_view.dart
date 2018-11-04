@@ -52,7 +52,7 @@ class ContactsView extends ContactsState {
                 page+=1;
                 // if we can keep requesting: request
                 if (hasMoreContacts) {
-                  getContactList(page);
+                  updateContactList(page);
                   return _progressIndicator(phoneSize);
                 }
               }
