@@ -18,6 +18,7 @@ abstract class ContactsState extends State<Contacts>
   String currentLetter = "";
   List<Contact> contactList = new List();
   bool hasMoreContacts = true;
+  bool fetchingContacts = true;
   int page = 0;
   final CacheUtil _cache = new CacheUtil();
   User user;
@@ -47,6 +48,7 @@ abstract class ContactsState extends State<Contacts>
       currentLetter = "";
       await Future.delayed(Duration(seconds: 1));
       setState(() {
+        fetchingContacts = false;
         contactList.addAll(newData);
         // tell the state we have new items
       });

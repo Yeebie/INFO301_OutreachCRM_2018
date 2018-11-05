@@ -64,6 +64,7 @@ class GradientAppBar extends StatelessWidget {
           children: <Widget>[
           Expanded(
             child: new TextField(
+              autofocus: true,
               controller: _controller,
               style: new TextStyle(fontSize: 20),
               decoration: new InputDecoration(
@@ -159,21 +160,23 @@ class GradientAppBar extends StatelessWidget {
   /// object used to style our app bar
   BoxDecoration _gradientDecoration() {
     return new BoxDecoration(
-        gradient: new LinearGradient(
-            colors: [
-              const Color(0xFF0E598F).withOpacity(0.3),
-              const Color(0xFF0085CA)
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.0, 1.0],
-            tileMode: TileMode.clamp),
-        boxShadow: [
-          new BoxShadow(
-            color: Colors.grey[500],
-            blurRadius: 20.0,
-            spreadRadius: 1.0,
-          )
-        ]);
+      gradient: new LinearGradient(
+        colors: [
+          const Color(0xFF0E598F).withOpacity(0.3),
+          const Color(0xFF0085CA)
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.0, 0.8],
+        tileMode: TileMode.clamp
+      ),
+      boxShadow: [
+        new BoxShadow(
+          color: Colors.grey[400],
+          blurRadius: 20.0,
+          spreadRadius: 1.0,
+        )
+      ]
+    );
   }
 }
