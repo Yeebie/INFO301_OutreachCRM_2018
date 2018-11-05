@@ -33,12 +33,16 @@ abstract class ContactsState extends State<Contacts>
   void updateContactList(int page) async {
 
     // await _cache.clearAllUsers();
+    // grab the user from cache
     user == null
       ? user = await _cache.getCurrentUser()
       : user = user;
 
     try{
-      print("REQUESTING CONTACTS");
+      print(
+        "-------------------"
+        "\nREQUESTING CONTACTS"
+        "\n-------------------");
       var newData = await getContacts(user, page);
       currentLetter = "";
       await Future.delayed(Duration(seconds: 1));

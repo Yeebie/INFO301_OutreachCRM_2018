@@ -13,7 +13,6 @@ class CacheUtil {
   static CacheUtil _instance = new CacheUtil.internal();
   CacheUtil.internal();
   factory CacheUtil() => _instance;
-  final JsonDecoder _decoder = new JsonDecoder();
 
   /// cache instance
   Future<SharedPreferences> _sPrefs = SharedPreferences.getInstance();
