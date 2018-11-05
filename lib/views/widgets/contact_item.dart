@@ -13,7 +13,7 @@ class ContactItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    Size phoneSize = MediaQuery.of(context).size;
+    // Size phoneSize = MediaQuery.of(context).size;
     String _contactName = list[index].name;
 
 
@@ -29,14 +29,13 @@ class ContactItem extends StatelessWidget {
           // to render the whole container
           color: Colors.transparent
         ),
-        height: phoneSize.height * 0.08,
         width: double.infinity,
         child: new Column(
           children: <Widget>[
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
-                padding: new EdgeInsets.only(left: 10),
+                padding: new EdgeInsets.fromLTRB(10,5,0,0),
                 child: new Text(
                   _contactName,
                   style: new TextStyle(

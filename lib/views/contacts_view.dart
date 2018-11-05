@@ -12,9 +12,7 @@ class ContactsView extends ContactsState {
   Widget build(BuildContext context) {
     Size phoneSize = MediaQuery.of(context).size;
     final double statusbarHeight = MediaQuery
-          .of(context)
-          .padding
-          .top;
+          .of(context).padding.top;
 
     return Scaffold(
       appBar: 
@@ -22,8 +20,8 @@ class ContactsView extends ContactsState {
         preferredSize: Size.fromHeight(statusbarHeight + 50.0),
         child: new GradientAppBar(
           title: "CONTACTS",
-          searchBar: !true,
-          showBackButton: true
+          searchBar: false,
+          showBackButton: false
         ),
       ),
 
@@ -80,7 +78,7 @@ class ContactsView extends ContactsState {
 
   Widget _progressIndicator(Size size){
     return new Container(
-      padding: new EdgeInsets.all(5),
+      padding: new EdgeInsets.fromLTRB(5,5,5,10),
       child: new Center(
         child: new CircularProgressIndicator()
       ),
