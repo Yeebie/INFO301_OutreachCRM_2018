@@ -17,18 +17,18 @@ class ContactsView extends ContactsState {
           .top;
 
     return Scaffold(
-      // this will be a widget when I'm ready for it
       appBar: 
       new PreferredSize(
         preferredSize: Size.fromHeight(statusbarHeight + 50.0),
         child: new GradientAppBar(
           title: "CONTACTS",
-          searchBar: false,
-          showBackButton: false
+          searchBar: !true,
+          showBackButton: true
         ),
       ),
-      // new GradientAppBar(title: 'CONTACTS', searchBar: false),
-      body: new Center(
+
+      body: 
+      new Center(
         child: new Container(
           padding: new EdgeInsets.only(top: 15),
           width: phoneSize.width * 0.9,

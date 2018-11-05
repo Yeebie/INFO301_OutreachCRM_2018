@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 class GradientAppBar extends StatelessWidget {
   final bool searchBar;
   final String title;
-  final double barHeight = 50.0;
   final bool showBackButton;
 
   GradientAppBar({
@@ -21,62 +20,51 @@ class GradientAppBar extends StatelessWidget {
     return new Container(
       padding: new EdgeInsets.only(top: statusbarHeight),
       decoration: _gradientDecoration(),
-      child: new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _showBackButton(context, showBackButton),
-          _titleSection(title, phoneSize),
-          _searchButton(),
-          _settingsButton(),
-      ]),
+      child: 
+      
+      searchBar
+
+      ? new Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            _showBackButton(context, showBackButton, phoneSize),
+            _searchBar(phoneSize),
+            _settingsButton(phoneSize),
+        ])
+
+      : new Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            _showBackButton(context, showBackButton, phoneSize),
+            _titleSection(title, phoneSize),
+            _searchButton(phoneSize),
+            _settingsButton(phoneSize),
+        ]),
     );
   }
 
 
-  /// method to show the back button based on boolean passed
-  Widget _showBackButton(BuildContext context, bool showButton){
-    if(showButton){
-      return IconButton(
-        icon: new Icon(Icons.arrow_back_ios),
-        onPressed: () {
-          if(Navigator.of(context).canPop()){
-            Navigator.of(context).pop();
-          }
-        },
-        iconSize: 30,
-        color: Colors.white,
-      );
-     } else { 
-       return Container();
-     }
-  }
-
-  Widget _searchButton(){
-    return IconButton(
-      icon: new Icon(Icons.search),
-      color: Colors.white,
-      iconSize: 30,
-      onPressed: (() => print("search")),
-    );
-  }
-
-  Widget _settingsButton(){
-    return IconButton(
-      icon: new Icon(Icons.settings),
-      onPressed: (() => print("settings")),
-      iconSize: 30,
-      color: Colors.white,
+  Widget _searchBar(Size size){
+    return new Container(
+      width: size.width * 0.73,
+      height: 40,
+      decoration: new BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: new TextField(
+        
+      ),
     );
   }
 
   Widget _titleSection(String title, Size size) {
-    return 
-    new Expanded(
+    return new Expanded(
       child: new Container(
         padding: new EdgeInsets
         .only(left: showBackButton 
               ? size.width * 0.1 
-              : size.width * 0.2
+              : size.width * 0.235
             ),
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,7 +72,6 @@ class GradientAppBar extends StatelessWidget {
           children: <Widget>[
             new Text(
               title,
-              // textAlign: TextAlign.right,
               style: new TextStyle(
                 fontSize: 22,
                 color: Colors.white,
@@ -98,6 +85,46 @@ class GradientAppBar extends StatelessWidget {
     );
   }
 
+/// method to show the back button based on boolean passed
+  Widget _showBackButton(BuildContext context, bool showButton, Size size){
+    if(showButton){
+      return IconButton(
+        icon: new Icon(Icons.arrow_back_ios),
+        onPressed: () {
+          if(Navigator.of(context).canPop()){
+            Navigator.of(context).pop();
+          }
+        },
+        iconSize: size.width * 0.09,
+        color: Colors.white,
+      );
+     } else { 
+       return Container();
+     }
+  }
+
+  Widget _searchButton(Size size){
+    return IconButton(
+      icon: new Icon(Icons.search),
+      color: Colors.white,
+      iconSize: size.width * 0.09,
+      onPressed: (() => print("search")),
+    );
+  }
+
+  Widget _settingsButton(Size size){
+    return new Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget> [
+        new IconButton(
+          icon: new Icon(Icons.settings),
+          onPressed: (() => print("settings")),
+          iconSize: size.width * 0.09,
+          color: Colors.white,
+        )
+      ]);
+  }
 
   BoxDecoration _gradientDecoration() {
     return new BoxDecoration(

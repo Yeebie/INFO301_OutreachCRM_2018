@@ -36,7 +36,7 @@ class LoginTextField extends StatelessWidget {
           width: size.width * 0.8,
           decoration: new BoxDecoration(
             borderRadius: BorderRadius.circular(8.0),
-            border: new Border.all(color: Colors.blue)
+            border: new Border.all(color: Colors.transparent)
           ),
           child:
           new Theme(
