@@ -3,24 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:outreach/models/contact.dart';
 
 class ContactItem extends StatelessWidget {
-  final List<Contact> list;
+  // final List<Contact> list;
+  final Contact contact;
   final int index;
 
   ContactItem({
-    @required this.list,
+    @required this.contact,
     @required this.index
   });
 
   @override
   Widget build(BuildContext context){
     // Size phoneSize = MediaQuery.of(context).size;
-    String _contactName = list[index].name;
+    // String _contactName = list[index].name;
+    String _contactName = contact.name;
 
 
     return new GestureDetector(
       onTap: () {
         // call a method to push to details page
-        String _oid = (list[index].uid);
+        // String _oid = (list[index].uid);
+        String _oid = (contact.uid);
         print("OID: $_oid");
       },
       child: new Container(

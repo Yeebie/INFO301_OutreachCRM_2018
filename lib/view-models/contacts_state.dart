@@ -18,10 +18,32 @@ abstract class ContactsState extends State<Contacts>
   String currentLetter = "";
   List<Contact> contactList = new List();
   bool hasMoreContacts = true;
-  bool fetchingContacts = true;
+  bool fetchingInitialContacts = true;
   int page = 0;
   final CacheUtil _cache = new CacheUtil();
   User user;
+
+  var contactWidgetList = new List<Widget>();
+  var contactMap = new Map<String, List<Contact>>();
+
+  void buildContactMap(List<Contact> contacts){
+
+    // loop over all returned contacts
+    // add them to corresponding list header
+    for(final contact in contacts){
+
+      // the key is the letter at position 0
+      var key = contact.name[0].toUpperCase();
+
+      // put new list in if absent
+      contactMap.putIfAbsent(key, () => new List<Contact>());
+      // add the contact to the list under that key
+      contactMap[key].add(contact);
+
+      // _contactMap.update(key, (List<Contact> val) => val.add(contact));
+    }
+  }
+
 
   @override
   void initState(){
@@ -45,10 +67,15 @@ abstract class ContactsState extends State<Contacts>
         "\nREQUESTING CONTACTS"
         "\n-------------------");
       var newData = await getContacts(user, page);
+
+      buildContactMap(newData);
+
       currentLetter = "";
+
+
       await Future.delayed(Duration(seconds: 1));
       setState(() {
-        fetchingContacts = false;
+        fetchingInitialContacts = false;
         contactList.addAll(newData);
         // tell the state we have new items
       });
