@@ -162,12 +162,13 @@ class GradientAppBar extends StatelessWidget {
     return new BoxDecoration(
       gradient: new LinearGradient(
         colors: [
-          const Color(0xFF0E598F).withOpacity(0.3),
-          const Color(0xFF0085CA)
+          const Color(0xFF0E598F),
+          const Color(0xFF0085CA).withOpacity(0.6),
+          const Color(0xFF0E598F),
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        stops: [0.0, 0.8],
+        stops: [0.0, 0.5, 1.0],
         tileMode: TileMode.clamp
       ),
       boxShadow: [

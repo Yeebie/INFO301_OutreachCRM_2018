@@ -17,6 +17,10 @@ dependencies:
 
   modal_progress_hud: ^0.1.2
 
+
+# flutter pub get
+# flutter pub pub run flutter_launcher_icons:main
+# run these ^ if you update the icon
 flutter_icons:
     image_path: "assets/images/favicon.png"
     android: true

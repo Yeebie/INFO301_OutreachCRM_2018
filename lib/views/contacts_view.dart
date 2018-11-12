@@ -80,9 +80,7 @@ class ContactsView extends ContactsState {
           index++;
         }
 
-        
-      } 
-      else {
+      } else {
         // loop every contact and build a widget for each
         for(int i = 0; i < list.length; i++) {
           print("\t$index : ${list[i].name}, ${list[i].uid}");
