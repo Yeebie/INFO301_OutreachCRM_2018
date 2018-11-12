@@ -15,10 +15,9 @@ abstract class ContactsState extends State<Contacts>
                                         with ContactAPI{
 
   @protected
-  String currentLetter = "";
-  List<Contact> contactList = new List();
   bool hasMoreContacts = true;
   bool fetchingInitialContacts = true;
+  bool recentsRequested = false;
   int page = 0;
   final CacheUtil _cache = new CacheUtil();
   User user;
@@ -26,21 +25,24 @@ abstract class ContactsState extends State<Contacts>
   var contactWidgetList = new List<Widget>();
   var contactMap = new Map<String, List<Contact>>();
 
-  void buildContactMap(List<Contact> contacts){
+
+  /// takes a list of contact instances and adds them
+  /// to a map with the header stored as the key
+  /// and the list as the paired value
+  void updateContactMap(List<Contact> contacts){
 
     // loop over all returned contacts
     // add them to corresponding list header
     for(final contact in contacts){
-
       // the key is the letter at position 0
       var key = contact.name[0].toUpperCase();
+
+      if(!recentsRequested) key = "RECENTS";
 
       // put new list in if absent
       contactMap.putIfAbsent(key, () => new List<Contact>());
       // add the contact to the list under that key
       contactMap[key].add(contact);
-
-      // _contactMap.update(key, (List<Contact> val) => val.add(contact));
     }
   }
 
@@ -49,11 +51,11 @@ abstract class ContactsState extends State<Contacts>
   void initState(){
     super.initState();
 
-    updateContactList(page);
+    getMoreContacts(page);
   }
 
   @protected
-  void updateContactList(int page) async {
+  void getMoreContacts(int page) async {
 
     // await _cache.clearAllUsers();
     // grab the user from cache
@@ -66,23 +68,25 @@ abstract class ContactsState extends State<Contacts>
         "-------------------"
         "\nREQUESTING CONTACTS"
         "\n-------------------");
-      var newData = await getContacts(user, page);
 
-      buildContactMap(newData);
+      // request contacts from api
+      var newData = await getContacts(user, page, recentsRequested);
 
-      currentLetter = "";
+      // update our map with new data
+      updateContactMap(newData);
 
-
+      // show loading modal for a second
       await Future.delayed(Duration(seconds: 1));
       setState(() {
         fetchingInitialContacts = false;
-        contactList.addAll(newData);
+        recentsRequested = true;
         // tell the state we have new items
       });
     } on Exception catch(e) {
       print(e.toString().toUpperCase());
       setState(() {
         hasMoreContacts = false;
+        // tell the state we can't request anymore
       });
     }
   }

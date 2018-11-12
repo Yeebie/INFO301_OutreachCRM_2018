@@ -6,7 +6,7 @@ class ContactAPI {
   NetworkUtil _netUtil = new NetworkUtil();
 
 
-  Future<List<Contact>> getContacts(User user, int page){
+  Future<List<Contact>> getContacts(User user, int page, bool recentsRequested){
     String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
     String _contactsURL = "$_baseURL/query/user";
     String _properties = "['name_processed','oid']";
@@ -26,6 +26,9 @@ class ContactAPI {
     // e.g. [contact limit, start index]
     String _limit = "[$_contactLimit, $_startIndex]";
 
+    // if we haven't got the recents yet
+    if(!recentsRequested) _order = "[['modified','=','DESC']]";
+
     return _netUtil.post(_contactsURL, body: {
       "apikey": user.apiKey,
       "properties": _properties,
@@ -37,9 +40,6 @@ class ContactAPI {
       for(final contact in res["data"]) {
         Contact c = Contact.map(contact);
         list.add(c);
-        // print("RETREIVING CONTACT {");
-        // print("\t${c.name}");
-        // print("\t${c.uid}\n}");
       }
       return list;
     });
