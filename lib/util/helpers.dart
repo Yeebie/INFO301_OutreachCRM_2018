@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outreach/util/cache_util.dart';
 
 class Util {
   static hideSoftKeyboard(BuildContext context) {
@@ -49,6 +50,12 @@ class Util {
   }
 
   static logout(BuildContext context){
+    CacheUtil _cache = new CacheUtil();
+    // TODO: Write a method to clear only current user
+    // clear all users for now, later we will remove just current
+    _cache.clearAllUsers();
+
+    // push to the home page and remove everything from stack
     Navigator.of(context).pushNamedAndRemoveUntil('/',
               (Route<dynamic> route) => false);
   }

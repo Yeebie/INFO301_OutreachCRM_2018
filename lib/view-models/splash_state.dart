@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:outreach/api/auth.dart';
+import 'package:outreach/api/login.dart';
 import 'package:outreach/models/user.dart';
 import 'package:outreach/views/splash_view.dart';
 import 'package:outreach/util/cache_util.dart';
@@ -11,19 +11,21 @@ class Splash extends StatefulWidget {
   SplashView createState() => new SplashView();
 }
 
-abstract class SplashState extends State<Splash> {
+abstract class SplashState extends State<Splash> with Login {
   int _splashScreenLengh = 1; // seconds
   final CacheUtil _cache = new CacheUtil();
-  final ApiAuth _auth = new ApiAuth();
 
   Future checkLoginCache() async {
-    User u = await _cache.getCurrentUser();
+    User user = await _cache.getCurrentUser();
 
-    if(u == null){
+    if(user == null){ // if we don't find a user
       Navigator.of(context).pushReplacementNamed('/domain');
-    } else{
+    } else{ // if we do find a user
       try{
-        await _auth.validateAPIKey(u.domain, u.apiKey, u.apiExpiry);
+        // validate the api key
+        await doKeyValidation(context, user).then((dynamic val){
+          Navigator.of(context).pushReplacementNamed('/contacts');
+        });
         Navigator.of(context).pushReplacementNamed('/contacts');
       } on Exception catch(e) {
         print(e.toString());

@@ -40,8 +40,12 @@ class Login {
     });
   }
 
+  /// method to take a user object and validate the api key,
+  /// if the key does not validate, catch the exception, show
+  /// a dialog, then log us out
   Future doKeyValidation(BuildContext context, User user) async {
     // try validate api key
+    // TODO: move this to _auth
     try {
       await _auth.validateAPIKey(
         user.domain,

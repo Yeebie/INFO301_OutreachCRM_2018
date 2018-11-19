@@ -75,7 +75,7 @@ class CacheUtil {
     print("USER LIST: $users");
 
     // set the current logged in user to the index of it in cache
-    setCurrentUser(users.indexOf(userAsJSON));
+    setCurrentUserID(users.indexOf(userAsJSON));
 
     // overwrite the list of users with the new user appended
     prefs.setStringList("users", users);
@@ -123,7 +123,7 @@ class CacheUtil {
   /// to that index.
   /// then -> when we go to get the current user object,
   /// it will be the one stored under that index! 
-  Future<Null> setCurrentUser(int i) async {
+  Future<Null> setCurrentUserID(int i) async {
     final SharedPreferences prefs = await _sPrefs;
     await prefs.setInt('current_user', i);
   }
