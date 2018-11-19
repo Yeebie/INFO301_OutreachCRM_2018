@@ -26,7 +26,6 @@ abstract class SplashState extends State<Splash> with Login {
         await doKeyValidation(context, user).then((dynamic val){
           Navigator.of(context).pushReplacementNamed('/contacts');
         });
-        Navigator.of(context).pushReplacementNamed('/contacts');
       } on Exception catch(e) {
         print(e.toString());
         // clear the cache of outdated api key
