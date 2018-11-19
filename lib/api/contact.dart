@@ -5,7 +5,6 @@ import 'package:outreach/util/network_util.dart';
 class ContactAPI {
   NetworkUtil _netUtil = new NetworkUtil();
 
-
   Future<List<Contact>> getContacts(User user, int page, bool recentsRequested){
     String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
     String _contactsURL = "$_baseURL/query/user";
@@ -43,5 +42,31 @@ class ContactAPI {
       }
       return list;
     });
+  }
+
+  Future<List<Contact>> searchContacts(String query, User user) {
+    String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
+    String _searchURL = "$_baseURL/query/user";
+    String _properties = "['oid','name_processed','modified']";
+    String _search =  "['OR',['o_first_name','like','$query'],"
+                      "['o_last_name','like','$query'],"
+                      "['name_processed','like','$query']]";
+    String _order = "[['modified','DESC'],['o_first_name','=','DESC'],['o_last_name','=','DESC']]";
+    String _limit = "[25]";
+
+    List<Contact> contactsFound = new List();
+
+    print("IM BEING CALLED");
+
+    return _netUtil.post(_searchURL, body: {
+      "apikey": user.apiKey,
+      "properties": _properties,
+      "search": _search,
+      "order": _order,
+      "limit": _limit
+    }).then((dynamic res) {
+      print(res.toString());
+      return contactsFound;
+    });    
   }
 }
