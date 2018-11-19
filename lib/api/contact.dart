@@ -56,8 +56,6 @@ class ContactAPI {
 
     List<Contact> contactsFound = new List();
 
-    print("IM BEING CALLED");
-
     return _netUtil.post(_searchURL, body: {
       "apikey": user.apiKey,
       "properties": _properties,
@@ -65,7 +63,11 @@ class ContactAPI {
       "order": _order,
       "limit": _limit
     }).then((dynamic res) {
-      print(res.toString());
+      // if(res['data'].toString() == '[]') throw new Exception("found no contacts");
+      for(final contact in res["data"]) {
+        Contact c = Contact.map(contact);
+        contactsFound.add(c);
+      }
       return contactsFound;
     });    
   }

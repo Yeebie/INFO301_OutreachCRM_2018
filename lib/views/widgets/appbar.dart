@@ -8,11 +8,16 @@ class GradientAppBar extends StatelessWidget {
   final bool searchBar;
   final String title;
   final bool showBackButton;
+  final void Function(String) search;
+
+  // controller used to clear the text field
+    final TextEditingController _controller = new TextEditingController();
 
   GradientAppBar({
     @required this.searchBar,
     @required this.title,
     @required this.showBackButton,
+    this.search,
   });
 
   @override
@@ -45,8 +50,8 @@ class GradientAppBar extends StatelessWidget {
 
   /// returns a search bar to be used in the appbar
   Widget _searchBar(Size size, ThemeData theme) {
-    // controller used to clear the text field
-    final TextEditingController _controller = new TextEditingController();
+     _controller.addListener(_doSomething);
+
     return new Container(
       width: size.width * 0.73,
       height: 40,
@@ -64,6 +69,9 @@ class GradientAppBar extends StatelessWidget {
           children: <Widget>[
           Expanded(
             child: new TextField(
+              onChanged: (val) {
+
+              },
               autofocus: true,
               controller: _controller,
               style: new TextStyle(fontSize: 20),
@@ -86,6 +94,12 @@ class GradientAppBar extends StatelessWidget {
         ]),
       ),
     );
+  }
+
+  void _doSomething(){
+    if(_controller.text != null){
+      search(_controller.text);
+    }
   }
 
   Widget _titleSection(String title, Size size) {
