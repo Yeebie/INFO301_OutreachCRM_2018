@@ -45,7 +45,7 @@ abstract class SearchState extends State<Search>
       contactsFound.add(cItem);
     }
     setState(() {
-          
+      // tell UI we have new search results
     });
   }
 }

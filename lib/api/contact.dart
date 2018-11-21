@@ -16,12 +16,18 @@ class ContactAPI {
     List<Contact> list = new List();
 
     // how many we want to read at a time
-    int _contactLimit = 24;
+    int _contactLimit = 25;
     // multiply the page number by the requested amount to get new start index
     int _startIndex = (_contactLimit * page);
-    // add one to it so we move over the last grabbed item
-    _startIndex == 0 ? _startIndex = 0 : _startIndex += 1;
-
+    
+    // if we arent starting at 0, set limit to 24, add 1 to index
+    if(_startIndex != 0) {
+      _startIndex += 1;
+      _contactLimit = 24;
+      // _contactLimit--;
+    }
+    int x = _startIndex + _contactLimit;
+    int i = _startIndex;
     // e.g. [contact limit, start index]
     String _limit = "[$_contactLimit, $_startIndex]";
 
@@ -38,6 +44,7 @@ class ContactAPI {
       if(res['data'].toString() == '[]') throw new Exception("no more contacts");
       for(final contact in res["data"]) {
         Contact c = Contact.map(contact);
+        print("${i++} ${c.name}");
         list.add(c);
       }
       return list;

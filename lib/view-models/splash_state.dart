@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:outreach/api/login.dart';
 import 'package:outreach/models/user.dart';
@@ -41,6 +40,5 @@ abstract class SplashState extends State<Splash> with Login {
     new Timer(new Duration(seconds: _splashScreenLengh), () {
       checkLoginCache();
     });
-    
   }
 }
