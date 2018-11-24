@@ -32,7 +32,7 @@ class ContactAPI {
     String _limit = "[$_contactLimit, $_startIndex]";
 
     // if we haven't got the recents yet
-    if(!recentsRequested) _order = "[['modified','=','DESC']]";
+    if(!recentsRequested) _order = "[['modified','DESC']]";
 
     return _netUtil.post(_contactsURL, body: {
       "apikey": user.apiKey,
