@@ -1,3 +1,4 @@
+import 'package:outreach/models/user.dart';
 import 'package:outreach/util.dart';
 
 ///Used to utilise REST operations
@@ -72,6 +73,22 @@ class ApiAuth {
         print(e.toString());
         print("\tvalidated: false" "\n}");
         return false;
+    }
+  }
+
+  Future<bool> destroyAPIKey(User user) async {
+    String logoutURL = "https://${user.domain}.outreach.co.nz/api/0.2/auth/logout/";
+
+    try {
+      return _netUtil.post(logoutURL, body: {
+        "apikey": user.apiKey
+      }).then((dynamic result) {
+        print(result["data"]);
+        return true;
+      });
+    } on Exception catch(e) {
+      print(e.toString());
+      return false;
     }
   }
 }

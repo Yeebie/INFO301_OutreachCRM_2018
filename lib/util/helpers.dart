@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:outreach/api/auth.dart';
+import 'package:outreach/models/user.dart';
 import 'package:outreach/util/cache_util.dart';
 
 class Util {
@@ -31,32 +33,59 @@ class Util {
   ///
   /// @param title - The title of the error message
   /// @param content - The content of the dialog box
-  static Future<Null> showDialogParent(String title, String content,
-        BuildContext context) {
+  /// @param showCancel - set this to true if you want it cancelable
+  static Future<bool> showDialogParent(String title, String content,
+        BuildContext context, bool showCancel) async {
 
-    return showDialog<Null>(
+    // if the user accepts the dialog
+    bool accepted = false;
+
+    return showDialog<bool>(
         context: context,
         barrierDismissible: false,
         builder: (_) => new AlertDialog(
-              title: new Text(title),
-              content: new Text(content),
-              actions: <Widget>[
-                new FlatButton(
-                  child: const Text("OK"),
-                  onPressed: () => Navigator.of(context).pop()
-                ),
-              ],
-            ));
+          title: new Text(title),
+          content: new Text(content),
+          actions: <Widget>[
+            showCancel 
+            ?
+            new FlatButton(
+              child: const Text("cancel"),
+              onPressed: (() {
+                Navigator.of(context).pop();
+                return accepted = false;
+              }))
+            : 
+            null, 
+
+            new FlatButton(
+              child: const Text("OK"),
+              onPressed: (() {
+                Navigator.of(context).pop();
+                return accepted = true;
+              })
+            ),
+          ],
+        )).then((dynamic val) {
+          return accepted;
+        });
   }
 
-  static logout(BuildContext context){
+  static logout(BuildContext context) async {
     CacheUtil _cache = new CacheUtil();
-    // TODO: Write a method to clear only current user
-    // clear all users for now, later we will remove just current
-    _cache.clearAllUsers();
+    ApiAuth _auth = new ApiAuth();
 
-    // push to the home page and remove everything from stack
-    Navigator.of(context).pushNamedAndRemoveUntil('/',
+    User user = await _cache.getCurrentUser(); 
+    bool loggedOut = await _auth.destroyAPIKey(user);
+
+    if(loggedOut){
+      await _cache.clearAllUsers();
+
+      // push to the home page and remove everything from stack
+      Navigator.of(context).pushNamedAndRemoveUntil('/',
               (Route<dynamic> route) => false);
+    }
+    // TODO: Write a method to clear only current user
+    // clear all users for now, later we will remove just current    
   }
 }

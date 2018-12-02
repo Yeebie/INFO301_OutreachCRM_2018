@@ -5,6 +5,7 @@ import 'package:outreach/models/contact.dart';
 import 'package:outreach/view-models/contacts_state.dart';
 import 'package:outreach/views/widgets/appbar.dart';
 import 'package:outreach/views/widgets/contact_item.dart';
+import 'package:outreach/views/widgets/drawer.dart';
 import 'package:outreach/views/widgets/list_header.dart';
 
 class ContactsView extends ContactsState {
@@ -12,18 +13,22 @@ class ContactsView extends ContactsState {
   Widget build(BuildContext context) {
     Size phoneSize = MediaQuery.of(context).size;
     final double statusbarHeight = MediaQuery.of(context).padding.top;
+    GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
     // initial loop to build widgets
     _buildContactItemList(contactMap, 0);
 
     return new ModalProgressHUD(
         inAsyncCall: fetchingInitialContacts,
         child: Scaffold(
+          key: _scaffoldKey,
+          drawer: new SettingsDrawer(user: user),
           appBar: new PreferredSize(
             preferredSize: Size.fromHeight(statusbarHeight + 50.0),
             child: new GradientAppBar(
                 title: "CONTACTS",
                 searchBar: false,
-                showBackButton: false
+                showBackButton: false,
+                scaffoldKey: _scaffoldKey,
               ),
           ),
           body: new Center(
@@ -31,6 +36,7 @@ class ContactsView extends ContactsState {
               padding: new EdgeInsets.only(top: 15),
               width: phoneSize.width * 0.9,
               child: ListView.builder(
+                scrollDirection: Axis.vertical,
                 itemCount: contactWidgetList == null ? 0 : contactWidgetList.length,
                 itemBuilder: (BuildContext context, int index) {
                   if (index >= contactWidgetList.length - 1) {
@@ -67,14 +73,14 @@ class ContactsView extends ContactsState {
         currentHeader = header;
 
         // build a header widget with contact list[0]
-        // print(" - "+header);
-        // print("\t$index : ${list[0].name}, ${list[0].uid}");
+        print(" - "+header);
+        print("\t$index : ${list[0].name}, ${list[0].uid}");
         contactWidgetList.add(headerAndContact(currentHeader, list[0]));
         index++;
 
         // loop over remaining contacts and add them to list
         for(int i = 1; i < list.length; i++) {
-          // print("\t$index : ${list[i].name}, ${list[i].uid}");
+          print("\t$index : ${list[i].name}, ${list[i].uid}");
           Widget item = new ContactItem(contact: list[i]);
           contactWidgetList.add(item);
           index++;
@@ -83,7 +89,7 @@ class ContactsView extends ContactsState {
       } else {
         // loop every contact and build a widget for each
         for(int i = 0; i < list.length; i++) {
-          // print("\t$index : ${list[i].name}, ${list[i].uid}");
+          print("\t$index : ${list[i].name}, ${list[i].uid}");
           Widget item = new ContactItem(contact: list[i]);
           contactWidgetList.add(item);
           index++;

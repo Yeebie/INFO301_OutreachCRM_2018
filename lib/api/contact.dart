@@ -26,8 +26,6 @@ class ContactAPI {
       _contactLimit = 24;
       // _contactLimit--;
     }
-    int x = _startIndex + _contactLimit;
-    int i = _startIndex;
     // e.g. [contact limit, start index]
     String _limit = "[$_contactLimit, $_startIndex]";
 
@@ -44,7 +42,6 @@ class ContactAPI {
       if(res['data'].toString() == '[]') throw new Exception("no more contacts");
       for(final contact in res["data"]) {
         Contact c = Contact.map(contact);
-        print("${i++} ${c.name}");
         list.add(c);
       }
       return list;

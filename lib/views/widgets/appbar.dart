@@ -9,6 +9,7 @@ class GradientAppBar extends StatelessWidget {
   final String title;
   final bool showBackButton;
   final void Function(String) search;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   // controller used to clear the text field
     final TextEditingController _controller = new TextEditingController();
@@ -18,6 +19,7 @@ class GradientAppBar extends StatelessWidget {
     @required this.title,
     @required this.showBackButton,
     this.search,
+    this.scaffoldKey,
   });
 
   @override
@@ -162,7 +164,7 @@ class GradientAppBar extends StatelessWidget {
         children: <Widget>[
           new IconButton(
             icon: new Icon(Icons.settings),
-            onPressed: (() => print("settings")),
+            onPressed: (() => scaffoldKey.currentState.openDrawer()),
             // set our icon to 9% of the phone width
             iconSize: size.width * 0.09,
             color: Colors.white,

@@ -58,8 +58,8 @@ class Login {
       Util.showDialogParent(
               "Logged out",
               "We logged you out because your API key was old, soz lol",
-              context)
-      .then((Null ignore) {
+              context, false)
+      .then((bool accepted) {
         // do this after we close it
         Util.logout(context);
       });

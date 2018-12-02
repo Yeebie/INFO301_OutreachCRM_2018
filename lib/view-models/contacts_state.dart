@@ -2,6 +2,7 @@ import 'package:outreach/api/contact.dart';
 import 'package:outreach/models/contact.dart';
 import 'package:outreach/models/user.dart';
 import 'package:outreach/util/cache_util.dart';
+import 'package:outreach/util/helpers.dart';
 import 'package:outreach/views/contacts_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,10 @@ abstract class ContactsState extends State<Contacts>
   var contactWidgetList = new List<Widget>();
   var contactMap = new Map<String, List<Contact>>();
 
-
   /// takes a list of contact instances and adds them
   /// to a map with the header stored as the key
   /// and the list as the paired value
-  void updateContactMap(List<Contact> contacts){
+  void _updateContactMap(List<Contact> contacts){
 
     // loop over all returned contacts
     // add them to corresponding list header
@@ -52,11 +52,12 @@ abstract class ContactsState extends State<Contacts>
     super.initState();
 
     getMoreContacts(page);
+
+      
   }
 
   @protected
   void getMoreContacts(int page) async {
-
     // await _cache.clearAllUsers();
     // grab the user from cache
     user == null
@@ -73,7 +74,7 @@ abstract class ContactsState extends State<Contacts>
       var newData = await getContacts(user, page, recentsRequested);
 
       // update our map with new data
-      updateContactMap(newData);
+      _updateContactMap(newData);
 
       // show loading modal for a second
       await Future.delayed(Duration(seconds: 1));
