@@ -4,23 +4,31 @@ import 'package:flutter/material.dart';
 /// A class for building an app bar based
 /// on dynamic variables passed to the
 /// constructor. e.g. back button or not
-class GradientAppBar extends StatelessWidget {
-  final bool searchBar;
-  final String title;
-  final bool showBackButton;
-  final void Function(String) search;
-  final GlobalKey<ScaffoldState> scaffoldKey;
+class GradientAppBar extends StatefulWidget {
+
+final bool searchBar;
+final String title;
+final bool showBackButton;
+final void Function(String) search;
+final GlobalKey<ScaffoldState> scaffoldKey;
+
+GradientAppBar({
+  @required this.searchBar,
+  @required this.title,
+  @required this.showBackButton,
+  this.search,
+  this.scaffoldKey,
+});
+
+  @override
+  _MyGradientAppBar createState() => _MyGradientAppBar();
+}
+
+class _MyGradientAppBar extends State<GradientAppBar> {
+  
 
   // controller used to clear the text field
-    final TextEditingController _controller = new TextEditingController();
-
-  GradientAppBar({
-    @required this.searchBar,
-    @required this.title,
-    @required this.showBackButton,
-    this.search,
-    this.scaffoldKey,
-  });
+  final TextEditingController _controller = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -31,19 +39,19 @@ class GradientAppBar extends StatelessWidget {
     return new Container(
       padding: new EdgeInsets.only(top: statusbarHeight),
       decoration: _gradientDecoration(),
-      child: searchBar
+      child: widget.searchBar
           ? new Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                  _showBackButton(context, showBackButton, phoneSize),
+                  _showBackButton(context, widget.showBackButton, phoneSize),
                   _searchBar(phoneSize, theme),
                   _settingsButton(phoneSize),
                 ])
           : new Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                  _showBackButton(context, showBackButton, phoneSize),
-                  _titleSection(title, phoneSize),
+                  _showBackButton(context, widget.showBackButton, phoneSize),
+                  _titleSection(widget.title, phoneSize),
                   _searchButton(phoneSize, context),
                   _settingsButton(phoneSize),
                 ]),
@@ -99,8 +107,8 @@ class GradientAppBar extends StatelessWidget {
   }
 
   void _doSomething(){
-    if(_controller.text != null){
-      search(_controller.text);
+    if(_controller.text != ""){
+      widget.search(_controller.text);
     }
   }
 
@@ -108,7 +116,7 @@ class GradientAppBar extends StatelessWidget {
     return new Expanded(
         child: new Container(
             padding: new EdgeInsets.only(
-                left: showBackButton ? size.width * 0.1 : size.width * 0.235),
+                left: widget.showBackButton ? size.width * 0.1 : size.width * 0.235),
             child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -164,7 +172,7 @@ class GradientAppBar extends StatelessWidget {
         children: <Widget>[
           new IconButton(
             icon: new Icon(Icons.settings),
-            onPressed: (() => scaffoldKey.currentState.openDrawer()),
+            onPressed: (() => widget.scaffoldKey.currentState.openDrawer()),
             // set our icon to 9% of the phone width
             iconSize: size.width * 0.09,
             color: Colors.white,

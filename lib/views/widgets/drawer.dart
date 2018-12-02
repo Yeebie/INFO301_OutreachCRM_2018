@@ -30,6 +30,9 @@ class _MySettingsDrawer extends State<SettingsDrawer> {
         children: <Widget>[
           _userAccountHeader(phoneSize),
           _contactUs(),
+          new Container(
+            height: phoneSize.height * .05,
+          ),
           _logout(context),
           _copyright()
         ],
@@ -78,7 +81,7 @@ class _MySettingsDrawer extends State<SettingsDrawer> {
       trailing: new Icon(Icons.close),
       onTap: (() {
         Util.showDialogParent(
-          "Logout",
+          "Confirm Logout",
           "Are you sure you wish to logout?",
           context,
           true
