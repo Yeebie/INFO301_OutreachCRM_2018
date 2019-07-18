@@ -8,7 +8,7 @@ class Util {
     FocusScope.of(context).requestFocus(new FocusNode());
   }
 
-  static showSnackBar(String text, GlobalKey<ScaffoldState> scaffoldKey
+  static showSnackBar(String text, GlobalKey<ScaffoldState> scaffoldKey,
                       bool isErrorMessage) {
     scaffoldKey.currentState
       .showSnackBar(
