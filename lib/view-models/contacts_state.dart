@@ -6,6 +6,7 @@ import 'package:outreach/util/helpers.dart';
 import 'package:outreach/views/contacts_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:outreach/models/contacts.dart';
 
 class Contacts extends StatefulWidget {
   @override
@@ -18,33 +19,13 @@ abstract class ContactsState extends State<Contacts>
   @protected
   bool hasMoreContacts = true;
   bool fetchingInitialContacts = true;
-  bool recentsRequested = false;
   int page = 0;
   final CacheUtil _cache = new CacheUtil();
   User user;
 
   var contactWidgetList = new List<Widget>();
-  var contactMap = new Map<String, List<Contact>>();
-
-  /// takes a list of contact instances and adds them
-  /// to a map with the header stored as the key
-  /// and the list as the paired value
-  void _updateContactMap(List<Contact> contacts){
-
-    // loop over all returned contacts
-    // add them to corresponding list header
-    for(final contact in contacts){
-      // the key is the letter at position 0
-      var key = contact.name[0].toUpperCase();
-
-      if(!recentsRequested) key = "RECENTS";
-
-      // put new list in if absent
-      contactMap.putIfAbsent(key, () => new List<Contact>());
-      // add the contact to the list under that key
-      contactMap[key].add(contact);
-    }
-  }
+  // var contactMap = new Map<String, List<Contact>>();
+  var contacts = new AllContacts();
 
 
   @override
@@ -71,16 +52,16 @@ abstract class ContactsState extends State<Contacts>
         "\n-------------------");
 
       // request contacts from api
-      var newData = await getContacts(user, page, recentsRequested);
+      var newData = await getContacts(user, page, contacts.recentsRequested);
 
       // update our map with new data
-      _updateContactMap(newData);
+      contacts.addContactsFromList(newData);
 
       // show loading modal for a second
       await Future.delayed(Duration(seconds: 1));
       setState(() {
         fetchingInitialContacts = false;
-        recentsRequested = true;
+        contacts.recentsRequested = true;
         // tell the state we have new items
       });
     } on Exception catch(e) {

@@ -14,8 +14,9 @@ class ContactsView extends ContactsState {
     Size phoneSize = MediaQuery.of(context).size;
     final double statusbarHeight = MediaQuery.of(context).padding.top;
     GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
     // initial loop to build widgets
-    _buildContactItemList(contactMap, 0);
+    _buildContactItemList(contacts.allContacts, 0);
 
     return new ModalProgressHUD(
         inAsyncCall: fetchingInitialContacts,
@@ -26,7 +27,6 @@ class ContactsView extends ContactsState {
             preferredSize: Size.fromHeight(statusbarHeight + 50.0),
             child: new GradientAppBar(
                 title: "CONTACTS",
-                searchBar: false,
                 showBackButton: false,
                 scaffoldKey: _scaffoldKey,
               ),
@@ -40,12 +40,10 @@ class ContactsView extends ContactsState {
                 itemCount: contactWidgetList == null ? 0 : contactWidgetList.length,
                 itemBuilder: (BuildContext context, int index) {
                   if (index >= contactWidgetList.length - 1) {
-                    // increase the page number
-                    // page++;
                     // if we can keep requesting: request
                     if (hasMoreContacts) {
                       getMoreContacts(page++);
-                      _buildContactItemList(contactMap, index);
+                      _buildContactItemList(contacts.allContacts, index);
                       return _progressIndicator(phoneSize);
                     }
                   }
