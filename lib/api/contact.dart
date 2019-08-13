@@ -3,7 +3,7 @@ import 'package:outreach/models/user.dart';
 import 'package:outreach/util/network_util.dart';
 
 class ContactAPI {
-  NetworkUtil _netUtil = new NetworkUtil();
+  NetworkUtil _http = new NetworkUtil();
 
   Future<List<Contact>> getContacts(User user, int page, bool recentsRequested){
     String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
@@ -26,13 +26,12 @@ class ContactAPI {
       _contactLimit = 24;
       // _contactLimit--;
     }
-    // e.g. [contact limit, start index]
+
     String _limit = "[$_contactLimit, $_startIndex]";
 
-    // if we haven't got the recents yet
     if(!recentsRequested) _order = "[['modified','DESC']]";
 
-    return _netUtil.post(_contactsURL, body: {
+    return _http.post(_contactsURL, body: {
       "apikey": user.apiKey,
       "properties": _properties,
       "conditions": _conditions,
@@ -48,6 +47,7 @@ class ContactAPI {
     });
   }
 
+
   Future<List<Contact>> searchContacts(String query, User user) {
     String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
     String _searchURL = "$_baseURL/query/user";
@@ -60,7 +60,7 @@ class ContactAPI {
 
     List<Contact> contactsFound = new List();
 
-    return _netUtil.post(_searchURL, body: {
+    return _http.post(_searchURL, body: {
       "apikey": user.apiKey,
       "properties": _properties,
       "search": _search,
@@ -74,5 +74,23 @@ class ContactAPI {
       }
       return contactsFound;
     });    
+  }
+
+
+  Future<Contact> getContactDetails(Contact contact, User user) {
+    String _baseURL = "https://${user.domain}.outreach.co.nz/api/0.2";
+    String _contactsURL = "$_baseURL/query/user";
+    String _properties = "['*']";
+    String _props = "['oid','o_title','o_first_name','o_middle_name','o_last_name','o_suffix','name_mailing','name_processed','o_company','o_mobile_phone','o_company_main_phone','o_business_phone','o_home_phone','o_email_address','o_web_page','o_business_fax','o_home_fax','o_job_title','o_department','o_business_street','o_business_street_2','o_business_street_3','o_business_city','o_business_state','o_business_postal_code','o_po_box','o_business_country','o_home_street','o_home_street_2','o_home_street_3','o_home_city','o_home_state','o_home_postal_code','o_spouse','o_home_country','o_email_2_address']";
+    String _conditions = "[['status','=','O'],['oid','==', '${contact.uid}']]";
+
+    return _http.post(_contactsURL, body: {
+      "apikey": user.apiKey,
+      "properties": _properties,
+      "conditions": _conditions
+    }).then((dynamic result) {
+      contact.addDetails(result["data"][0]);
+      return contact;
+    });
   }
 }
