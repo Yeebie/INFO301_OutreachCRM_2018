@@ -71,15 +71,18 @@ class ContactsView extends ContactsState {
         currentHeader = header;
 
         // build a header widget with contact list[0]
-        print(" - "+header);
-        print("\t$index : ${list[0].name}, ${list[0].uid}");
+        // print(" - "+header);
+        // print("\t$index : ${list[0].name}, ${list[0].uid}");
         contactWidgetList.add(headerAndContact(currentHeader, list[0]));
         index++;
 
         // loop over remaining contacts and add them to list
         for(int i = 1; i < list.length; i++) {
-          print("\t$index : ${list[i].name}, ${list[i].uid}");
-          Widget item = new ContactItem(contact: list[i]);
+          // print("\t$index : ${list[i].name}, ${list[i].uid}");
+          Widget item = new ContactItem(
+            contact: list[i],
+            onTap: () => getContact(list[i])
+          );
           contactWidgetList.add(item);
           index++;
         }
@@ -87,8 +90,11 @@ class ContactsView extends ContactsState {
       } else {
         // loop every contact and build a widget for each
         for(int i = 0; i < list.length; i++) {
-          print("\t$index : ${list[i].name}, ${list[i].uid}");
-          Widget item = new ContactItem(contact: list[i]);
+          // print("\t$index : ${list[i].name}, ${list[i].uid}");
+          Widget item = new ContactItem(
+            contact: list[i],
+            onTap: () => getContact(list[i])
+          );
           contactWidgetList.add(item);
           index++;
         }
@@ -104,7 +110,10 @@ class ContactsView extends ContactsState {
             new Padding(
                 padding: new EdgeInsets.fromLTRB(0, 10, 0, 10),
                 child: new ListHeader(headerText: header)),
-            new ContactItem(contact: contact)
+            new ContactItem(
+              contact: contact,
+              onTap: () => getContact(contact),
+            )
           ],
         ),
       );

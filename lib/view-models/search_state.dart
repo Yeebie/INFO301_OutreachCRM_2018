@@ -62,7 +62,9 @@ abstract class SearchState extends State<Search> with ContactAPI {
 
     String headerText = "${list.length.toString()} RESULTS";
     ListHeader header = new ListHeader(headerText: headerText);
+    SizedBox padding = SizedBox(height: 10,);
     contactsFound.add(header);
+    contactsFound.add(padding);
 
     for (Contact c in list) {
       ContactItem cItem = new ContactItem(contact: c);

@@ -29,7 +29,12 @@ class SearchView extends SearchState {
                 ? new Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                        new Text("Search Something"),
+                        new Text(
+                          "Search something . . .",
+                          style: TextStyle(
+                            fontSize: 20
+                          ),
+                        ),
                       ])
                 : new ListView.builder(
                     itemCount: contactsFound.length,
@@ -62,7 +67,7 @@ class SearchView extends SearchState {
               onChanged: onChangeHandler,
               autofocus: true,
               controller: controller,
-              style: new TextStyle(fontSize: 20),
+              style: new TextStyle(fontSize: 20, color: Colors.white),
               decoration: new InputDecoration(
                   hintText: "Search",
                   hintStyle: TextStyle(

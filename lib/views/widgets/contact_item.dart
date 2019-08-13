@@ -5,9 +5,11 @@ import 'package:outreach/models/contact.dart';
 class ContactItem extends StatelessWidget {
   // final List<Contact> list;
   final Contact contact;
+  final VoidCallback onTap;
 
   ContactItem({
     @required this.contact,
+    this.onTap,
   });
 
   @override
@@ -17,11 +19,14 @@ class ContactItem extends StatelessWidget {
 
 
     return new GestureDetector(
-      onTap: () {
-        // call a method to push to details page
-        String _oid = (contact.uid);
-        print("OID: $_oid");
-      },
+      // key: UniqueKey(),'
+      key: ValueKey(contact.uid),
+      // onTap: () {
+      //   // call a method to push to details page
+      //   String _oid = (contact.uid);
+      //   print("OID: $_oid");
+      // },
+      onTap: () => onTap(),
       child: new Container(
         decoration: new BoxDecoration(
           // we need this for the gesture detector 

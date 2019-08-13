@@ -28,4 +28,13 @@ class AllContacts {
       allContacts[key].add(contact);
     }
   }
+
+  void updateContact(Contact contact) {
+    // could probs speed it up by checking only recents n key
+    allContacts.forEach((key, contactList) => {
+      for(Contact c in contactList) {
+        if (c.uid == contact.uid) c = contact
+      }
+    });
+  }
 }

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:outreach/models/contacts.dart';
 
 class Contacts extends StatefulWidget {
+  Contacts({Key key}) : super(key: UniqueKey());
   @override
   ContactsView createState() => new ContactsView();
 }
@@ -24,9 +25,7 @@ abstract class ContactsState extends State<Contacts>
   User user;
 
   var contactWidgetList = new List<Widget>();
-  // var contactMap = new Map<String, List<Contact>>();
   var contacts = new AllContacts();
-
 
   @override
   void initState(){
@@ -37,10 +36,10 @@ abstract class ContactsState extends State<Contacts>
       
   }
 
+
   @protected
   void getMoreContacts(int page) async {
     // await _cache.clearAllUsers();
-    // grab the user from cache
     user == null
       ? user = await _cache.getCurrentUser()
       : user = user;
@@ -71,5 +70,26 @@ abstract class ContactsState extends State<Contacts>
         // tell the state we can't request anymore
       });
     }
+  }
+
+
+  @protected
+  void getContact(Contact contact) async {
+    user == null
+      ? user = await _cache.getCurrentUser()
+      : user = user;
+
+    if (contact.hasDetails) {
+      print('has Details!!!!');
+    } else {
+      contact = await getContactDetails(contact, user);
+    }
+
+    // contact = await 
+    Navigator.pushNamed(
+      context,
+      '/contact',
+      arguments: contact
+    );
   }
 }

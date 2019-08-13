@@ -5,11 +5,6 @@ import 'util/routes.dart';
 
 void main() {
   runApp(new MyApp());
-  print("\n");
-  print("Outreach: Flutter Application");
-  print("Branch:   refactor");
-  print("Build:    REFACTOR");
-  print("\n");
 }
 
 class MyApp extends StatelessWidget {
