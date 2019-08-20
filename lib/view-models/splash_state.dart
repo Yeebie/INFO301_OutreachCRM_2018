@@ -22,7 +22,8 @@ abstract class SplashState extends State<Splash> with Login {
     } else{ // if we do find a user
       try{
         // validate the api key
-        await doKeyValidation(context, user).then((dynamic val){
+        await doKeyValidation(context, user)
+        .then((dynamic val) {
           Navigator.of(context).pushReplacementNamed('/contacts');
         });
       } on Exception catch(e) {

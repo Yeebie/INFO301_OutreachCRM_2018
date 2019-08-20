@@ -40,13 +40,14 @@ abstract class ContactsState extends State<Contacts>
   @protected
   void getMoreContacts(int page) async {
     // await _cache.clearAllUsers();
+
     user == null
       ? user = await _cache.getCurrentUser()
       : user = user;
 
     try{
       print(
-        "-------------------"
+        "\n-------------------"
         "\nREQUESTING CONTACTS"
         "\n-------------------");
 
